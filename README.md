@@ -16,7 +16,7 @@ TL;DR To get a look at the AI in action, start up the game and watch your own bu
 You'll need Python 3, with the following packages: 
 matplotlib, 
 numpy, 
-tkinter
+tkinter,
 transitions (written by tyarkoni)
 
 # TO RUN
