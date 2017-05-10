@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 matplotlib.use('TkAgg')
 
-# import matplotlib.cbook as cbook
-
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 import tkinter as tk
+
+import copy
 
 #WARNING: throws error if run from here. Import to economy directory and run from there. Necessary because image files are stored there.
 
@@ -124,21 +124,6 @@ class display_controller(tk.Frame):
         frame.update_frame(*args)
         self.show_frame(page_name)
 
-    # def show_production(self, xy):
-    #     self.frames["matplotlib_display"].production(xy)
-    #     self.show_frame("matplotlib_display")
-
-    # def show_employees(self, unitEmpDict):
-    #     # self.frames["matplotlib_display"].employees(unitEmpDict)
-    #     # self.show_frame("matplotlib_display")
-
-    #     self.frames["main_display"].employees(unitEmpDict)
-    #     self.show_frame("main_display")
-
-    # def test_bar(self):
-    #     self.frames["matplotlib_display"].bar_chart(["a", "bb", "c"],[5,7,18],"testx", "testy", "test_title")
-    #     self.show_frame("matplotlib_display")
-
     def bar_chart(self, x, y, xlabel, ylabel, title):
         self.frames["matplotlib_display"].bar_chart(x, y, xlabel, ylabel, title)
         self.show_frame("matplotlib_display")
@@ -213,53 +198,6 @@ class matplotlib_display(tk.Frame):
         leftBar.pack(side=tk.LEFT)
         graphScreen.pack(side=tk.LEFT, expand=True)
         rightBar.pack(side=tk.LEFT)
-
-    # def production(self, xy):
-    #     # xy = business.getProduction()
-    #     x = xy[0]
-    #     y = xy[1]
-    #     materials = d.getMaterials()
-
-    #     labels = (mat for mat in materials)
-
-    #     self.fig.clf()
-    #     graph = self.fig.add_subplot(1,1,1)
-
-    #     ##this section will add a background image, but it causes issues. Don't solve this yet, focus on basic functionality!
-    #     # parchment = mpimg.imread("./images/parchment.gif")
-    #     # graph.imshow(parchment)
-    #     graph.bar(x,y)
-
-    #     graph.set_title("Production")
-    #     graph.set_xlabel("Material")
-    #     graph.set_ylabel("Amount produced")
-
-    #     graph.set_xticks(range(len(materials)))
-    #     graph.set_xticklabels(labels)
-
-
-    # def employees(self, empDict):
-    #     entityList = list(empDict.keys())
-
-    #     labels = [entity.getName() for entity in entityList]
-    #     x = [None for i in range(len(entityList))]
-    #     y = [None for i in range(len(entityList))]
-
-    #     for i in range(len(entityList)):
-    #         entity = entityList[i]
-    #         x[i] = i
-    #         y[i] = len(empDict[entity])
-
-    #     self.fig.clf()
-    #     graph = self.fig.add_subplot(1,1,1)
-    #     graph.bar(x,y)
-
-    #     graph.set_title("Employees")
-    #     graph.set_xlabel("Employment")
-    #     graph.set_ylabel("Number of Employees")
-
-    #     graph.set_xticks(range(len(entityList)))
-    #     graph.set_xticklabels(labels)
 
     # x, y are arrays
     def bar_chart(self, x, y, xlabel, ylabel, title):
@@ -371,7 +309,8 @@ class key_controller(tk.Frame):
 
         self.frames = {}
 
-        for keyboard in (main_keyboard, businessMenu, businessData, unitMenu, unitData, jobsMenu, jobData, ordersMenu, house, town):
+        for keyboard in (main_keyboard, businessMenu, businessData, unitMenu, unitData, jobsMenu, new_job, jobData, 
+            ordersMenu, new_order, house, town):
             page_name = keyboard.__name__
             frame = keyboard(parent=self, controller=self, root=root)
             self.frames[page_name] = frame
@@ -400,6 +339,46 @@ class key_controller(tk.Frame):
     def get_job(self):
         return self.frames["jobData"].job
 
+    def isInt(self, P):
+        isInt = False
+        
+        try:
+            int(P)
+            isInt = True
+        except ValueError:
+            isInt = False
+
+        return isInt
+
+    # def cull_wrong_orders(self, orders):
+    #     culled_orders = []
+
+    #     for order in orders:
+    #         if order.getJob() == self.get_job():
+    #             culled_orders.append(order)
+
+    #     return culled_orders
+
+    def create_order(self, order_var, amount_var):
+        def callback():
+            import orders as o
+
+            business = self.get_business()
+            job = self.get_job()
+            materialIndex = d.getMaterials().index(order_var.get())
+
+            order = business.craftOrderManager(job, materialIndex)
+            order.setAmount(amount_var.get())
+
+        return callback
+
+    def set_order_amount(self, order, amountVar):
+
+        def callback():
+            order.setAmount(int(amountVar.get()))
+        
+        return callback
+
     def show_production(self, entity):
         display_cont = self.root.get_display_cont()
         xy = entity.getProduction()
@@ -417,13 +396,6 @@ class key_controller(tk.Frame):
 
         display_cont.bar_chart(x, y, "Employment", "Employees", entity.name + " Staff")
 
-    # def test_bar(self):
-    #     display_cont = self.root.get_display_cont()
-    #     display_cont.test_bar()
-
-
-
-
 
 
 
@@ -437,20 +409,14 @@ class main_keyboard(tk.Frame):
         businesses = tk.Button(self, text="Businesses", font=BUTTON_FONT, command=lambda: controller.show_frame("businessMenu"))
         house = tk.Button(self,      text="House",      font=BUTTON_FONT, command=lambda: controller.show_frame("house"))
         town = tk.Button(self,       text="Town",       font=BUTTON_FONT, command=lambda: controller.show_frame("town"))
-        # test_bar = tk.Button(self, text="test_bar", command=controller.test_bar)
 
         header.pack(fill=tk.X)
         businesses.pack(fill=tk.X)
         house.pack(fill=tk.X)
         town.pack(fill=tk.X)
-        # test_bar.pack(fill=tk.X)
 
     def raise_frame(self):
         self.tkraise()
-
-
-
-
 
 
 
@@ -530,10 +496,6 @@ class businessData(tk.Frame):
 
 
 
-
-
-
-
 class unitMenu(tk.Frame):
     
     def __init__(self, parent, controller, root):
@@ -546,7 +508,7 @@ class unitMenu(tk.Frame):
         self.main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
-        self.main.pack()
+        self.main.pack(fill=tk.X)
 
     def callbackFactory(self, unit):
         def callback():
@@ -618,10 +580,12 @@ class jobsMenu(tk.Frame):
         self.root = root
         self.dynamic_buttons = []
         header = tk.Label(self, text="Jobs", font=TITLE_FONT)
+        new_job = tk.Button(self, text="New job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job"))
         self.main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
-        self.main.pack()
+        new_job.pack(fill=tk.X)
+        self.main.pack(fill=tk.X)
 
     def callbackFactory(self, job):
         def callback():
@@ -646,6 +610,56 @@ class jobsMenu(tk.Frame):
         self.main.pack(fill=tk.X)
 
         self.tkraise()
+
+
+
+
+class new_job(tk.Frame):
+
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+
+        header = tk.Label(self, text="New Job", font=TITLE_FONT)
+
+        self.job_var = tk.StringVar()
+        job_list = self.get_jobs()
+        jobs = tk.OptionMenu(self, self.job_var, *job_list)
+
+        ok = tk.Button(self, text="Ok", font=BUTTON_FONT, command=self.create_job)
+        main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+
+        header.pack()
+        jobs.pack()
+        ok.pack()
+        main.pack(fill=tk.X)
+
+    def raise_frame(self):
+        self.tkraise()
+
+    def get_jobs(self):
+        from jobs import all_jobs
+        
+        job_list = []
+
+        for job in all_jobs():
+            job_list.append(job.jobType)
+
+        return job_list
+
+    def create_job(self):
+        from jobs import all_jobs
+
+        jobType = self.job_var.get()
+
+        for job in all_jobs():
+            if job.jobType == jobType:
+                break
+
+        new_job = job(10, self.controller.get_business(), self.controller.get_unit(), 40)
+
+
 
 
 
@@ -694,32 +708,13 @@ class ordersMenu(tk.Frame):
         self.root = root
         self.dynamic_entries = []
         header = tk.Label(self, text="Orders", font=TITLE_FONT)
-        new_order = tk.Button(self, text="New order", font=BUTTON_FONT)
+        new_order = tk.Button(self, text="New order", font=BUTTON_FONT, command=lambda: controller.show_frame("new_order"))
         self.main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
-        self.testVar = tk.StringVar()
-        self.test = tk.Label(self, textvariable=self.testVar)
+
 
         header.pack()
-        self.test.pack()
+        new_order.pack(fill=tk.X)
         self.main.pack()
-
-    def isInt(self, P):
-        isInt = False
-        
-        try:
-            int(P)
-            isInt = True
-        except ValueError:
-            isInt = False
-
-        return isInt
-
-    def set_amount(self, order, amountVar):
-
-        def callback():
-            order.setAmount(int(amountVar.get()))
-        
-        return callback
 
     def cull_wrong_orders(self, orders):
         culled_orders = []
@@ -745,9 +740,9 @@ class ordersMenu(tk.Frame):
             
             amountVar = tk.StringVar()
             amountVar.set(order.getAmount())
-            vcmd = (self.register(self.isInt), '%P')
+            vcmd = (self.register(self.controller.isInt), '%P')
             newEntry = tk.Entry(newFrame, validatecommand=vcmd, validate="key", textvariable=amountVar)
-            newButton = tk.Button(newFrame, font=BUTTON_FONT, text="Ok", command=self.set_amount(order, amountVar))
+            newButton = tk.Button(newFrame, font=BUTTON_FONT, text="Ok", command=self.controller.set_order_amount(order, amountVar))
 
             newCaption.pack(side=tk.LEFT)
             newEntry.pack(side=tk.LEFT)
@@ -760,49 +755,64 @@ class ordersMenu(tk.Frame):
 
         self.tkraise()
 
-# class new_order(tk.Frame):
 
-#     def __init__(self, parent, controller, root):
-#         tk.Frame.__init__(self, parent)
-#         self.controller = controller
-#         self.root = root
-#         header = tk.Label(self, text="Create a new Order", font=TITLE_FONT)
 
-#         test_box = tk.Listbox(self)
-#         test_box.insert(0, "test")
-#         for item in ["test2", "test3", "test4", "test3"]:
-#             test_box.insert(tk.END, item)
 
-#         location_var = tk.StringVar()
-#         location_menu = tk.OptionMenu(self, location_var, *["one", "two", "three"])
+class new_order(tk.Frame):
 
-#         job_var = tk.StringVar()
-#         job_menu = tk.OptionMenu(self, job_var, "one", "two", "three")
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+        header = tk.Label(self, text="Create a new Order", font=TITLE_FONT)
 
-#         order_var = tk.StringVar()
-#         order_menu = tk.OptionMenu(self, order_var, "one", "two", "three")
+        products = copy.copy(d.getMaterials())
+        order_var = tk.StringVar()
+        order = tk.OptionMenu(self, order_var, *products)
 
-#         amount_var = tk.StringVar()
-#         amount_entry = tk.Entry(self)
+        amount_var = tk.StringVar()
+        vcmd = (self.register(self.controller.isInt), '%P')
+        amount = tk.Entry(self, validatecommand=vcmd, validate="key", textvariable=amount_var)
 
-#         to_var = tk.StringVar()
-#         to_menu = tk.OptionMenu(self, to_var, "one", "two", "three")
+        ok = tk.Button(self, text="OK", font=BUTTON_FONT, command=self.controller.create_order(order_var, amount_var))
+        main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
-#         from_var = tk.StringVar()
-#         from_menu = tk.OptionMenu(self, from_var, "one", "two", "three")
+        header.pack()
+        order.pack()
+        amount.pack()
+        ok.pack()
+        main.pack()
+
+    def raise_frame(self):
+        self.tkraise()
+
+    # def isInt(self, P):
+    #     isInt = False
         
-#         header.pack()
-#         test_box.pack()
-#         location_menu.pack()
-#         job_menu.pack()
-#         order_menu.pack()
-#         amount_entry.pack()
-#         to_menu.pack()
-#         from_menu.pack()
+    #     try:
+    #         int(P)
+    #         isInt = True
+    #     except ValueError:
+    #         isInt = False
 
-    # def raise_frame(self):
-    #     self.tkraise()
+    #     return isInt
 
+    # def set_amount(self, order, amountVar):
+
+    #     def callback():
+    #         order.setAmount(int(amountVar.get()))
+        
+    #     return callback
+
+    # def create_order(self):
+    #     import orders as o
+
+    #     business = self.controller.get_business()
+    #     job = self.controller.get_job()
+    #     materialIndex = d.getMaterials().index(self.order_var.get())
+
+    #     order = business.craftOrderManager(job, materialIndex)
+    #     order.setAmount(self.amount_var.get())
 
 
 

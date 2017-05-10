@@ -2,7 +2,6 @@ import database as d
 import abc
 
 #Orders allow a Business to queue method calls from their Jobs in a particular order, to be performed daily.
-#only human players should use orders
 class Order(object):
 
     def __init__(self, business, job):

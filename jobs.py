@@ -3,6 +3,10 @@ import random
 import copy
 from conversation import Convo
 
+def all_jobs():
+    job_list = [Baker, Brewer, Carrier, Farmer, Manager, Miller, Lumberjack, Carpenter, Priest]
+    return job_list
+
 class Job(object):
 
     jobType = "Generic_job"
@@ -199,7 +203,6 @@ class Farmer(Job):
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
         self.business.addHarvestJob(self)
-
 
     #simple, for now
     def plant(self, materialIndex, amount):

@@ -41,18 +41,18 @@ materialsList = ["wheat", "flour", "beer", "bread", "meat", "fruit", "wood", "ch
 unitMissions = ["manu", "store", "house", "church"]
 
 #game objects
+#HOW MANY OF THESE ARE ACTUALLY USED?
 localityList = []
 businessList = []
 religionList = []
 unitList = []
 churchList = []
-# jobList = []
 peopleList = []
 bossList = []
 
 #utility
 #people will buy up to the number below INCLUSIVE.
-utilityLimitList = [0,2,6,3, 2, 2, 0,2, 1]
+utilityLimitList = [0,2,6,3,2,2,0,2,1]
 utilityScaleList = [0,2,6,10,20,15,0,50,75]
 happinessMax = 80.8626720903
 
@@ -96,9 +96,6 @@ def getFirstNameList(gender):
     else:
         nameList = femaleNameList
     return nameList
-
-# def getJob():
-#     return jobList
 
 def getLastNameList():
     return lastNameList
