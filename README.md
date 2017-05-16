@@ -13,11 +13,11 @@ TL;DR To get a look at the AI in action, start up the game and watch your own bu
 
 # INSTALLATION
 
-You'll need Python 3, with the following packages: 
-matplotlib, 
-numpy, 
-tkinter
-transitions (written by tyarkoni)
+You'll need Python 3, with the following packages:  
+matplotlib  
+numpy  
+tkinter  
+transitions (written by tyarkoni)  
 
 # TO RUN
 
