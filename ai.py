@@ -106,15 +106,42 @@ class StartupAI(object):
 
 #factory for supply chains. 
 class Builder(object):
-    availableProperty = (0,3)
+    # availableProperty = (0,3)
 
     def __init__(self, model):
         self.model = model
 
-    #I know it's terrible, okay? It's not meant to be good.
-    def findProperty(self, locality):
-        self.availableProperty = (self.availableProperty[0] + 1, self.availableProperty[1])
-        return self.availableProperty
+    # def check_node(self, node):
+    #     is_empty = False
+        
+    #     if node is None:
+    #         is_empty = True
+        
+    #     return is_empty
+
+    # #algorithm checks indices reflected around the diagonal, starting from upper left
+    # #I feel like this algorithm is confusing, but it's the best I can do right now
+    # def findProperty(self, locality):
+    #     local_map = locality.local_map
+    #     xy = None
+
+    #     for i in range(len(local_map)):
+
+    #         j = 0
+            
+    #         if xy is not None:
+    #             break
+
+    #         while i >= j:
+    #             if self.check_node(local_map[i][j]):
+    #                 xy = (i,j)
+    #                 break
+    #             if self.check_node(local_map[j][i]):
+    #                 xy = (j,i)
+    #                 break
+    #             j += 1
+
+    #     return xy
 
     def initial_demand(self, unit):
         for i in range(len(unit.can_make)):
@@ -155,9 +182,11 @@ class Builder(object):
 
             transferOrder = business.transferOrderManager(business.jobList[0], job.unit, i)
             transferOrder.setAmount(10)
+
+    
         
     def buildIt(self, business, locality, toBuild):
-        unitLocation = self.findProperty(locality)
+        unitLocation = locality.find_property()
         existingUnits = business.getUnits()
         nonesuch = True
 
@@ -169,6 +198,7 @@ class Builder(object):
 
         if nonesuch:
             newUnit = toBuild(toBuild.unitType, locality, unitLocation, business)
+            locality.claim_node(unitLocation, newUnit)
             self.initial_demand(newUnit)
             new_job = self.jobMaker(newUnit)
             self.craftOrderMaker(new_job)
@@ -431,3 +461,39 @@ class SalaryPayer(object):
                 laborCost += totalSalary
 
             unit.setLaborTotal(laborCost)
+
+
+# # # test
+
+# def check_node(node):
+#         is_empty = False
+        
+#         if node is None:
+#             is_empty = True
+        
+#         return is_empty
+
+# def findProperty(local_map):
+#         # local_map = locality.local_map
+
+#         j = 0
+#         xy = None
+#         for i in range(len(local_map)):
+
+#             j = 0
+            
+#             if xy is not None:
+#                 print("not None")
+#                 break
+
+#             while i >= j:
+#                 print(i, j)
+#                 if check_node(local_map[i][j]):
+#                     xy = (i,j)
+#                     break
+#                 if check_node(local_map[j][i]):
+#                     xy = (j,i)
+#                     break
+#                 j += 1
+
+#         return xy

@@ -309,8 +309,13 @@ class key_controller(tk.Frame):
 
         self.frames = {}
 
-        for keyboard in (main_keyboard, businessMenu, businessData, unitMenu, unitData, jobsMenu, new_job, jobData, 
-            ordersMenu, new_order, house, town):
+        for keyboard in (main_keyboard, 
+            businessMenu, new_business, businessData, 
+            unitMenu, new_unit, unitData, 
+            jobsMenu, new_job, jobData, 
+            ordersMenu, new_order, 
+            house, town):
+
             page_name = keyboard.__name__
             frame = keyboard(parent=self, controller=self, root=root)
             self.frames[page_name] = frame
@@ -343,21 +348,12 @@ class key_controller(tk.Frame):
         isInt = False
         
         try:
-            int(P)
+            int('0' + P)
             isInt = True
         except ValueError:
             isInt = False
 
         return isInt
-
-    # def cull_wrong_orders(self, orders):
-    #     culled_orders = []
-
-    #     for order in orders:
-    #         if order.getJob() == self.get_job():
-    #             culled_orders.append(order)
-
-    #     return culled_orders
 
     def create_order(self, order_var, amount_var):
         def callback():
@@ -429,9 +425,11 @@ class businessMenu(tk.Frame):
         self.root = root
         self.dynamic_buttons = []
         header = tk.Label(self,     text="Businesses",     font=TITLE_FONT)
-        self.main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        new_bus = tk.Button(self, text="New Business", font=BUTTON_FONT, command=lambda: controller.show_frame("new_business"))
+        self.main = tk.Button(self, text="Return to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
+        new_bus.pack(fill=tk.X)
         self.main.pack(fill=tk.X)
 
     #we need a separate scope for the business variable of each button- otherwise it will just pass the last one to all.
@@ -460,6 +458,48 @@ class businessMenu(tk.Frame):
 
 
 
+class new_business(tk.Frame):
+
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+
+        header = tk.Label(self, text="Create a New Business", font=TITLE_FONT)
+
+        self.business_name = tk.StringVar()
+        name = tk.Entry(self, textvariable=self.business_name)
+
+        cash = tk.Label(self, text="Starting cash:", font=TEXT_FONT)
+
+        self.amountVar = tk.StringVar()
+        vcmd = (self.register(self.controller.isInt), '%P')
+        amount = tk.Entry(self, validatecommand=vcmd, validate="key", textvariable=self.amountVar)
+        ok = tk.Button(self, text="Ok", font=BUTTON_FONT, command=self.create_business)
+
+        back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("businessMenu"))
+        main = tk.Button(self, text="Return to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+
+        header.pack()
+        name.pack()
+        cash.pack()
+        amount.pack()
+        ok.pack()
+        back.pack(fill=tk.X)
+        main.pack(fill=tk.X)
+
+    def raise_frame(self):
+        self.tkraise()
+
+    def create_business(self):
+        busiName = self.business_name.get()
+        busiCash = int("0" + self.amountVar.get())
+
+        self.business_name.set(self.root.char.startBusiness(busiName, busiCash))
+
+
+
+
 
 class businessData(tk.Frame):
 
@@ -476,7 +516,7 @@ class businessData(tk.Frame):
         production = tk.Button(self,    text="Production",        font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
         employees = tk.Button(self,     text="Employees"  ,       font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
         ledger = tk.Button(self,        text="Ledger",            font=BUTTON_FONT)
-        back = tk.Button(self,          text="Other businesses",  font=BUTTON_FONT, command=lambda: controller.show_frame("businessMenu"))
+        back = tk.Button(self,          text="Back",              font=BUTTON_FONT, command=lambda: controller.show_frame("businessMenu"))
 
         header.pack(fill=tk.X)
         units.pack(fill=tk.X)
@@ -489,8 +529,9 @@ class businessData(tk.Frame):
         self.business = business
         self.busiName.set(business.getName())
 
-    def raise_frame(self, business):
-        self.setBusiness(business)
+    def raise_frame(self, business=None):
+        if business is not None:
+            self.setBusiness(business)
         self.tkraise()
 
 
@@ -504,10 +545,14 @@ class unitMenu(tk.Frame):
         self.root = root
         self.dynamic_buttons = []
         header = tk.Label(self, text="Units", font=TITLE_FONT)
+        new_unit = tk.Button(self, text="New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
 
+        self.back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("businessData"))
         self.main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
+        new_unit.pack(fill=tk.X)
+        self.back.pack(fill=tk.X)
         self.main.pack(fill=tk.X)
 
     def callbackFactory(self, unit):
@@ -529,10 +574,72 @@ class unitMenu(tk.Frame):
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
 
+        self.back.pack_forget()
         self.main.pack_forget()
+        self.back.pack(fill=tk.X)
         self.main.pack(fill=tk.X)
 
         self.tkraise()
+
+
+
+
+class new_unit(tk.Frame):
+
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+
+        header = tk.Label(self, text="New Unit", font=TITLE_FONT)
+
+        self.unit_var = tk.StringVar()
+        self.unit_name = tk.StringVar()
+        unit_list = self.get_units()
+        units = tk.OptionMenu(self, self.unit_var, *unit_list)
+        name = tk.Entry(self, textvariable=self.unit_name)
+
+        ok = tk.Button(self, text="Ok", font=BUTTON_FONT, command=self.create_unit)
+
+        back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("unitMenu"))
+        main = tk.Button(self, text="Return to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+
+        header.pack()
+        units.pack()
+        name.pack()
+        ok.pack()
+        back.pack(fill=tk.X)
+        main.pack(fill=tk.X)
+    
+    def raise_frame(self):
+        self.tkraise()
+
+    def get_units(self):
+        from unit import all_units
+
+        unit_list = []
+
+        for unit in all_units():
+            unit_list.append(unit.unitType)
+
+        return unit_list
+
+    def create_unit(self):
+        from unit import all_units
+
+        unitType = self.unit_var.get()
+
+        for unit in all_units():
+            if unit.unitType == unitType:
+                break
+
+        name = self.unit_name.get()
+        business = self.controller.get_business()
+        locality = business.locality
+        location = locality.find_property()
+
+        new_unit = unit(name, locality, location, business)
+
 
 
 
@@ -547,12 +654,12 @@ class unitData(tk.Frame):
         self.unitName = tk.StringVar()
         self.unitName.set("nothing")
 
-        header = tk.Label(self, textvariable=self.unitName,       font=TITLE_FONT)
-        jobs = tk.Button(self,          text="Jobs",               font=BUTTON_FONT, command=lambda: controller.show_frame("jobsMenu"))
-        production = tk.Button(self,    text="Production",        font=BUTTON_FONT, command=lambda: controller.show_production(self.unit))
-        employees = tk.Button(self,     text="Employees"  ,       font=BUTTON_FONT, command=lambda: controller.show_employees(self.unit))
-        ledger = tk.Button(self,        text="Ledger",            font=BUTTON_FONT)
-        back = tk.Button(self,          text="Other units",       font=BUTTON_FONT, command=lambda: controller.show_frame("unitMenu"))
+        header = tk.Label(self, textvariable=self.unitName, font=TITLE_FONT)
+        jobs = tk.Button(self, text="Jobs", font=BUTTON_FONT, command=lambda: controller.show_frame("jobsMenu"))
+        production = tk.Button(self, text="Production", font=BUTTON_FONT, command=lambda: controller.show_production(self.unit))
+        employees = tk.Button(self, text="Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.unit))
+        ledger = tk.Button(self, text="Ledger", font=BUTTON_FONT)
+        back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("unitMenu"))
 
         header.pack(fill=tk.X)
         jobs.pack(fill=tk.X)
@@ -565,8 +672,9 @@ class unitData(tk.Frame):
         self.unit = unit
         self.unitName.set(unit.getName())
 
-    def raise_frame(self, unit):
-        self.setUnit(unit)
+    def raise_frame(self, unit=None):
+        if unit is not None:
+            self.setUnit(unit)
         self.tkraise()
 
 
@@ -579,8 +687,11 @@ class jobsMenu(tk.Frame):
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
+
         header = tk.Label(self, text="Jobs", font=TITLE_FONT)
         new_job = tk.Button(self, text="New job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job"))
+
+        self.back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
         self.main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
@@ -606,7 +717,9 @@ class jobsMenu(tk.Frame):
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
 
+        self.back.pack_forget()
         self.main.pack_forget()
+        self.back.pack(fill=tk.X)
         self.main.pack(fill=tk.X)
 
         self.tkraise()
@@ -628,11 +741,14 @@ class new_job(tk.Frame):
         jobs = tk.OptionMenu(self, self.job_var, *job_list)
 
         ok = tk.Button(self, text="Ok", font=BUTTON_FONT, command=self.create_job)
+
+        back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("jobsMenu"))
         main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
         jobs.pack()
         ok.pack()
+        back.pack(fill=tk.X)
         main.pack(fill=tk.X)
 
     def raise_frame(self):
@@ -693,8 +809,9 @@ class jobData(tk.Frame):
         self.job = job
         self.jobName.set(job.jobType)
     
-    def raise_frame(self, job):
-        self.setJob(job)
+    def raise_frame(self, job=None):
+        if job is not None:
+            self.setJob(job)
         self.tkraise()
 
 
@@ -709,8 +826,9 @@ class ordersMenu(tk.Frame):
         self.dynamic_entries = []
         header = tk.Label(self, text="Orders", font=TITLE_FONT)
         new_order = tk.Button(self, text="New order", font=BUTTON_FONT, command=lambda: controller.show_frame("new_order"))
+        
+        self.back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("jobData"))
         self.main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
-
 
         header.pack()
         new_order.pack(fill=tk.X)
@@ -750,7 +868,9 @@ class ordersMenu(tk.Frame):
             newFrame.pack()
             self.dynamic_entries.append(newFrame)
 
+        self.back.pack_forget()
         self.main.pack_forget()
+        self.back.pack(fill=tk.X)
         self.main.pack(fill=tk.X)
 
         self.tkraise()
@@ -775,44 +895,18 @@ class new_order(tk.Frame):
         amount = tk.Entry(self, validatecommand=vcmd, validate="key", textvariable=amount_var)
 
         ok = tk.Button(self, text="OK", font=BUTTON_FONT, command=self.controller.create_order(order_var, amount_var))
+        back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("ordersMenu"))
         main = tk.Button(self, text="Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
         order.pack()
         amount.pack()
         ok.pack()
+        back.pack()
         main.pack()
 
     def raise_frame(self):
         self.tkraise()
-
-    # def isInt(self, P):
-    #     isInt = False
-        
-    #     try:
-    #         int(P)
-    #         isInt = True
-    #     except ValueError:
-    #         isInt = False
-
-    #     return isInt
-
-    # def set_amount(self, order, amountVar):
-
-    #     def callback():
-    #         order.setAmount(int(amountVar.get()))
-        
-    #     return callback
-
-    # def create_order(self):
-    #     import orders as o
-
-    #     business = self.controller.get_business()
-    #     job = self.controller.get_job()
-    #     materialIndex = d.getMaterials().index(self.order_var.get())
-
-    #     order = business.craftOrderManager(job, materialIndex)
-    #     order.setAmount(self.amount_var.get())
 
 
 

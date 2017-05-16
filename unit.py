@@ -1,6 +1,12 @@
 import database as d
 import copy
 
+#doesn't include House because that throws an error with *args. If you want to add it back, you'll have to use **kwargs and fix
+#the places that already use it.
+def all_units():
+    unit_list = [Farm, Mill, Brewery, Bakery, Lumberyard, Joinery, Warehouse, Church]
+    return unit_list
+
 class Unit(object):
     unitType = "genericUnit"
     character = "X"
@@ -43,6 +49,9 @@ class Unit(object):
         self.can_make   = [False for material in stockLength]
         self.laborTotal = 0
         self.rentTotal  = 0
+
+    def __str__(self):
+        return self.character
 
     def toString(self):
         print("------------------------------------------")

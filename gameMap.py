@@ -57,9 +57,7 @@ class Locality(object):
         self.height = height
         self.name = name
         self.location = location
-        # self.clock = clock.Clock(self)
-        # self.week = clock.Week()
-        # self.calendar = clock.SecularCalendar()
+        self.local_map = [[None for x in range(width)] for y in range(height)]
         d.addLocality(self)
 
     def getName(self):
@@ -68,41 +66,70 @@ class Locality(object):
     def getWidth(self):
         return self.width
 
-    # temporarily getMap draws from unitList until database is established (should use api anyway)
     def getMap(self):
+        return self.local_map
+
+    def claim_node(self, xy, entity):
+        claimed = False
+        x = xy[0]
+        y = xy[1]
+
+        if self.local_map[x][y] is None:
+            self.local_map[x][y] = entity
+            claimed = True
+
+        return claimed
+    
+    def check_node(self, node):
+        is_empty = False
         
-        mLocalMap = [[None for y in range(self.height)] for x in range(self.width)]
+        if node is None:
+            is_empty = True
+        
+        return is_empty
 
-        for node in d.getUnit():
-            if (node.getLocality() == self):
-                x = node.location[0]
-                y = node.location[1]
-                mLocalMap[x][y] = node.character
+    #algorithm checks indices reflected around the diagonal, starting from upper left
+    #I feel like this algorithm is confusing, but it's the best I can do right now
+    def find_property(self):
+        xy = None
 
-        return mLocalMap
+        for i in range(len(self.local_map)):
+
+            j = 0
+            
+            if xy is not None:
+                break
+
+            while i >= j:
+                if self.check_node(self.local_map[i][j]):
+                    xy = (i,j)
+                    break
+                if self.check_node(self.local_map[j][i]):
+                    xy = (j,i)
+                    break
+                j += 1
+
+        return xy
 
     def printMap(self):
 
         print(self.name)
 
         mLocalMap = self.getMap()
-        mapHeight = len(mLocalMap[0])
-        y = 0
 
-        while (y < mapHeight):
+        for row in mLocalMap:
             
             rowAppearance = ""
             
-            for col in mLocalMap:
+            for i in row:
 
-                if (col[y] == None):
+                if (i == None):
                     rowAppearance = rowAppearance + "."
 
                 else:
-                    rowAppearance = rowAppearance + col[y]
+                    rowAppearance = rowAppearance + str(i)
             
             print(rowAppearance)
-            y += 1
 
     def getDayNum(self):
         return self.model.getDayNum()

@@ -92,3 +92,4 @@ for order in MillersMill.transferOrders:
     print(order.amount)
 
 WheatFarm.toString()
+Jonestown.printMap()

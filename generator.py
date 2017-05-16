@@ -25,13 +25,14 @@ class generator(object):
             y = 2 * ((count*2) // length)
             location = (x,y)
             gennedHouse = u.House(locality, location)
+            locality.claim_node(location, gennedHouse)
             houseList.append(gennedHouse)
 
         return houseList
 
     def generateLocality(self, l_location):
         #locality size, name static for now
-        gennedLocality = g.Locality(self.model, l_location,300,300,"Frankfurt")
+        gennedLocality = g.Locality(self.model, l_location,150,150,"Frankfurt")
         return gennedLocality
 
     def generatePeople(self, p_quantity, locality, houseList, religionList):
