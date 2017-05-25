@@ -161,7 +161,7 @@ class main_display(tk.Frame):
         self.mainScreen_var = tk.StringVar()
         intro = """Welcome to Jonestown!
 
-        You have just inherited a small mill from your beloved Uncle Bill.
+        You have just inherited a small bakery from your beloved Uncle Bill.
         Before he died you vowed to him that you would keep his business going.
         
         He left the bakery well provisioned for the next few days, but you're
