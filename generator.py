@@ -32,7 +32,7 @@ class generator(object):
 
     def generateLocality(self, l_location):
         #locality size, name static for now
-        gennedLocality = g.Locality(self.model, l_location,150,150,"Frankfurt")
+        gennedLocality = g.Locality(self.model, l_location,150,150,"Jonestown")
         return gennedLocality
 
     def generatePeople(self, p_quantity, locality, houseList, religionList):

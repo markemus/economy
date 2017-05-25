@@ -30,6 +30,10 @@ table   = [(WOOD_INDEX, 100)]
 
 components = [grain, flour, beer, bread, meat, fruit, wood, chair, table]
 
+#production types
+planted = ["wheat", "beer", "meat", "fruit", "wood"]
+crafted = ["flour", "bread", "chair", "table"]
+
 #name lists
 maleNameList = ['John','Jake','Joseph']
 femaleNameList = ['Jane','Joan','Jeanne']
@@ -64,6 +68,9 @@ def addLocality(locality):
 
 def addPeople(person):
     peopleList.append(person)
+
+def addBoss(boss):
+    bossList.append(boss)
 
 def addUnit(unit):
     unitList.append(unit)
@@ -129,3 +136,21 @@ def getUtilityLimit():
 
 def getUtilityScale():
     return utilityScaleList
+
+def is_planted(materialIndex):
+    is_planted = False
+    material = materialsList[materialIndex]
+    
+    if material in planted:
+        is_planted = True
+
+    return is_planted
+
+def is_crafted(materialIndex):
+    is_crafted = False
+    material = materialsList[materialIndex]
+
+    if material in crafted:
+        is_crafted = True
+
+    return is_crafted

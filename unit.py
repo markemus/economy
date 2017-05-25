@@ -1,5 +1,6 @@
 import database as d
 import copy
+import incubator as inc
 
 #doesn't include House because that throws an error with *args. If you want to add it back, you'll have to use **kwargs and fix
 #the places that already use it.
@@ -32,6 +33,7 @@ class Unit(object):
         self.location   = unitLocationTuple
         self.business   = business
         self.jobList    = []
+        self.incubator  = inc.incubator(self)
         self.stock      = [0 for material in stockLength]
         self.output     = [0 for material in stockLength]
         self.tech       = [0 for material in stockLength]
@@ -151,6 +153,26 @@ class Unit(object):
         # print("")
         # #endDebug
         self.resetSales()
+
+    def growingPlants(self, materialIndex):
+        return self.incubator.getGrowing(d.getMaterials()[materialIndex])
+
+    def ripePlants(self, materialIndex):
+        return self.incubator.getRipe(d.getMaterials()[materialIndex])
+
+    def plantSeeds(self, materialIndex, amount):
+        if self.stock[materialIndex] <= amount:
+            amount = self.stock[materialIndex]
+
+        self.stock[materialIndex] -= amount
+        self.incubator.plant(d.getMaterials()[materialIndex], amount)
+
+    def harvest(self, materialIndex, amount):
+        if self.ripePlants(materialIndex) >= amount:
+            amount = self.incubator.harvest(d.getMaterials()[materialIndex], amount)
+            self.addCrafted(materialIndex, amount)
+            self.addStock(materialIndex, amount)
+            #productDMC = 0 for now
 
     def getName(self):
         return self.name
@@ -359,6 +381,8 @@ class Unit(object):
 
 
 
+
+
 class Farm(Unit):
     unitType = "Farm"
     character = "F"
@@ -367,23 +391,23 @@ class Farm(Unit):
         Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.GRAIN_INDEX] = True
         self.tech[d.GRAIN_INDEX] = 16
-        self.growing = [0 for i in range(len(d.getMaterials()))]
+        # self.growing = [0 for i in range(len(d.getMaterials()))]
         self.missions[d.MANU_INDEX] = True
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
 
-    def availableSeeds(self, materialIndex):
-        return self.stock[materialIndex]
+    # def availableSeeds(self, materialIndex):
+    #     return self.stock[materialIndex]
 
-    def growingPlants(self, materialIndex):
-        return self.growing[materialIndex]
+    # def growingPlants(self, materialIndex):
+    #     return self.growing[materialIndex]
 
-    def plantSeeds(self, materialIndex, amount):
-        if self.stock[materialIndex] <= amount:
-            amount = self.stock[materialIndex]
+    # def plantSeeds(self, materialIndex, amount):
+    #     if self.stock[materialIndex] <= amount:
+    #         amount = self.stock[materialIndex]
 
-        self.growing[materialIndex] += amount
+    #     self.growing[materialIndex] += amount
 
 
 

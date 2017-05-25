@@ -252,6 +252,7 @@ class Character(p.People):
     def startBusiness(self, busiName, cash):
         newBusiness = None
         if self.capital >= cash:
+            self.capital -= cash
             newBusiness = bu.Business([self], busiName, self.locality, cash)
             self.businesses.append(newBusiness)
 

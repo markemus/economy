@@ -7,9 +7,9 @@ class Business(object):
     cash = 0
     locality = None
 
-    def __init__(self, owners, busiName, busiLocality, busiCash):
+    def __init__(self, owners, name, busiLocality, busiCash):
         self.owners             = owners
-        self.name               = busiName
+        self.name               = name
         self.locality           = busiLocality
         self.model              = self.locality.model
         self.cash               = busiCash
@@ -52,6 +52,9 @@ class Business(object):
     def getCraftOrders(self):
         return self.craftOrders
 
+    def getTransferOrders(self):
+        return self.transferOrders
+
     #addUnit should be called AFTER missions assignment.
     def addUnit(self, unit):
         self.m_unitList.append(unit)
@@ -83,6 +86,16 @@ class Business(object):
                 crafted[i] +=  thisCrafted[i]
 
         return ([0,1,2,3,4,5,6,7,8], crafted)
+
+    def getAllStock(self):
+        stock = [0,0,0,0,0,0,0,0,0]
+        for unit in self.m_unitList:
+            thisStock = unit.getAllStock()
+
+            for i in range(len(thisStock)):
+                stock[i] += thisStock[i]
+
+        return stock
 
     def getCash(self):
         return self.cash
@@ -197,6 +210,7 @@ class Business(object):
         for unit in self.m_unitList:
             unit.resetCrafted()
             unit.resetPurchases()
+            unit.incubator.next_day()
 
         for order in self.harvestOrders:
             order.execute()

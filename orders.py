@@ -38,7 +38,13 @@ class craftOrder(Order):
         self.amount         = amount
 
     def execute(self):
-        self.job.craft(self.materialIndex, self.amount)
+        if d.is_planted(self.materialIndex):
+            if self.job.unit.ripePlants(self.materialIndex) > 0:
+                self.job.harvest(self.materialIndex, self.amount)
+            else:
+                self.job.plant(self.materialIndex, self.amount)
+        elif d.is_crafted(self.materialIndex):
+            self.job.craft(self.materialIndex, self.amount)
 
     def getProductIndex(self):
         return self.materialIndex

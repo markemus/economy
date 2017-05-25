@@ -108,23 +108,62 @@ class Job(object):
         for craftsman in self.getEmployees():
             craftsman.think("I crafted " + str(amount) + " " + d.getMaterials()[productIndex] + " today.")
 
-    def harvest(self, productIndex, amount):
-        tech = self.unit.getTech(productIndex)
+    #UNDER CONSTRUCTION
+    #simple, for now
+    def plant(self, materialIndex, amount):
+        #seeds are pounds of seeds- ~14500 seeds per pound, for the record
+        # jobUnit = self.getUnit()
+        seedsPer = 50
+        seeds = self.unit.getStock(materialIndex)
+        growing = self.unit.growingPlants(materialIndex)
+        farmers = len(self.getEmployees())
+        isEnough = True
+        isAllPlanted = False
+        material = d.getMaterials()[materialIndex]
+
+        #reduce to number of seeds we have
+        if amount > seeds:
+            amount = seeds
+
+        #subtract already growing
+        if amount > growing:
+            amount = amount - growing
+        else:
+            amount = 0
+
+        #limit by farmer ability
+        maxPlanting = farmers * seedsPer
+        if amount > maxPlanting:
+            amount = maxPlanting
+
+        #planting
+        self.unit.plantSeeds(materialIndex, amount)
+
+        #thoughts
+        for farmer in self.getEmployees():
+            if not isEnough:
+                farmer.think("I ran out of " + material + " seeds at work today.")
+            if isAllPlanted:
+                farmer.think("I finished planting "+ material + " today.")
+            farmer.think("I planted " + material + " seeds today.")
+
+    def harvest(self, materialIndex, amount):
+        tech = self.unit.getTech(materialIndex)
+        material = d.getMaterials()[materialIndex]
         
         capability = (len(self.employees) * tech)
+        ripe = self.unit.ripePlants(materialIndex)
 
         if amount > capability:
             amount = capability
 
-        self.unit.addCrafted(productIndex, amount)
-        self.unit.addStock(productIndex, amount)
+        if amount > ripe:
+            amount = ripe
 
-        #productDMC = 0 for now
-
+        self.unit.harvest(materialIndex, amount)
 
         for farmer in self.getEmployees():
-            farmer.think("I harvested the fields today.")
-
+            farmer.think("I harvested " + str(amount) + " " + material + " today.")
 
 
 
@@ -139,7 +178,6 @@ class Baker(Job):
 
 
 
-
 class Brewer(Job):
 
     jobType = "Brewer"
@@ -147,8 +185,6 @@ class Brewer(Job):
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
         self.business.addCraftingJob(self)
-
-
 
 
 
@@ -194,8 +230,6 @@ class Carrier(Job):
 
 
 
-
-
 class Farmer(Job):
 
     jobType = "Farmer"
@@ -203,77 +237,6 @@ class Farmer(Job):
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
         self.business.addHarvestJob(self)
-
-    #simple, for now
-    def plant(self, materialIndex, amount):
-        #seeds are pounds of seeds- ~14500 seeds per pound, for the record
-        jobUnit = self.getUnit()
-        seedsPer = 50
-        seeds = jobUnit.availableSeeds(materialIndex)
-        growing = jobUnit.growingPlants(materialIndex)
-        farmers = len(self.getEmployees())
-        isEnough = True
-        isAllPlanted = False
-        material = d.getMaterials()[materialIndex]
-
-        #reduce to number of seeds we have
-        if amount > seeds:
-            amount = seeds
-
-        #subtract already growing
-        if amount > growing:
-            amount = amount - growing
-        else:
-            amount = 0
-
-        #limit by farmer ability
-        maxPlanting = farmers * seedsPer
-        if amount > maxPlanting:
-            amount = maxPlanting
-
-        #planting
-        jobUnit.plantSeeds(materialIndex, amount)
-
-        #thoughts
-        for farmer in self.getEmployees():
-            if not isEnough:
-                farmer.think("I ran out of " + material + " seeds at work today.")
-            if isAllPlanted:
-                farmer.think("I finished planting "+ material + " today.")
-            farmer.think("I planted " + material + " seeds today.")
-
-    # def harvest(self, materialIndex):
-    #     #again, unit is pound of grain
-    #     grainMade = 25 #<- each seed should grow this amount.
-
-    #     #base tech = sickle. 2 pounds per hour AFTER threshing, * 8 = 16
-    #     tech = 16
-    #     jobUnit = self.getUnit()
-    #     farmers = len(self.getEmployees())
-    #     total = jobUnit.growing[materialIndex]
-
-    #     pounds = farmers * tech
-    #     if pounds > total:
-    #         pounds = total
-
-    #     #grainMade is kernels per stalk- same for all crops for now
-    #     jobUnit.output[materialIndex] += pounds
-    #     jobUnit.growing[materialIndex] -= pounds
-    #     jobUnit.crafted[materialIndex] += pounds
-
-    #     #set grain DMC
-    #     # #To avoid DMC death spiral- should account for labor + rent in the DMC of *seed grain*.
-    #     # #meaning even if we grow our own seed, we should buy it from ourselves.
-    #     # #Or perhaps don't update DMC if we just recycle the grain?
-    #     # GrainDMC = jobUnit.getDMC()[materialIndex]
-    #     # GrainDMC = GrainDMC / grainMade
-
-    #     # jobUnit.setDMC(materialIndex, GrainDMC)
-
-    #     for farmer in self.getEmployees():
-    #         farmer.think("I harvested the fields today.")
-
-
 
 
 
@@ -285,7 +248,7 @@ class Manager(Job):
     def __init__(self, business, unit, salary):
         Job.__init__(self, 1, business, unit, salary)
 
-    # takes from theUnit stock[] and places in theUnit output[]
+    # takes from theUnit stock[] and places in theUnit output[], filling outupt[] up to amount.
     def transferMats(self, theUnit, materialIndex, amount):
         ourBusiness = self.getUnit().getBusiness()
         business = theUnit.getBusiness()
@@ -297,6 +260,8 @@ class Manager(Job):
             if (business == ourBusiness):
                 if (amount > theUnit.getStock(materialIndex)):
                     amount = theUnit.getStock(materialIndex)
+                if amount > theUnit.getOutput(materialIndex):
+                    amount -= theUnit.getOutput(materialIndex)
 
                 theUnit.addStock(materialIndex, -amount)
                 theUnit.addOutput(materialIndex, amount)

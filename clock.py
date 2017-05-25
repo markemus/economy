@@ -69,13 +69,16 @@ class Clock(object):
                     job.service()
 
     def relaxHandler(self):
+        bossList = d.getBosses()
         businessList = d.getBusinesses()
         peopleList = d.getPeople()
 
         self.model.out("\nEverybody relaxes.")
 
+        for boss in bossList:
+            for business in boss.getBusinesses():
+                self.model.productionAI.setProduction(business)
         for business in businessList:
-            self.model.productionAI.setProduction(business)
             business.restHandler()
         for person in peopleList:
             person.restHandler()
