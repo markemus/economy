@@ -42,7 +42,6 @@ while bossNumber < 100:
 if you in d.bossList:
     d.bossList.remove(you)
 
-
 testBus = you.startBusiness("Bill's Mill", 3000)
 testMill = u.Bakery("Bill's Bakery", Jonestown, (21,21), testBus)
 

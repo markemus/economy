@@ -31,7 +31,7 @@ table   = [(WOOD_INDEX, 100)]
 components = [grain, flour, beer, bread, meat, fruit, wood, chair, table]
 
 #production types
-planted = ["wheat", "beer", "meat", "fruit", "wood"]
+planted = ["grain", "beer", "meat", "fruit", "wood"]
 crafted = ["flour", "bread", "chair", "table"]
 
 #name lists
@@ -41,7 +41,7 @@ lastNameList = ['Johnson','Jacobson','Josephson']
 
 #these are identified by these same indices throughout the program.
 equipmentList = ["millstone"]
-materialsList = ["wheat", "flour", "beer", "bread", "meat", "fruit", "wood", "chair", "table"]
+materialsList = ["grain", "flour", "beer", "bread", "meat", "fruit", "wood", "chair", "table"]
 unitMissions = ["manu", "store", "house", "church"]
 
 #game objects

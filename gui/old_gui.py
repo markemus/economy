@@ -1,16 +1,15 @@
+import database as d
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 matplotlib.use('TkAgg')
+
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 import tkinter as tk
 
 import copy
-
-import database as d
-import tutorials
 
 #WARNING: throws error if run from here. Import to economy directory and run from there. Necessary because image files are stored there.
 
@@ -42,17 +41,22 @@ class gui(tk.Tk):
         titleBar        = tk.Label(leftSide, image=titleImage, width=1114, height=150)
         titleBar.image  = titleImage
 
-        self.display_cont   = display_controller(   leftSide,  self)
-        self.text_cont      = text_output(          leftSide,  self, height=300, width=1114)
-        charDisplay         = static_data(          rightSide, self, height=474, width=300, background="yellow")
-        keyboard            = key_controller(       rightSide, self, height=474, width=300, background="orange")
-        quitter             = quitBar(              rightSide, self,             width=300, background="red")        
+        display     = display_controller(leftSide,  self)
+        printout    = text_output(       leftSide,  self, height=300, width=1114)
+        charDisplay = static_data(       rightSide, self, height=474, width=300, background="yellow")
+        keyboard    = key_controller(    rightSide, self, height=474, width=300, background="orange")
+        self.keyboard = keyboard
+        quitter     = quitBar(           rightSide, self,             width=300, background="red")
+
+        #set controllers
+        self.display_cont = display
+        self.text_cont = printout
 
         #printout
-        self.text_cont.grid_propagate(False)
+        printout.grid_propagate(False)
 
         #charData
-        self.display_cont.pack_propagate(False)
+        charDisplay.pack_propagate(False)
 
         #root grid
         leftSide.grid( row=0, column=0, sticky=tk.NSEW)
@@ -60,8 +64,8 @@ class gui(tk.Tk):
 
         #leftSide grid
         titleBar.grid(row=0, column=0)
-        self.display_cont.grid( row=1, column=0)
-        self.text_cont.grid(row=2, column=0, sticky='nsew')
+        display.grid( row=1, column=0)
+        printout.grid(row=2, column=0, sticky='nsew')
 
         #rightSide grid
         charDisplay.grid(row=0, column=0, sticky='nsew')
@@ -88,14 +92,11 @@ class gui(tk.Tk):
 
 
 
-
-
-
-
 #display
 class display_controller(tk.Frame):
 
     def __init__(self, parent, root, *args, **kwargs):
+        from tutorials import tutorials
         tk.Frame.__init__(self, master=parent, *args, **kwargs)
         self.root = root
 
@@ -105,13 +106,23 @@ class display_controller(tk.Frame):
 
         self.frames = {}
 
-        for display in (main_display, matplotlib_display, list_display):
+        for display in (matplotlib_display, list_display):
             page_name = display.__name__
             frame = display(parent=self, controller=self, root=root)
             self.frames[page_name] = frame
 
             #stack frames
             frame.grid(row=0, column=0, sticky="nsew")
+
+        i = 0
+        for page_name in ("main_display", "other_display"):
+            frame = tutorial(parent=self, controller=self, root=root, text=tutorials[i])
+            self.frames[page_name] = frame
+
+            frame.grid(row=0, column=0, sticky="nsew")
+            i += 1
+
+        self.show_frame("main_display")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -140,9 +151,9 @@ class display_controller(tk.Frame):
 
 
 
-class main_display(tk.Frame):
+class tutorial(tk.Frame):
 
-    def __init__(self, parent, controller, root):
+    def __init__(self, parent, controller, root, text):
         tk.Frame.__init__(self, parent)
         self.root = root
 
@@ -154,6 +165,19 @@ class main_display(tk.Frame):
         leftBar.image = leftBarImage
 
         self.mainScreen_var = tk.StringVar()
+        # intro = """Welcome to Jonestown!
+
+        # You have just inherited a small bakery from your beloved Uncle Bill.
+        # Before he died you vowed to him that you would keep his business going.
+        
+        # He left the bakery well provisioned for the next few days, but you're
+        # going to need to build a farm and a mill immediately if you plan on staying in
+        # business. 
+
+        # Don't let Uncle Bill down!
+        # """
+
+        self.mainScreen_var.set(text)
         mainScreen = tk.Label(self, image=parchment, textvar=self.mainScreen_var,font=TEXT_FONT, width=800, height=500, borderwidth=5, 
             relief=tk.RIDGE, compound=tk.CENTER)
         mainScreen.image = parchment
@@ -168,20 +192,17 @@ class main_display(tk.Frame):
     def raise_frame(self):
         self.tkraise()
 
-    def update_frame(self, text=None):
-        self.mainScreen_var.set(text)
-
-    def employees(self, unitEmpDict):
-        text = "Staff"
-        for unit in unitEmpDict.keys():
-            text += "\n\n" + unit.name + " employees:"
-            for employee in unitEmpDict[unit]:
-                if unitEmpDict[unit].index(employee) % 3 == 0:
-                    text += "\n"
-                text += employee.name + " (" + employee.job.jobType +") "
+    # def employees(self, unitEmpDict):
+    #     text = "Staff"
+    #     for unit in unitEmpDict.keys():
+    #         text += "\n\n" + unit.name + " employees:"
+    #         for employee in unitEmpDict[unit]:
+    #             if unitEmpDict[unit].index(employee) % 3 == 0:
+    #                 text += "\n"
+    #             text += employee.name + " (" + employee.job.jobType +") "
                 
 
-        self.mainScreen_var.set(text)
+    #     self.mainScreen_var.set(text)
 
 
 
@@ -290,8 +311,6 @@ class list_display(tk.Frame):
         self.tkraise()
         self.display_lists(["hello", "world", "I", "see", "you"], [1,2,3,43,4], ["So", "here", "we", "are"])
 
-    # def update_frame(self, foo)
-
     def display_lists(self, col1, col2=None, col3=None, col4=None):
         lists = [col1, col2, col3, col4]
         titles = []
@@ -362,6 +381,7 @@ class static_data(tk.Frame):
 
         self.root.bind("<<refresh>>", self.update_frame)
         self.update_frame()
+        self.set_hotkeys()
 
         header.pack(fill=tk.X)
         nameLabel.pack(fill=tk.X)
@@ -378,6 +398,11 @@ class static_data(tk.Frame):
         self.locality.set("You live in the town of " + char.getLocality().getName() + ".")
         #should account for property
         self.netWorth.set("Net worth: $" + str(char.getCapital()))
+
+    def set_hotkeys(self):
+        
+        pass
+
 
 
 
@@ -401,12 +426,11 @@ class key_controller(tk.Frame):
 
         self.frames = {}
 
-        for keyboard in (
-            welcome, main_keyboard, 
+        for keyboard in (main_keyboard, 
             new_business, businessData, 
             new_unit, unitData, 
             new_job, jobData, 
-            new_order, 
+            ordersMenu, new_order, 
             market, new_transfer,
             house, town):
 
@@ -417,11 +441,10 @@ class key_controller(tk.Frame):
             #stack frames
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("welcome")
+        self.show_frame("main_keyboard")
 
     def show_frame(self, page_name, *args):
         frame = self.frames[page_name]
-        self.root.focus()
         frame.raise_frame(*args)
 
     def get_display_cont(self):
@@ -459,8 +482,7 @@ class key_controller(tk.Frame):
             materialIndex = d.getMaterials().index(order_var.get())
 
             order = business.craftOrderManager(job, materialIndex)
-            amount = int("0" + amount_var.get())
-            order.setAmount(amount)
+            order.setAmount(int(amount_var.get()))
             self.root.event_generate("<<refresh>>", when="tail")
 
         return callback
@@ -468,8 +490,7 @@ class key_controller(tk.Frame):
     def set_order_amount(self, order, amountVar):
 
         def callback():
-            amount = int("0" + amountVar.get())
-            order.setAmount(amount)
+            order.setAmount(int(amountVar.get()))
         
         return callback
 
@@ -482,8 +503,7 @@ class key_controller(tk.Frame):
             materialIndex = d.getMaterials().index(order_var.get())
 
             transfer = business.transferOrderManager(manager, self.get_unit(), materialIndex)
-            amount = int("0" + amount_var.get())
-            transfer.setAmount(amount)
+            transfer.setAmount(int(amount_var.get()))
             self.root.event_generate("<<refresh>>", when="tail")
 
         return callback
@@ -514,102 +534,51 @@ class key_controller(tk.Frame):
 
 
 
-class welcome(tk.Frame):
-
-    def __init__(self, parent, controller, root):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        self.root = root
-        self.hotkeys = ["<Return>"]
-
-        header = tk.Label(self, text="Welcome", font=TITLE_FONT)
-        self.name_var = tk.StringVar()
-        name_label = tk.Label(self, text="Name:", font=TEXT_FONT)
-        self.name = tk.Entry(self, textvariable=self.name_var)
-        enter = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.set_name)
-
-        header.pack()
-        name_label.pack()
-        self.name.pack()
-        enter.pack()
-
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.welcome)
-
-    def raise_frame(self):
-        self.set_hotkeys()
-        self.show_splash()
-        self.tkraise()
-        self.name.focus()
-
-    def set_hotkeys(self):
-        for hotkey in self.root.hotkeys:
-            self.root.unbind(hotkey)
-
-        for hotkey in self.root.dynamic_hotkeys:
-            self.root.unbind(hotkey)
-
-        self.root.dynamic_hotkeys = []
-
-        self.root.hotkeys = self.hotkeys
-        self.root.bind("<Return>", self.set_name)
-
-    def set_name(self, event=None):
-        name = self.name_var.get()
-        self.root.char.setName(name)
-        self.root.event_generate("<<refresh>>", when="tail")
-        self.controller.show_frame("main_keyboard")
-
 class main_keyboard(tk.Frame):
 
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
-        self.dynamic_buttons = []
         self.hotkeys = ["h", "t", "n"]
-        header = tk.Label(self,      text="Office",     font=TITLE_FONT)
-        house = tk.Button(self,      text="[h] House",      font=BUTTON_FONT, command=lambda: controller.show_frame("house"))
-        town = tk.Button(self,       text="[t] Town",       font=BUTTON_FONT, command=lambda: controller.show_frame("town"))
-        new_bus = tk.Button(self,    text="[n] New Business", font=BUTTON_FONT, command=lambda: controller.show_frame("new_business"))
+        self.dynamic_buttons = []
+        header = tk.Label(self, text="Office", font=TITLE_FONT)
+        house = tk.Button(self,   text="h. House",          font=BUTTON_FONT, command=lambda: controller.show_frame("house"))
+        town = tk.Button(self,    text="t. Town",           font=BUTTON_FONT, command=lambda: controller.show_frame("town"))
+        new_bus = tk.Button(self, text="n. New Business",   font=BUTTON_FONT, command=lambda: controller.show_frame("new_business"))
 
         header.pack(fill=tk.X)
         house.pack(fill=tk.X)
         town.pack(fill=tk.X)
         new_bus.pack(fill=tk.X)
 
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.main_display)
-
-    #we need a separate scope for the business variable of each button- otherwise it will just pass the last one to all.
-    def callbackFactory(self, business):
+    def callback_factory(self, business):
+        
         def callback(event=None):
-            return self.controller.show_frame("businessData", business)
+            self.controller.show_frame("businessData", business)
+
         return callback
 
     def raise_frame(self):
         for button in self.dynamic_buttons:
             button.destroy()
 
-        self.dynamic_buttons = []
-
         char = self.root.getChar()
         businesses = char.getBusinesses()
 
-        key =1
+        key = 1
         for business in businesses:
             busi_name = business.getName()
-            callback = self.callbackFactory(business)
-            newButton = tk.Button(self, text= "[" + str(key) + "] " + busi_name, font=BUTTON_FONT, command=callback)
+
+            callback = self.callback_factory(business)
+            newButton = tk.Button(self, text= str(callback) + ". " + busi_name, font=BUTTON_FONT, command=callback)
             newButton.callback = callback
+            
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
             key += 1
 
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
 
     def set_hotkeys(self):
@@ -643,9 +612,9 @@ class new_business(tk.Frame):
         self.root = root
         self.hotkeys = ["<Return>", "<Escape>"]
 
-        header = tk.Label(self, text="Create a new Business", font=TITLE_FONT)
-        name_label = tk.Label(self, text="Business name:", font=TEXT_FONT)
-
+        header = tk.Label(self, text="Create a New Business", font=TITLE_FONT)
+        
+        enter_name = tk.Label(self, text="Enter name:", font=TEXT_FONT)
         self.business_name = tk.StringVar()
         self.name = tk.Entry(self, textvariable=self.business_name)
 
@@ -654,24 +623,22 @@ class new_business(tk.Frame):
         self.amountVar = tk.StringVar()
         vcmd = (self.register(self.controller.isInt), '%P')
         amount = tk.Entry(self, validatecommand=vcmd, validate="key", textvariable=self.amountVar)
-        enter = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.create_business)
-        esc = tk.Button(self, text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        
+
+        ok = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.create_business)
+
+        esc = tk.Button(self, text="[esc] Return to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
-        name_label.pack()
+        enter_name.pack()
         self.name.pack()
         cash.pack()
         amount.pack()
-        enter.pack()
+        ok.pack()
         esc.pack(fill=tk.X)
-
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.new_business)
 
     def raise_frame(self):
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
         self.name.focus()
 
@@ -685,8 +652,8 @@ class new_business(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        self.root.bind("<Return>", lambda x: self.create_business())
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
+        self.root.bind("<Return>", lambda event: self.create_business())
+        self.root.bind("<Escape>", lambda event: self.controller.show_frame("main_keyboard"))
 
     def create_business(self):
         busiName = self.business_name.get()
@@ -696,7 +663,7 @@ class new_business(tk.Frame):
         if new_bus is not None:
             self.root.out("\n" + busiName + " created!")
         else:
-            self.root.out("\nYou don't have enough money.")
+            self.root.out("\nYou don't have enough money..")
 
         self.business_name.set("Done!")
         self.root.event_generate("<<refresh>>", when="tail")
@@ -712,16 +679,19 @@ class businessData(tk.Frame):
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
-        self.hotkeys = ["p", "e", "n", "<Escape>"]
+        self.hotkeys = ["u", "p", "e", "n", "<Escape>"]
         self.business = None
         self.busiName = tk.StringVar()
-        self.busiName.set("busiName")
+        self.busiName.set("nothing")
 
-        header = tk.Label(self, textvariable=self.busiName,     font=TITLE_FONT)
-        production = tk.Button(self,    text="[p] Production",  font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
-        employees = tk.Button(self,     text="[e] Employees"  , font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
-        new_unit = tk.Button(self,text="[n] New Unit",          font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
-        self.esc = tk.Button(self,text="[esc] Return to Office",font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        header = tk.Label(self, textvariable=self.busiName, font=TITLE_FONT)
+        production = tk.Button(self, text="[p] Production", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
+        employees = tk.Button(self, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
+        new_unit = tk.Button(self, text="[n] New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit", business))
+        
+        callback = lambda event: self.controller.show_frame("main_keyboard")
+        self.esc = tk.Button(self, text="[esc] Return to Office", font=BUTTON_FONT, command=callback)
+        self.esc.callback = callback
 
         header.pack(fill=tk.X)
         production.pack(fill=tk.X)
@@ -733,43 +703,30 @@ class businessData(tk.Frame):
         self.business = business
         self.busiName.set(business.getName())
 
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.businessData)
-
-    def callbackFactory(self, unit):
-        def callback(event=None):
-            return self.controller.show_frame("unitData", unit)
-        return callback
-
-    def raise_frame(self, business=None):
-        if business is not None:
-            self.setBusiness(business)
-        business = self.business
-
+    def raise_frame(self, business):
         for button in self.dynamic_buttons:
             button.destroy()
-        self.dynamic_buttons = []
 
-        char = self.root.getChar()
+        self.setBusiness(business)
+        char = self.root.getChar()        
         units = business.getUnits()
 
         key = 1
         for unit in units:
             unit_name = unit.getName()
-            callback = self.callbackFactory(unit)
-            newButton = tk.Button(self, text="[" + str(key) + "] " + unit_name, font=BUTTON_FONT, command=callback)
+
+            callback = lambda event: self.controller.show_frame("unitData", business, unit)
+            newButton = tk.Button(self, text=str(key) + ". " + unit_name, font=BUTTON_FONT, command=callback)
             newButton.callback = callback
+            
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
             key += 1
 
         self.esc.pack_forget()
         self.esc.pack(fill=tk.X)
-        
+
         self.set_hotkeys()
-        self.show_splash()
-        # self.controller.show_stock(self.business)
         self.tkraise()
 
     def set_hotkeys(self):
@@ -782,10 +739,11 @@ class businessData(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        self.root.bind("p", lambda x: self.controller.show_production(self.business))
-        self.root.bind("e", lambda x: self.controller.show_employees(self.business))
-        self.root.bind("n", lambda x: self.controller.show_frame("new_unit"))
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
+        self.root.bind("u", lambda event: self.controller.show_frame("unitMenu"))
+        self.root.bind("p", lambda event: self.controller.show_production(self.business))
+        self.root.bind("e", lambda event: self.controller.show_employees(self.business))
+        self.root.bind("n", lambda event: self.controller.show_frame("new_unit", self.business))
+        self.root.bind("<Escape>", lambda event: self.controller.show_frame("main_keyboard"))
 
         key = 1
         for button in self.dynamic_buttons:
@@ -802,32 +760,44 @@ class new_unit(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
+        self.dynamic_buttons = []
         self.hotkeys = ["<Return>", "<Escape>"]
+        self.business = None
 
-        header = tk.Label(self, text="Create a new Unit", font=TITLE_FONT)
+        header = tk.Label(self, text="New Unit", font=TITLE_FONT)
 
+        unit_label = tk.Label(self, text="Choose a Unit type:", font=TEXT_FONT)
         self.unit_var = tk.StringVar()
         self.unit_name = tk.StringVar()
         unit_list = self.get_units()
         units = tk.OptionMenu(self, self.unit_var, *unit_list)
+        name_label = tk.Label(self, text="Name your new Unit:", font=TEXT_FONT)
         self.name = tk.Entry(self, textvariable=self.unit_name)
 
-        enter = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.create_unit)
-        esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=lambda: controller.show_frame("businessData"))
+        ok = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.create_unit)
+
+        callback = lambda event: self.controller.show_frame("businessData", business)
+        self.esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=callback)
+        self.esc.callback = callback
 
         header.pack()
+        unit_label.pack()
         units.pack()
+        name_label.pack()
         self.name.pack()
-        enter.pack()
-        esc.pack(fill=tk.X)
-    
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.new_unit)
+        ok.pack()
+        self.esc.pack()
 
-    def raise_frame(self):
+    def raise_frame(self, business):
+        self.esc.destroy()
+
+        callback = lambda event: self.controller.show_frame("businessData", business)
+        self.esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=callback)
+        self.esc.callback = callback
+        
+        self.esc.pack(fill=tk.X)
+
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
         self.name.focus()
 
@@ -842,7 +812,7 @@ class new_unit(tk.Frame):
 
         self.root.hotkeys = self.hotkeys
         self.name.bind("<Return>", lambda x: self.create_unit())
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("businessData"))
+        self.root.bind("<Escape>", self.esc.callback)
 
     def get_units(self):
         from unit import all_units
@@ -883,17 +853,21 @@ class unitData(tk.Frame):
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
-        self.hotkeys = ["p", "e", "m", "n","<Escape>"]
+        self.hotkeys = ["p", "e", "m", "<Escape>"]
+        self.business = None
         self.unit = None
         self.unitName = tk.StringVar()
-        self.unitName.set("unitName")
+        self.unitName.set("nothing")
 
         header = tk.Label(self, textvariable=self.unitName, font=TITLE_FONT)
         production = tk.Button(self, text="[p] Production", font=BUTTON_FONT, command=lambda: controller.show_production(self.unit))
         employees = tk.Button(self, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.unit))
-        market = tk.Button(self, text="[m] Market", font=BUTTON_FONT, command=lambda: controller.show_frame("market"))
-        new_job = tk.Button(self, text="[n] New Job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job"))
-        self.esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=lambda: controller.show_frame("businessData"))
+        market = tk.Button(self, text="[m] Market", font=BUTTON_FONT, command=lambda: controller.show_frame("market", self.business, self.unit))
+        new_job = tk.Button(self, text="[n] New job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job", self.business, self.unit))
+        
+        callback = lambda event: self.controller.show_frame("businessData", self.business)
+        self.esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=callback)
+        self.esc.callback = callback
 
         header.pack(fill=tk.X)
         production.pack(fill=tk.X)
@@ -906,44 +880,34 @@ class unitData(tk.Frame):
         self.unit = unit
         self.unitName.set(unit.getName())
 
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.unitData)
-
-    def callbackFactory(self, job):
-        def callback(event=None):
-            return self.controller.show_frame("jobData", job)
-        return callback
-
-    def raise_frame(self, unit=None):
-        if unit is not None:
-            self.setUnit(unit)
-        unit = self.unit
-
+    def raise_frame(self, business, unit):
         for button in self.dynamic_buttons:
             button.destroy()
-        self.dynamic_buttons = []
 
+        self.esc.destroy()
+
+        self.business = business
+        self.setUnit(unit)
         char = self.root.getChar()
-        unit = self.controller.get_unit()
         jobs = unit.getJobList()
 
         key = 1
         for job in jobs:
             job_name = job.jobType
-            callback = self.callbackFactory(job)
-            newButton = tk.Button(self, text="[" + str(key) + "] " + job_name, font=BUTTON_FONT, command=callback)
+            callback = lambda event: self.controller.show_frame("jobData", business, unit, job)
+            newButton = tk.Button(self, text=str(key) + ". " + job_name, font=BUTTON_FONT, command=callback)
             newButton.callback = callback
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
             key += 1
 
-        self.esc.pack_forget()
+        callback = lambda event: self.controller.show_frame("businessData", business)
+        self.esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=callback)
+        self.esc.callback = callback
+
         self.esc.pack(fill=tk.X)
 
         self.set_hotkeys()
-        self.show_splash()
-        # self.controller.show_stock(self.unit)
         self.tkraise()
 
     def set_hotkeys(self):
@@ -956,11 +920,12 @@ class unitData(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        self.root.bind("p", lambda x: self.controller.show_production(self.unit))
-        self.root.bind("e", lambda x: self.controller.show_employees(self.unit))
-        self.root.bind("m", lambda x: self.controller.show_frame("market"))
-        self.root.bind("n", lambda x: self.controller.show_frame("new_job"))
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("businessData"))
+        # self.root.bind("j", lambda x: self.controller.show_frame("jobsMenu"))
+        self.root.bind("p", lambda event: self.controller.show_production(self.unit))
+        self.root.bind("e", lambda event: self.controller.show_employees(self.unit))
+        self.root.bind("m", lambda event: self.controller.show_frame("market"))
+        self.root.bind("n", lambda event: self.controller.show_frame("new_job"))
+        self.root.bind("<Escape>", self.esc.callback)
 
         key = 1
         for button in self.dynamic_buttons:
@@ -968,6 +933,78 @@ class unitData(tk.Frame):
             self.root.dynamic_hotkeys.append(str(key))
             key += 1
 
+
+
+
+# class jobsMenu(tk.Frame):
+
+#     def __init__(self, parent, controller, root):
+#         tk.Frame.__init__(self, parent)
+#         self.controller = controller
+#         self.root = root
+#         self.hotkeys = ["n", "<BackSpace>", "<Escape>"]
+#         self.dynamic_buttons = []
+
+#         header = tk.Label(self, text="Jobs", font=TITLE_FONT)
+#         new_job = tk.Button(self, text="n. New job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job"))
+
+#         self.back = tk.Button(self, text="bsp. Back", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
+#         self.main = tk.Button(self, text="esc. Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+
+#         header.pack()
+#         new_job.pack(fill=tk.X)
+#         self.main.pack(fill=tk.X)
+
+#     def callbackFactory(self, job):
+#         def callback(event=None):
+#             return self.controller.show_frame("jobData", job)
+#         return callback
+
+#     def raise_frame(self):
+#         for button in self.dynamic_buttons:
+#             button.destroy()
+
+#         char = self.root.getChar()
+#         unit = self.controller.get_unit()
+#         jobs = unit.getJobList()
+
+#         key = 1
+#         for job in jobs:
+#             job_name = job.jobType
+#             callback = self.callbackFactory(job)
+#             newButton = tk.Button(self, text=str(key) + ". " + job_name, font=BUTTON_FONT, command=callback)
+#             newButton.callback = callback
+#             newButton.pack(fill=tk.X)
+#             self.dynamic_buttons.append(newButton)
+#             key += 1
+
+#         self.back.pack_forget()
+#         self.main.pack_forget()
+#         self.back.pack(fill=tk.X)
+#         self.main.pack(fill=tk.X)
+
+#         self.set_hotkeys()
+#         self.tkraise()
+
+#     def set_hotkeys(self):
+#         for hotkey in self.root.hotkeys:
+#             self.root.unbind(hotkey)
+            
+#         for hotkey in self.root.dynamic_hotkeys:
+#             self.root.unbind(hotkey)
+        
+#         self.root.dynamic_hotkeys = []
+
+#         self.root.hotkeys = self.hotkeys
+#         self.root.bind("n", lambda x: self.controller.show_frame("new_job"))
+#         self.root.bind("<BackSpace>", lambda x: self.controller.show_frame("unitData"))
+#         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
+
+#         key = 1
+#         for button in self.dynamic_buttons:
+#             self.root.bind(str(key), button.callback)
+#             self.root.dynamic_hotkeys.append(str(key))
+#             key += 1
 
 
 
@@ -979,27 +1016,33 @@ class new_job(tk.Frame):
         self.root = root
         self.hotkeys = ["<Return>", "<Escape>"]
 
-        header = tk.Label(self, text="Create a new Job", font=TITLE_FONT)
+        header = tk.Label(self, text="New Job", font=TITLE_FONT)
 
         self.job_var = tk.StringVar()
         job_list = self.get_jobs()
         jobs = tk.OptionMenu(self, self.job_var, *job_list)
 
-        enter = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.create_job)
-        esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
+        ok = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.create_job)
+
+        # back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
+        self.esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData", unit))
 
         header.pack()
         jobs.pack()
-        enter.pack()
-        esc.pack(fill=tk.X)
+        ok.pack()
+        # back.pack(fill=tk.X)
+        self.esc.pack(fill=tk.X)
 
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.new_job)
+    def raise_frame(self, business, unit):
+        self.esc.destroy()
 
-    def raise_frame(self):
+        callback = lambda event: self.controller.show_frame("unitData", unit)
+        self.esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=callback)
+        self.esc.callback = callback
+        
+        self.esc.pack(fill=tk.X)
+
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
 
     def set_hotkeys(self):
@@ -1012,8 +1055,8 @@ class new_job(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        self.root.bind("<Return>", lambda x: self.create_job())
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
+        self.root.bind("<Return>", lambda event: self.create_job())
+        self.root.bind("<Escape>", self.esc.callback)
 
     def get_jobs(self):
         from jobs import all_jobs
@@ -1048,31 +1091,72 @@ class jobData(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
-        self.dynamic_entries = []
-        self.hotkeys = ["e", "n", "<Escape>"]
+        self.hotkeys = ["o", "e", "<BackSpace>", "<Escape>"]
         self.job = None
         self.jobName = tk.StringVar()
         self.jobName.set("nothing")
 
         header = tk.Label(self, textvariable=self.jobName,          font=TITLE_FONT)
+        orders = tk.Button(self,        text="(o) Orders",          font=BUTTON_FONT, command=lambda: controller.show_frame("ordersMenu"))
         production = tk.Button(self,    text="Production",          font=BUTTON_FONT)
-        employees = tk.Button(self,     text="[e] Employees"  ,     font=BUTTON_FONT, command=lambda: controller.show_employees(self.job))
-        new_order = tk.Button(self,     text="[n] New Order", font=BUTTON_FONT, command=lambda: controller.show_frame("new_order"))
-        self.esc = tk.Button(self,      text="[esc] Return to Unit",font=BUTTON_FONT, command=lambda: controller.show_frame("unitData") )
+        employees = tk.Button(self,     text="(e) Employees"  ,     font=BUTTON_FONT, command=lambda: controller.show_employees(self.job))
+        ledger = tk.Button(self,        text="Ledger",              font=BUTTON_FONT)
+        back = tk.Button(self,          text="(bsp) Other jobs",    font=BUTTON_FONT, command=lambda: controller.show_frame("jobsMenu"))
+        units = tk.Button(self,         text="(esc) Other units",   font=BUTTON_FONT, command=lambda: controller.show_frame("unitMenu") )
 
         header.pack(fill=tk.X)
+        orders.pack(fill=tk.X)
         production.pack(fill=tk.X)
         employees.pack(fill=tk.X)
-        new_order.pack(fill=tk.X)
-        self.esc.pack(fill=tk.X)
+        ledger.pack(fill=tk.X)
+        back.pack(fill=tk.X)
 
     def setJob(self, job):
         self.job = job
         self.jobName.set(job.jobType)
+    
+    def raise_frame(self, job=None):
+        if job is not None:
+            self.setJob(job)
+        self.set_hotkeys()
+        self.tkraise()
 
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.jobData)
+    def set_hotkeys(self):
+        for hotkey in self.root.hotkeys:
+            self.root.unbind(hotkey)
+            
+        for hotkey in self.root.dynamic_hotkeys:
+            self.root.unbind(hotkey)
+        
+        self.root.dynamic_hotkeys = []
+
+        self.root.hotkeys = self.hotkeys
+        self.root.bind("o", lambda x: self.controller.show_frame("ordersMenu"))
+        # self.root.bind("p", lambda x: self.controller.show_production(self.unit))
+        self.root.bind("e", lambda x: self.controller.show_employees(self.job))
+        self.root.bind("<BackSpace>", lambda x: self.controller.show_frame("jobsMenu"))
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitMenu"))
+
+
+
+
+class ordersMenu(tk.Frame):
+
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+        self.hotkeys = ["n", "<BackSpace>", "<Escape>"]
+        self.dynamic_entries = []
+        header = tk.Label(self, text="Orders", font=TITLE_FONT)
+        new_order = tk.Button(self, text="n. New order", font=BUTTON_FONT, command=lambda: controller.show_frame("new_order"))
+        
+        self.back = tk.Button(self, text="bsp. Back", font=BUTTON_FONT, command=lambda: controller.show_frame("jobData"))
+        self.main = tk.Button(self, text="esc. Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+
+        header.pack()
+        new_order.pack(fill=tk.X)
+        self.main.pack()
 
     def cull_wrong_orders(self, orders):
         culled_orders = []
@@ -1083,17 +1167,12 @@ class jobData(tk.Frame):
 
         return culled_orders
 
-    def raise_frame(self, job=None):
-        if job is not None:
-            self.setJob(job)
-        job = self.job
-        
+    def raise_frame(self):
         for entry in self.dynamic_entries:
             entry.destroy()
-        self.dynamic_entries = []
 
         char = self.root.getChar()
-
+        job = self.controller.get_job()
         raw_orders = job.getBusiness().getCraftOrders()
         orders = self.cull_wrong_orders(raw_orders)
 
@@ -1113,10 +1192,11 @@ class jobData(tk.Frame):
             newFrame.pack()
             self.dynamic_entries.append(newFrame)
 
-        self.esc.pack_forget()
-        self.esc.pack(fill=tk.X)
+        self.back.pack_forget()
+        self.main.pack_forget()
+        self.back.pack(fill=tk.X)
+        self.main.pack(fill=tk.X)
 
-        self.show_splash()
         self.set_hotkeys()
         self.tkraise()
 
@@ -1130,9 +1210,9 @@ class jobData(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        self.root.bind("e", lambda x: self.controller.show_employees(self.job))
         self.root.bind("n", lambda x: self.controller.show_frame("new_order"))
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
+        self.root.bind("<BackSpace>", lambda x: self.controller.show_frame("jobData"))
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
 
@@ -1154,22 +1234,19 @@ class new_order(tk.Frame):
         vcmd = (self.register(self.controller.isInt), '%P')
         amount = tk.Entry(self, validatecommand=vcmd, validate="key", textvariable=self.amount_var)
 
-        enter = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.controller.create_order(self.order_var, self.amount_var))
-        esc = tk.Button(self, text="[esc] Return to Job", font=BUTTON_FONT, command=lambda: controller.show_frame("jobData"))
+        ok = tk.Button(self, text="OK", font=BUTTON_FONT, command=self.controller.create_order(self.order_var, self.amount_var))
+        back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("ordersMenu"))
+        main = tk.Button(self, text="esc. Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
         order.pack()
         amount.pack()
-        enter.pack()
-        esc.pack()
-
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.new_order)
+        ok.pack()
+        back.pack()
+        main.pack()
 
     def raise_frame(self):
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
 
     def set_hotkeys(self):
@@ -1184,7 +1261,7 @@ class new_order(tk.Frame):
         self.root.hotkeys = self.hotkeys
         #I don't know why this works
         self.root.bind("<Return>", lambda x: self.controller.create_order(self.order_var, self.amount_var)())
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("jobData"))
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
 
@@ -1198,16 +1275,14 @@ class market(tk.Frame):
         self.hotkeys = ["n", "<Escape>"]
         self.dynamic_entries = []
         header = tk.Label(self, text="Market", font=TITLE_FONT)
-        new_order = tk.Button(self, text="[n] New sales line", font=BUTTON_FONT, command=lambda: controller.show_frame("new_transfer"))
-        self.esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
+        new_order = tk.Button(self, text="n. New sales line", font=BUTTON_FONT, command=lambda: controller.show_frame("new_transfer"))
+        self.back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
+        self.main = tk.Button(self, text="esc. Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
         new_order.pack(fill=tk.X)
-        self.esc.pack(fill=tk.X)
-
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.market)
+        self.back.pack(fill=tk.X)
+        self.main.pack(fill=tk.X)
 
     def raise_frame(self):
         for entry in self.dynamic_entries:
@@ -1234,10 +1309,11 @@ class market(tk.Frame):
             newFrame.pack()
             self.dynamic_entries.append(newFrame)
 
-        self.esc.pack_forget()
-        self.esc.pack(fill=tk.X)
+        self.back.pack_forget()
+        self.main.pack_forget()
+        self.back.pack(fill=tk.X)
+        self.main.pack(fill=tk.X)
 
-        self.show_splash()
         self.set_hotkeys()
         self.tkraise()
 
@@ -1260,7 +1336,8 @@ class market(tk.Frame):
         self.root.dynamic_hotkeys = []
         self.root.hotkeys = self.hotkeys
         self.root.bind("n", lambda x: self.controller.show_frame("new_transfer"))
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
+        # self.root.bind("<BackSpace>", lambda x: self.controller.show_frame("unitData"))
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
 
@@ -1282,22 +1359,19 @@ class new_transfer(tk.Frame):
         vcmd = (self.register(self.controller.isInt), '%P')
         amount = tk.Entry(self, validatecommand=vcmd, validate="key", textvariable=self.amount_var)
 
-        enter = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.controller.create_transfer(self.order_var, self.amount_var))
-        esc = tk.Button(self, text="[esc] Return to Market", font=BUTTON_FONT, command=lambda: controller.show_frame("market"))
+        ok = tk.Button(self, text="OK", font=BUTTON_FONT, command=self.controller.create_transfer(self.order_var, self.amount_var))
+        back = tk.Button(self, text="Back", font=BUTTON_FONT, command=lambda: controller.show_frame("market"))
+        main = tk.Button(self, text="esc. Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack()
         order.pack()
         amount.pack()
-        enter.pack()
-        esc.pack()
-
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.new_transfer)
+        ok.pack()
+        back.pack()
+        main.pack()
 
     def raise_frame(self):
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
 
     def set_hotkeys(self):
@@ -1312,7 +1386,7 @@ class new_transfer(tk.Frame):
         self.root.hotkeys = self.hotkeys
         #I don't know why this works
         self.root.bind("<Return>", lambda x: self.controller.create_order(self.order_var, self.amount_var)())
-        self.root.bind("<Escape>", lambda x: self.controller.show_frame("market"))
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
 
@@ -1325,18 +1399,13 @@ class house(tk.Frame):
         self.root = root
         self.hotkeys = ["<Escape>"]
         header = tk.Label(self, text="Home",           font=TITLE_FONT)
-        main = tk.Button(self,  text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        main = tk.Button(self,  text="(esc) Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
         main.pack(fill=tk.X)
 
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.house)
-
     def raise_frame(self):
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
 
     def set_hotkeys(self):
@@ -1361,18 +1430,13 @@ class town(tk.Frame):
         self.root = root
         self.hotkeys = ["<Escape>"]
         header = tk.Label(self, text="Town",           font=TITLE_FONT)
-        main = tk.Button(self,  text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        main = tk.Button(self,  text="(esc) Back to office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
         main.pack(fill=tk.X)
 
-    def show_splash(self):
-        cont = self.controller.get_display_cont()
-        cont.update_frame("main_display", tutorials.town)
-
     def raise_frame(self):
         self.set_hotkeys()
-        self.show_splash()
         self.tkraise()
 
     def set_hotkeys(self):
@@ -1398,7 +1462,7 @@ class quitBar(tk.Frame):
         self.root = root
 
         exit = tk.Button(self,      text="Quit",     font=BUTTON_FONT, command=self.quit)
-        next_turn = tk.Button(self, text="[f1] Next Day", font=BUTTON_FONT, command=self.next_day)
+        next_turn = tk.Button(self, text="[F1] Next day", font=BUTTON_FONT, command=self.next_day)
         self.root.bind("<F1>", self.next_day)
         next_turn.pack(fill=tk.X)
         exit.pack(fill=tk.X)

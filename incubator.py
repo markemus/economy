@@ -4,12 +4,12 @@ class incubator(object):
 
     def __init__(self, parent):
         self.parent = parent
-        self.grow_days = {"wheat" : 5, "beer" : 10, "wood" : 5}
-        self.rot_days = {"wheat" : 5, "beer" : 10, "wood" : 5}
-        self.growing = {"wheat" : [], "beer" : [], "wood" : []}
-        self.grow_timers = {"wheat" : [], "beer" : [], "wood" : []}
-        self.ripe = {"wheat" : [], "beer" : [], "wood" : []}
-        self.rot_timers = {"wheat" : [], "beer" : [], "wood" : []}
+        self.grow_days = {"grain" : 5, "beer" : 10, "wood" : 5}
+        self.rot_days = {"grain" : 5, "beer" : 10, "wood" : 5}
+        self.growing = {"grain" : [], "beer" : [], "wood" : []}
+        self.grow_timers = {"grain" : [], "beer" : [], "wood" : []}
+        self.ripe = {"grain" : [], "beer" : [], "wood" : []}
+        self.rot_timers = {"grain" : [], "beer" : [], "wood" : []}
 
     def itorzero(self, it):
         value = 0

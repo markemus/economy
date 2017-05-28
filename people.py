@@ -481,6 +481,9 @@ class People:
     def getName(self):
         return self.name
 
+    def setName(self, name):
+        self.name = name
+
     def getGender(self):
         return self.gender
 

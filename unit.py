@@ -391,23 +391,12 @@ class Farm(Unit):
         Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.GRAIN_INDEX] = True
         self.tech[d.GRAIN_INDEX] = 16
-        # self.growing = [0 for i in range(len(d.getMaterials()))]
         self.missions[d.MANU_INDEX] = True
+        self.stock[d.GRAIN_INDEX] = 50
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
 
-    # def availableSeeds(self, materialIndex):
-    #     return self.stock[materialIndex]
-
-    # def growingPlants(self, materialIndex):
-    #     return self.growing[materialIndex]
-
-    # def plantSeeds(self, materialIndex, amount):
-    #     if self.stock[materialIndex] <= amount:
-    #         amount = self.stock[materialIndex]
-
-    #     self.growing[materialIndex] += amount
 
 
 
@@ -424,6 +413,7 @@ class Mill(Unit):
         self.can_make[d.FLOUR_INDEX] = True
         self.tech[d.FLOUR_INDEX] = 40
         self.missions[d.MANU_INDEX] = True
+        self.stock[d.GRAIN_INDEX] = 50
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -443,6 +433,7 @@ class Brewery(Unit):
         self.can_make[d.BEER_INDEX] = True
         self.tech[d.BEER_INDEX] = 60
         self.missions[d.MANU_INDEX] = True
+        self.stock[d.GRAIN_INDEX] = 50
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -464,6 +455,7 @@ class Bakery(Unit):
         self.tech[d.BREAD_INDEX] = 10
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
+        self.stock[d.FLOUR_INDEX] = 50
 
         d.addUnit(self)
         if self.business is not None:
@@ -481,6 +473,7 @@ class Lumberyard(Unit):
         self.can_make[d.WOOD_INDEX] = True
         self.tech[d.WOOD_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
+        self.stock[d.WOOD_INDEX] = 50
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -501,6 +494,7 @@ class Joinery(Unit):
         self.tech[d.TABLE_INDEX] = 1
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
+        self.stock[d.WOOD_INDEX] = 50
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
