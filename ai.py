@@ -111,38 +111,6 @@ class Builder(object):
     def __init__(self, model):
         self.model = model
 
-    # def check_node(self, node):
-    #     is_empty = False
-        
-    #     if node is None:
-    #         is_empty = True
-        
-    #     return is_empty
-
-    # #algorithm checks indices reflected around the diagonal, starting from upper left
-    # #I feel like this algorithm is confusing, but it's the best I can do right now
-    # def findProperty(self, locality):
-    #     local_map = locality.local_map
-    #     xy = None
-
-    #     for i in range(len(local_map)):
-
-    #         j = 0
-            
-    #         if xy is not None:
-    #             break
-
-    #         while i >= j:
-    #             if self.check_node(local_map[i][j]):
-    #                 xy = (i,j)
-    #                 break
-    #             if self.check_node(local_map[j][i]):
-    #                 xy = (j,i)
-    #                 break
-    #             j += 1
-
-    #     return xy
-
     def initial_demand(self, unit):
         for i in range(len(unit.can_make)):
             if unit.can_make[i]:
@@ -223,6 +191,7 @@ class Builder(object):
             for target in chains[toBuild]:
                 self.buildIt(business, locality, target)
 
+    #this method is outdated- not necessarily broken, but should be rethought
     def newBusiness(self, boss):
 
         busiName = boss.getName() + "'s business"

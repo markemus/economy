@@ -3,8 +3,9 @@ import random
 import copy
 from conversation import Convo
 
+#not all jobs, but all jobs you can create (not manager, priest)
 def all_jobs():
-    job_list = [Baker, Brewer, Carrier, Farmer, Manager, Miller, Lumberjack, Carpenter, Priest]
+    job_list = [Baker, Brewer, Carrier, Farmer, Miller, Lumberjack, Carpenter]
     return job_list
 
 class Job(object):
@@ -200,7 +201,7 @@ class Carrier(Job):
     def transportMats(self, unit1, unit2, materialIndex, amount):
         business1 = unit1.getBusiness()
         business2 = unit2.getBusiness()
-        amountInStock = unit1.getOutput(materialIndex)
+        amountInStock = unit1.getStock(materialIndex)
         isTransport = False
 
         #transport
@@ -214,7 +215,7 @@ class Carrier(Job):
                     unit1.addSales(materialIndex, amount)
                     unit2.setDMC(materialIndex, materialPrice)
                     unit2.addPurchase(materialIndex, amount)
-                    unit1.addOutput(materialIndex, -amount)
+                    unit1.addStock(materialIndex, -amount)
                     unit2.addStock(materialIndex, amount)
                     isTransport = True
 
@@ -332,6 +333,7 @@ class Priest(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
+        self.business.addPriestJob(self)
 
     def service(self):
         attendance = self.unit.getAttendance()

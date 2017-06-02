@@ -38,7 +38,7 @@ class Conversation(object):
     friendMatrix = [
     [0.00,0.00,0.15,0.10,0.10,0.10],
     [0.00,0.00,0.15,0.10,0.10,0.10],
-    [0.00,0.00,0.15,0.20,0.20,0.20],
+    [0.00,0.00,0.15,0.10,0.10,0.10],
     [0.34,0.34,0.15,0.00,0.35,0.35],
     [0.33,0.33,0.15,0.35,0.00,0.35],
     [0.33,0.33,0.25,0.35,0.35,0.00]
@@ -55,6 +55,7 @@ class Conversation(object):
     ]
 
     def __init__(self):
+        self.isPlayer = False
         self.firstPerson = None
         self.secondPerson = None
         self.target = None
@@ -71,7 +72,8 @@ class Conversation(object):
         self.machine.on_enter_friend('friendHandler')
         self.machine.on_enter_exit('exitHandler')
 
-    def beginConversation(self, firstPerson, secondPerson):
+    def beginConversation(self, firstPerson, secondPerson, isPlayer=False):
+        self.isPlayer = isPlayer
         self.firstPerson = firstPerson
         self.secondPerson = secondPerson
         self.introduction()
@@ -183,25 +185,29 @@ class Conversation(object):
     def skills(self):
         None
 
+    #dialogues are chosen here, but the actual method call is in the handler (eg prices)
     def talk(self, matrix, stateVector):
-        # stateVector = [0,0,0,1]
-    
-        #get dialogue probabilities given last dialogue
-        probArray = np.dot(matrix, stateVector)
-        prob = probArray.tolist()
 
-        #choose dialogue
-        choice = random.random()
-        stateVector = [0 for i in range(len(prob))]
-        
-        for i in range(len(prob)):
-            outcome = prob[i]
+        if self.isPlayer:
+            # stateVector = playerChoice
+            pass
+        else:
+            #get dialogue probabilities given last dialogue
+            probArray = np.dot(matrix, stateVector)
+            prob = probArray.tolist()
 
-            if outcome >= choice:
-                stateVector[i] = 1
-                return stateVector
-            else:
-                choice = choice - outcome
+            #choose dialogue
+            choice = random.random()
+            stateVector = [0 for i in range(len(prob))]
+            
+            for i in range(len(prob)):
+                outcome = prob[i]
+
+                if outcome >= choice:
+                    stateVector[i] = 1
+                    return stateVector
+                else:
+                    choice = choice - outcome
 
     def topicHandler(self):
         matrix = Conversation.topicMatrix
@@ -250,16 +256,6 @@ class Conversation(object):
                     break
 
     def exitHandler(self):
-        None
-# #we avg the probabilities to simulate them trying to pick a topic
-# #for now, all people use the same markov chain, so not needed
-# #YAGNI
-# def stateChange(matrix1, matrix2, state):
-#     prob1 = np.matmul(matrix1, state)
-#     prob2 = np.matmul(matrix2, state)
-#     prob1 = prob1.tolist()
-#     prob2 = prob2.tolist()
-#     newState = [(prob1[i] + prob2[i]) / 2 for i in range(len(prob1))]
-#     return newState
+        self.isPlayer = False
 
 Convo = Conversation()

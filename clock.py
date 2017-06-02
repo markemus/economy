@@ -39,7 +39,7 @@ class Clock(object):
         self.next_day()
 
     def workHandler(self):
-        churchList      = d.getChurches()
+        religionList    = d.getReligions()
         unitList        = d.getUnit()
         businessList    = d.getBusinesses()
         peopleList      = d.getPeople()
@@ -52,7 +52,14 @@ class Clock(object):
             self.model.salaryPayer.paySalaries()
             self.model.out("\nSalaries were paid today.")
 
-        if self.model.week.state != 'Sunday':
+        if self.model.week.state == 'Sunday':
+            for person in peopleList:
+                person.churchHandler()
+            for religion in religionList:
+                for business in religion.getBusinesses():
+                    for priest in business.getPriestJobs():
+                        priest.service()
+        else:
             for business in businessList:
                 business.workHandler()
             for person in peopleList:
@@ -60,13 +67,6 @@ class Clock(object):
             for boss in bossList:
                 i_build = self.model.startupAI.whatToBuild(boss)
                 self.model.builder.buildChain(boss.businesses[0], i_build)
-        else:
-            for person in peopleList:
-                person.churchHandler()
-            for church in churchList:
-                for job in church.jobList:
-                    print(job)
-                    job.service()
 
     def relaxHandler(self):
         bossList = d.getBosses()

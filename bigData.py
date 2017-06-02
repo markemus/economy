@@ -1,33 +1,43 @@
 import database as d
 
-class BigData(object):
+class bigdata(object):
 
-    def __init__(self, model):
-        self.avgPrices  = [0 for i in d.getMaterials()]
-        self.sales      = [0 for i in d.getMaterials()]
-        self.model      = model
+    def __init__(self, unit):
 
-    def addSale(self, materialIndex, amount, price):
+        self.unit       = unit
+        materials       = d.getMaterials()
+        # self.avgPrices  = [0 for i in materials]
+        self.sales      = []
+        self.prices     = []
+        self.crafted = []
 
-        mean    = self.avgPrices[materialIndex]
-        n       = self.sales[materialIndex]
+    # def addSale(self, materialIndex, amount, price):
 
-        self.avgPrices[materialIndex] = (mean * (n / (n + amount))) + ((price * amount) / (n + amount))
-        self.sales[materialIndex]    += amount
+    #     mean    = self.avgPrices[materialIndex]
+    #     n       = self.sales[materialIndex]
+
+    #     self.avgPrices[materialIndex] = (mean * (n / (n + amount))) + ((price * amount) / (n + amount))
+    #     self.sales[materialIndex]    += amount
+
+    def update(self):
+        self.sales.append(self.unit.sales)
+        self.prices.append(self.unit.prices)
+        self.crafted.append(self.unit.crafted)
 
     def getData(self):
-        businesses  = d.getBusinesses()
-        units       = d.getUnit()
-        people      = d.getPeople()
-        return (businesses, units, people, self.avgPrices, self.sales)
+        return (self.sales, self.prices, self.crafted)
 
-#test
-testData = BigData(None)
-print(testData.sales, testData.avgPrices)
-testData.addSale(3,15, 5)
-print(testData.sales, testData.avgPrices)
-testData.addSale(3,10, 3)
-print(testData.sales, testData.avgPrices)
-testData.addSale(3,0,4)
-print(testData.sales, testData.avgPrices)
-print(testData.getData())
+# # test
+# testData = bigdata(None)
+# testData.sales.append([1,2,3])
+# testData.sales.append([1,2,4])
+# print(testData.sales)
+
+# print(testData.sales, testData.avgPrices)
+# testData.addSale(3,15, 5)
+# print(testData.sales, testData.avgPrices)
+# testData.addSale(3,10, 3)
+# print(testData.sales, testData.avgPrices)
+# testData.addSale(3,1,0)
+# print(testData.sales, testData.avgPrices)
+# print(testData.getData())

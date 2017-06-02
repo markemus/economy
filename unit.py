@@ -1,11 +1,14 @@
 import database as d
-import copy
+import jobs as j
 import incubator as inc
+import bigData as big
+import staff
 
-#doesn't include House because that throws an error with *args. If you want to add it back, you'll have to use **kwargs and fix
-#the places that already use it.
+import copy
+
+#Not all units, but all units you can create (no house, church)
 def all_units():
-    unit_list = [Farm, Mill, Brewery, Bakery, Lumberyard, Joinery, Warehouse, Church]
+    unit_list = [Farm, Mill, Brewery, Bakery, Lumberyard, Joinery]
     return unit_list
 
 class Unit(object):
@@ -34,6 +37,7 @@ class Unit(object):
         self.business   = business
         self.jobList    = []
         self.incubator  = inc.incubator(self)
+        self.bigdata    = big.bigdata(self)
         self.stock      = [0 for material in stockLength]
         self.output     = [0 for material in stockLength]
         self.tech       = [0 for material in stockLength]
@@ -60,8 +64,6 @@ class Unit(object):
         print(self.name + " is a " + self.unitType + ".")
         print("\nCurrent stocks:")
         print("Stock:", self.stock)
-        if self.unitType == "Farm":
-            print("Growing:", self.growing)
         print("Output:", self.output)
         print("\nCurrent prices:")
         print("Direct material costs:", self.DMC)
@@ -371,27 +373,26 @@ class Unit(object):
 
 
 
+class Manufactury(Unit):
+    unitType = "Manufactury"
+    character = "Manu"
+
+    def __init__(self, unitName, unitLocality, unitLocationTuple, business):
+        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        self.missions[d.MANU_INDEX] = True
+        self.staff = staff.manu_staff(self)
 
 
 
 
-
-
-
-
-
-
-
-
-class Farm(Unit):
+class Farm(Manufactury):
     unitType = "Farm"
     character = "F"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
-        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.GRAIN_INDEX] = True
         self.tech[d.GRAIN_INDEX] = 16
-        self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
         d.addUnit(self)
         if self.business is not None:
@@ -403,13 +404,12 @@ class Farm(Unit):
 
 
 
-
-class Mill(Unit):
+class Mill(Manufactury):
     unitType = "Mill"
     character = "M"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
-        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.FLOUR_INDEX] = True
         self.tech[d.FLOUR_INDEX] = 40
         self.missions[d.MANU_INDEX] = True
@@ -424,12 +424,12 @@ class Mill(Unit):
 
 
 
-class Brewery(Unit):
+class Brewery(Manufactury):
     unitType = "Brewery"
     character = "b"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
-        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.BEER_INDEX] = True
         self.tech[d.BEER_INDEX] = 60
         self.missions[d.MANU_INDEX] = True
@@ -444,13 +444,13 @@ class Brewery(Unit):
 
 
 
-class Bakery(Unit):
+class Bakery(Manufactury):
     unitType = "Bakery"
     character = "B"
     # isMarket = True
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
-        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.BREAD_INDEX] = True
         self.tech[d.BREAD_INDEX] = 10
         self.missions[d.MANU_INDEX] = True
@@ -464,12 +464,12 @@ class Bakery(Unit):
 
 
 
-class Lumberyard(Unit):
+class Lumberyard(Manufactury):
     unitType = "Lumberyard"
     character = "L"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
-        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.WOOD_INDEX] = True
         self.tech[d.WOOD_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
@@ -482,12 +482,12 @@ class Lumberyard(Unit):
 
 
 
-class Joinery(Unit):
+class Joinery(Manufactury):
     unitType = "Joinery"
     character = "J"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
-        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.CHAIR_INDEX] = True
         self.can_make[d.TABLE_INDEX] = True
         self.tech[d.CHAIR_INDEX] = 1
@@ -550,6 +550,8 @@ class Church(Unit):
         self.missions[d.CHURCH_INDEX] = True
         self.flock = []
         self.attendance = []
+        self.staff = staff.church_staff(self)
+        # self.manager = j.Manager(business, self, 41)
         d.addChurch(self)
         if self.business is not None:
             self.business.addUnit(self)

@@ -89,9 +89,9 @@ jobData = """Job screen
 
         """
 
-new_order = """New Crafting Order
+new_order = """New Crafting Line
 
-        Here you can create an Order for the Job to attempt to fulfill every day. Make sure the Unit
+        Here you can create a Crafting line for the Job to attempt to fulfill every day. Make sure the Unit
         has a good Tech level for the product you're trying to create- you can craft anything 
         anywhere, but not very well.
 
@@ -102,20 +102,29 @@ market = """Market
         The Market is where you go to sell your wares. You can only sell things you already crafted,
         obviously. 
 
-        There are 4 periods to every day: Sleep, Work, Rest, and Shop. When you click the Next Day button, 
-        the game automatically runs through all 4 periods. Hiring happens during the Work period, followed
-        by Crafting. Goods are then transfered to the Market and prices are calculated during the Rest 
-        period.
+        During the Shop period customers will come to your store. Customers can only go to stores they already 
+        know about, and will prefer stores that had good prices in the past. Knowledge about your store will 
+        slowly spread throughout the community as you and your employees tell your friends and families about 
+        your store. They'll in turn tell their friends about you if they have a good experience, so make sure
+        you keep your supplies flowing and your prices low!
 
-        The Shop period is when customers come to your store. Customers can only go to stores they know
-        about however. Knowledge about your store will slowly spread throughout the community as you and
-        your employees tell your friends and families about your store. They'll in turn tell their friends
-        about you if they have a good experience, so make sure you keep your supplies flowing!
+        You'll need to create a Sales line in order to make money.
 
         """
-new_transfer = """New Sales Order
+new_transfer = """New Sales Line
 
         So you want to start selling a new product? Make sure you remember to craft it as well!
+
+        Sales lines control the amount of every product your Unit will try to sell every day.
+
+        """
+
+new_transport = """
+
+        Transports move goods from one Unit to another within the same Business. Your managers will keep track 
+        of how much those products cost, including the labor costs of moving them.
+
+        You can set up a new daily Transport line to move a specific amount of goods FROM this Unit to a Unit of your choice.
 
         """
 

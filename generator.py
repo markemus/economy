@@ -113,7 +113,7 @@ class generator(object):
     def makeFriends(self):
         peopleList = d.getPeople()
         for person in peopleList:
-            for count in range(10):
+            for count in range(50):
                 i = random.randrange(len(peopleList))
                 friend = peopleList[i]
                 friendProfile = person.peopleManager(friend)

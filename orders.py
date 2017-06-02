@@ -11,15 +11,12 @@ class Order(object):
     def getJob(self):
         return self.job
 
-class harvestOrder(Order):
+class productOrder(Order):
 
-    def __init__(self, business, job, materialIndex, amount=1):
+    def __init__(self, business, job, materialIndex, amount):
         Order.__init__(self, business, job)
         self.materialIndex  = materialIndex
         self.amount = amount
-
-    def execute(self):
-        self.job.harvest(self.materialIndex, self.amount)
 
     def getProductIndex(self):
         return self.materialIndex
@@ -30,80 +27,55 @@ class harvestOrder(Order):
     def setAmount(self, amount):
         self.amount = amount
 
-class craftOrder(Order):
+class harvestOrder(productOrder):
 
     def __init__(self, business, job, materialIndex, amount=1):
-        Order.__init__(self, business, job)
-        self.materialIndex  = materialIndex
-        self.amount         = amount
+        productOrder.__init__(self, business, job, materialIndex, amount)
+
+    def execute(self):
+        self.job.harvest(self.materialIndex, self.amount)
+
+class craftOrder(productOrder):
+
+    def __init__(self, business, job, materialIndex, amount=1):
+        productOrder.__init__(self, business, job, materialIndex, amount)
 
     def execute(self):
         if d.is_planted(self.materialIndex):
-            if self.job.unit.ripePlants(self.materialIndex) > 0:
+            if self.job.unit.incubator.getRipe(d.getMaterials()[self.materialIndex]) > 0:
                 self.job.harvest(self.materialIndex, self.amount)
             else:
                 self.job.plant(self.materialIndex, self.amount)
         elif d.is_crafted(self.materialIndex):
             self.job.craft(self.materialIndex, self.amount)
 
-    def getProductIndex(self):
-        return self.materialIndex
-
-    def getAmount(self):
-        return self.amount
-
-    def setAmount(self, amount):
-        self.amount = amount
-
-class transportOrder(Order):
+class transportOrder(productOrder):
 
     def __init__(self, business, job, unit1, unit2, materialIndex, amount=1):
-        Order.__init__(self, business, job)
+        productOrder.__init__(self, business, job, materialIndex, amount)
         self.unit1          = unit1
         self.unit2          = unit2
-        self.materialIndex  = materialIndex
-        self.amount         = amount
 
     def execute(self):
         self.job.transportMats(self.unit1, self.unit2, self.materialIndex, self.amount)
 
-    def getProductIndex(self):
-        return self.materialIndex
-
-    def getAmount(self):
-        return self.amount
-
-    def setAmount(self, amount):
-        self.amount = amount
-   
     def getStartUnit(self):
         return self.unit1
 
     def getEndUnit(self):
         return self.unit2
 
-class transferOrder(Order):
+class transferOrder(productOrder):
 
     def __init__(self, business, job, unit, materialIndex, amount):
-        Order.__init__(self, business, job)
+        productOrder.__init__(self, business, job, materialIndex, amount)
         self.unit           = unit
-        self.materialIndex  = materialIndex
-        self.amount         = amount
 
     def execute(self):
         self.job.transferMats(self.unit, self.materialIndex, self.amount)
 
     def getUnit(self):
         return self.unit
-
-    def getProductIndex(self):
-        return self.materialIndex
-
-    def getAmount(self):
-        return self.amount
-
-    def setAmount(self, amount):
-        self.amount = amount
 
 class pricingOrder(Order):
 

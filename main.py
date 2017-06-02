@@ -42,28 +42,37 @@ while bossNumber < 100:
 if you in d.bossList:
     d.bossList.remove(you)
 
-testBus = you.startBusiness("Bill's Mill", 3000)
-testMill = u.Bakery("Bill's Bakery", Jonestown, (21,21), testBus)
+#testbus
+testBus = you.startBusiness("Williamson Shipping LTD", 3000)
+testFarm = u.Farm("Bill's Farm", Jonestown, (23,23), testBus)
+testMill = u.Mill("Bill's Mill", Jonestown, (23,25), testBus)
+testBakery = u.Bakery("Bill's Bakery", Jonestown, (25,25), testBus)
 
-testManager = j.Manager(testBus, testMill, 40)
-testTransfer = testBus.transferOrderManager(testManager, testMill, d.BREAD_INDEX)
-testTransfer.setAmount(400)
+testFarmer = j.Farmer(10, testBus, testFarm, 40)
+testMiller = j.Miller(10, testBus, testMill, 40)
+testBaker = j.Baker(10, testBus, testBakery, 40)
 
-testJob = j.Baker(10, testBus, testMill, 40)
+# testGrain = testBus.craftOrderManager(testFarmer, d.GRAIN_INDEX)
+testFlour = testBus.craftOrderManager(testMiller, d.FLOUR_INDEX)
+testBread = testBus.craftOrderManager(testBaker, d.BREAD_INDEX)
 
-testOrder = testBus.craftOrderManager(testJob, d.BREAD_INDEX)
-testOrder.setAmount(400)
+# testGrain.setAmount(50000)
+testFlour.setAmount(50000)
+testBread.setAmount(50000)
 
-testMill.addSales(d.BREAD_INDEX, 40)
-testMill.DMC[d.FLOUR_INDEX] = 100
-testMill.addStock(d.FLOUR_INDEX, 5000)
+# testFarm.addSales(d.GRAIN_INDEX, 40)
+testFarm.DMC[d.GRAIN_INDEX] = 50
+testFarm.addStock(d.GRAIN_INDEX, 100)
 
-testPricing = o.pricingOrder(testBus, testManager, testMill)
-testBus.pricingOrders.append(testPricing)
+# for mat in range(len(d.getMaterials())):
+#     testMill.addStock(mat, 5000)
 
 model.gui.mainloop()
 
-Jonestown.printMap()
+# Jonestown.printMap()
 
-print(testMill.incubator.toString())
-print(testMill.toString())
+# print(testMill.incubator.toString())
+
+for unit in testBus.getUnits():
+    print(unit.toString())
+    print(unit.incubator.toString())

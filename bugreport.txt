@@ -1,0 +1,10 @@
+FIXED -create_transport throws AttributeError: 'NoneType' object has no attribute 'set'" 
+
+
+
+
+FIXED -harvest throws: File "/home/john/dev/python/3.3.2/economy/orders.py", line 42, in execute
+    if self.job.unit.ripePlants(self.materialIndex) > 0:
+AttributeError: 'NoneType' object has no attribute 'unit'
+
+

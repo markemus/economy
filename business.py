@@ -18,6 +18,7 @@ class Business(object):
         self.jobList            = []
         self.craftingJobs       = []
         self.harvestJobs        = []
+        self.priestJobs         = []
         self.harvestOrders      = []
         self.craftOrders        = []
         self.transferOrders     = []
@@ -46,6 +47,12 @@ class Business(object):
     def addHarvestJob(self, job):
         self.harvestJobs.append(job)
 
+    def addPriestJob(self, job):
+        self.priestJobs.append(job)
+
+    def getPriestJobs(self):
+        return self.priestJobs
+
     def getHarvestJobs(self):
         return self.harvestJobs
 
@@ -55,9 +62,13 @@ class Business(object):
     def getTransferOrders(self):
         return self.transferOrders
 
+    def getTransportOrders(self):
+        return self.transportOrders
+
     #addUnit should be called AFTER missions assignment.
     def addUnit(self, unit):
         self.m_unitList.append(unit)
+        self.pricingOrders.append(o.pricingOrder(self, unit.staff.manager, unit))
         for owner in self.owners:
             owner.unitManager(unit)
 
@@ -73,6 +84,7 @@ class Business(object):
 
     def removeUnit(self, unit):
         self.m_unitList.remove(unit)
+        #remove unit's pricing order here
 
     def pay(self, amount):
         self.cash -= amount 
@@ -226,3 +238,5 @@ class Business(object):
     def shopHandler(self):
         for order in self.transportOrders:
             order.execute()
+        for unit in self.m_unitList:
+            unit.big_data.update()
