@@ -130,7 +130,29 @@ new_transport = """
 
 house = """House
 
-        This screen doesn't do anything yet.
+        This is where you and your family live. You need to provide for them or they will die. 
+
+        You can see their profiles here, but keep in mind that profiles contain outdated data.
+
+        """
+
+people_profiles = """People Profiles
+
+        Here is everything you know about everyone you know. Their ages, birthdays, families, wealth, needs,
+        and other info is tracked by your character. This information is updated through conversations with other 
+        citizens of Jonestown.
+
+        Remember that this information is accurate but outdated.
+
+        """
+
+store_profiles = """Store Profiles
+
+        Here is everything you know about every place you know. Their prices, employees, your past experience
+        of the place, and other info is tracked by your character. This information is updated through conversations
+        with other citizens of Jonestown.
+
+        Remember that this information is accuracted but outdated.
 
         """
 

@@ -70,6 +70,8 @@ class gui(tk.Tk):
         rightSide.grid_rowconfigure(0, weight=1)
         quitter.grid(    row=3, column=0, sticky="nsew")
 
+        self.display_cont.show_frame("list_display")
+
     def getChar(self):
         return self.char
 
@@ -113,6 +115,8 @@ class display_controller(tk.Frame):
             #stack frames
             frame.grid(row=0, column=0, sticky="nsew")
 
+        self.show_frame("list_display")
+
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.raise_frame()
@@ -126,15 +130,9 @@ class display_controller(tk.Frame):
         self.frames["matplotlib_display"].bar_chart(x, y, xlabel, ylabel, title)
         self.show_frame("matplotlib_display")
 
-    def display_lists(self, col1, col2=None, col3=None, col4=None):
-        lists = [col1, col2, col3, col4]
-        columns = []
-
-        for array in lists:
-            string = ""
-
-            for item in array:
-                string += "\n" + str(item)
+    def display_list(self, values_dict):
+        self.frames["list_display"].display_list(values_dict)
+        self.show_frame("list_display")
 
 
 
@@ -244,69 +242,29 @@ class list_display(tk.Frame):
         leftBar = tk.Label(self, image=leftBarImage, width= 150, height=500)
         leftBar.image = leftBarImage
 
-        self.col1_var = tk.StringVar()
-        self.col2_var = tk.StringVar()
-        self.col3_var = tk.StringVar()
-        self.col4_var = tk.StringVar()
+        self.display_var = tk.StringVar()
 
-        title1 = tk.Label(self, image=parchment, text="Test",font=TITLE_FONT, width=190, height=30, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-        title2 = tk.Label(self, image=parchment, text="Test",font=TITLE_FONT, width=190, height=30, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-        title3 = tk.Label(self, image=parchment, text="Test",font=TITLE_FONT, width=190, height=30, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-        title4 = tk.Label(self, image=parchment, text="Test",font=TITLE_FONT, width=190, height=30, borderwidth=5, 
+        self.display = tk.Label(self, image=parchment, textvar=self.display_var,font=TEXT_FONT, width=800, height=500, borderwidth=5, 
             relief=tk.RIDGE, compound=tk.CENTER)
 
-        col1 = tk.Label(self, image=parchment, textvar=self.col1_var,font=TEXT_FONT, width=190, height=450, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-        col2 = tk.Label(self, image=parchment, textvar=self.col2_var,font=TEXT_FONT, width=190, height=450, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-        col3 = tk.Label(self, image=parchment, textvar=self.col3_var,font=TEXT_FONT, width=190, height=450, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-        col4 = tk.Label(self, image=parchment, textvar=self.col4_var,font=TEXT_FONT, width=190, height=450, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-
-        col1.image = parchment
+        self.display.image = parchment
 
         rightBar = tk.Label(self, image=rightBarImage, width=150, height=500)
         rightBar.image = rightBarImage
 
-        leftBar.grid(row=0, column=0, rowspan=2)
-
-        title1.grid(row=0, column=1)
-        title2.grid(row=0, column=2)
-        title3.grid(row=0, column=3)
-        title4.grid(row=0, column=4)
-
-        col1.grid(row=1, column=1)
-        col2.grid(row=1, column=2)
-        col3.grid(row=1, column=3)
-        col4.grid(row=1, column=4)
-
-        rightBar.grid(row=0, column=5, rowspan=2)
+        leftBar.grid(row=0, column=0)
+        self.display.grid(row=0, column=1)
+        rightBar.grid(row=0, column=2)
 
     def raise_frame(self):
         self.tkraise()
-        self.display_lists(["hello", "world", "I", "see", "you"], [1,2,3,43,4], ["So", "here", "we", "are"])
 
-    # def update_frame(self, foo)
+    def display_list(self, values_dict):
+        string = "List \n\n"
+        for key in values_dict.keys():
+            string += "\n" + str(key) + ": " + str(values_dict[key])
 
-    def display_lists(self, col1, col2=None, col3=None, col4=None):
-        lists = [col1, col2, col3, col4]
-        titles = []
-        columns = [self.col1_var, self.col2_var, self.col3_var, self.col4_var]
-
-        for i in range(len(lists)):
-            if lists[i] is not None:
-                
-                string = ""
-
-                for item in lists[i]:
-
-                    string += "\n" + str(item)
-
-                columns[i].set(string)
+        self.display_var.set(string)
 
 
 
@@ -409,7 +367,8 @@ class key_controller(tk.Frame):
             new_job, jobData, 
             new_order, 
             market, new_transfer, new_transport,
-            house, town):
+            house, people_profiles, store_profiles,
+            town):
 
             page_name = keyboard.__name__
             frame = keyboard(parent=self, controller=self, root=root)
@@ -523,6 +482,11 @@ class key_controller(tk.Frame):
         x = d.getMaterials()
         y = entity.getAllStock()
         display_cont.bar_chart(x, y, "Materials", "Amount", entity.name +" Stock")
+
+    def show_p_profile(self, profile):
+        display_cont = self.root.get_display_cont()
+        values_dict = profile.get_values()
+        display_cont.show_profile(values_dict)
 
 
 
@@ -1488,18 +1452,25 @@ class new_transport(tk.Frame):
 
 
 
+
+
+
 class house(tk.Frame):
 
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
-        self.hotkeys = ["<Escape>"]
-        header = tk.Label(self, text="Home",           font=TITLE_FONT)
-        main = tk.Button(self,  text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        self.hotkeys = ["s","p","<Escape>"]
+        header = tk.Label(self, text="Home", font=TITLE_FONT)
+        p_profiles = tk.Button(self, text="[p] People profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("people_profiles"))
+        s_profiles = tk.Button(self, text="[s] Store profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("store_profiles"))
+        esc = tk.Button(self,  text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
-        main.pack(fill=tk.X)
+        p_profiles.pack(fill=tk.X)
+        s_profiles.pack(fill=tk.X)
+        esc.pack(fill=tk.X)
 
     def show_splash(self):
         cont = self.controller.get_display_cont()
@@ -1519,7 +1490,147 @@ class house(tk.Frame):
         
         self.root.dynamic_hotkeys = []
         self.root.hotkeys = self.hotkeys
+        self.root.bind("p", lambda x: self.controller.show_frame("people_profiles"))
+        self.root.bind("s", lambda x: self.controller.show_frame("store_profiles"))
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
+
+
+
+
+class people_profiles(tk.Frame):
+
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+        self.hotkeys = ["<Escape>"]
+        self.dynamic_buttons  = []
+        header = tk.Label(self, text="People Profiles", font=TITLE_FONT)
+        self.esc = tk.Button(self, text="[esc] Return to House", font=BUTTON_FONT, command=lambda: self.controller.show_frame("house"))
+
+        header.pack()
+        self.esc.pack(fill=tk.X)
+
+    def show_splash(self):
+        cont = self.controller.get_display_cont()
+        cont.update_frame("main_display", tutorials.people_profiles)
+
+    def callbackFactory(self, profile):
+        def callback(event=None):
+            return self.root.display_cont.display_list(profile.get_values())
+        return callback
+    
+    def raise_frame(self):
+        for entry in self.dynamic_buttons:
+            entry.destroy()
+
+        char = self.root.getChar()
+        profiles = char.getKnownPeople()
+
+        key =1
+        for profile in profiles:
+            # pname = profile.name
+            callback = self.callbackFactory(profile)
+            newButton = tk.Button(self, text= "[" + str(key) + "] " + profile.name, font=BUTTON_FONT, command=callback)
+            newButton.callback = callback
+            newButton.pack(fill=tk.X)
+            self.dynamic_buttons.append(newButton)
+            key += 1
+
+        self.esc.pack_forget()
+        self.esc.pack(fill=tk.X)
+
+        self.show_splash()
+        self.set_hotkeys()
+        self.tkraise()
+
+    def set_hotkeys(self):
+        for hotkey in self.root.hotkeys:
+            self.root.unbind(hotkey)
+            
+        for hotkey in self.root.dynamic_hotkeys:
+            self.root.unbind(hotkey)
+        
+        self.root.dynamic_hotkeys = []
+        self.root.hotkeys = self.hotkeys
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("house"))
+
+        key = 1
+        for button in self.dynamic_buttons:
+            self.root.bind(str(key), button.callback)
+            self.root.dynamic_hotkeys.append(str(key))
+            key += 1
+
+
+
+
+class store_profiles(tk.Frame):
+
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+        self.hotkeys = ["<Escape>"]
+        self.dynamic_buttons = []
+        header = tk.Label(self, text="Store Profiles", font=TITLE_FONT)
+        self.esc = tk.Button(self, text="[esc] Return to House", font=BUTTON_FONT, command=lambda:self.controller.show_frame("house"))
+
+        header.pack()
+        self.esc.pack(fill=tk.X)
+
+    def show_splash(self):
+        cont = self.controller.get_display_cont()
+        cont.update_frame("main_display", tutorials.store_profiles)
+
+    def callbackFactory(self, profile):
+        def callback(event=None):
+            return self.controller.show_frame("s_profile_data", profile)
+        return callback
+    
+    def raise_frame(self):
+        for entry in self.dynamic_buttons:
+            entry.destroy()
+
+        char = self.root.getChar()
+        profiles = char.getKnownStores()
+
+        key =1
+        for profile in profiles:
+            # pname = profile.name
+            callback = self.callbackFactory(profile)
+            newButton = tk.Button(self, text= "[" + str(key) + "] " + profile.name, font=BUTTON_FONT, command=callback)
+            newButton.callback = callback
+            newButton.pack(fill=tk.X)
+            self.dynamic_buttons.append(newButton)
+            key += 1
+
+        self.esc.pack_forget()
+        self.esc.pack(fill=tk.X)
+
+        self.show_splash()
+        self.set_hotkeys()
+        self.tkraise()
+
+    def set_hotkeys(self):
+        for hotkey in self.root.hotkeys:
+            self.root.unbind(hotkey)
+            
+        for hotkey in self.root.dynamic_hotkeys:
+            self.root.unbind(hotkey)
+        
+        self.root.dynamic_hotkeys = []
+        self.root.hotkeys = self.hotkeys
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("house"))
+
+        key = 1
+        for button in self.dynamic_buttons:
+            self.root.bind(str(key), button.callback)
+            self.root.dynamic_hotkeys.append(str(key))
+            key += 1
+
+
+
+
 
 
 

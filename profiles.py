@@ -57,6 +57,17 @@ class PersonProfile(object):
     def getPerson(self):
         return self.person
 
+    def get_values(self):
+        values_dict = {}
+        values_dict["name"] = str(self.name)
+        values_dict["locality"] = str(self.locality)
+        values_dict["birthday"] = str(self.birthday)
+        values_dict["job"] = str(self.job)
+        values_dict["spouse"] = str(self.spouse)
+        values_dict["house"] = str(self.house)
+
+        return values_dict
+
 class StoreProfile(object):
     name = None
     locality = None    #city
