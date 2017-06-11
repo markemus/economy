@@ -22,6 +22,7 @@ class People:
         self.name = theirName
         self.gender = theirGender
         self.age = theirAge
+        self.birthday = self.model.calendar.date()
         self.locality = theirHometown
         self.home = theirHome
         self.location = theirHome.location
@@ -44,6 +45,7 @@ class People:
 
     def sleepHandler(self):
         self.think("My bed is so cozy.")
+        self.update_my_profile()
         self.eat()
         self.drink()
 
@@ -82,6 +84,17 @@ class People:
                 self.think("I can't find a church in this neighborhood.")
         else:
             self.church.attend(self)
+
+    def update_my_profile(self):
+        profile = self.peopleManager(self)
+        dayNum = self.model.clock.getDayNum()
+
+        profile.updateBirthday(self.birthday)
+        profile.updateJob(self.job, dayNum)
+        profile.updateSpouse(self.spouse, dayNum)
+        profile.updateHouse(self.home, dayNum)
+        profile.house = self.home
+        profile.updateMuList(self.muList, dayNum)
 
     def toString(self):
         name = self.getName()

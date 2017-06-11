@@ -69,7 +69,7 @@ class generator(object):
                 religion = religionList[1]
 
             #gen
-            gennedPerson = p.People(self.model, gennedName, gender, 18, locality, home,[1,1,1,1,1,1,1,1,1,1], religion)
+            gennedPerson = p.People(self.model, gennedName, gender, 18, locality, home, [1,1,1,1,1,1,1,1,1,1], religion)
             gennedPerson.addCapital(100)
             
             church = religion.getBusinesses()[0].getUnits()[0]
@@ -113,7 +113,7 @@ class generator(object):
     def makeFriends(self):
         peopleList = d.getPeople()
         for person in peopleList:
-            for count in range(50):
+            for count in range(10):
                 i = random.randrange(len(peopleList))
                 friend = peopleList[i]
                 friendProfile = person.peopleManager(friend)

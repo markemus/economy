@@ -25,7 +25,7 @@ MrMoney = d.getPeople()[0]
 MrsMoney = d.getPeople()[1]
 yourHome = u.House(Jonestown, (3,5))
 you = model.gui.char
-model.gui.char.name = "Brian Jones"
+# model.gui.char.name = "Brian Jones"
 you.addCapital(10000)
 
 CatholicChurch = d.getChurches()[0]
@@ -67,12 +67,25 @@ testFarm.addStock(d.GRAIN_INDEX, 100)
 # for mat in range(len(d.getMaterials())):
 #     testMill.addStock(mat, 5000)
 
-model.gui.mainloop()
-
-# Jonestown.printMap()
-
-# print(testMill.incubator.toString())
+# model.gui.mainloop()
 
 for unit in testBus.getUnits():
     print(unit.toString())
     print(unit.incubator.toString())
+
+model.clock.runDay()
+model.clock.runDay()
+model.clock.runDay()
+model.clock.runDay()
+
+employee = testFarm.jobList[2].getEmployees()[0]
+Convo.beginConversation(MrsMoney, employee)
+MrsMoney.printThoughts()
+# print("1: ", MrsMoney.peopleManager(employee).job[0].unit.name)
+print("2: ", employee.job.business.name)
+# print("3: ", MrMoney.knownManus[0].store, MrMoney.knownManus[1].store)
+# print("4: ", MrMoney.knownManus[0].store.business, MrMoney.knownManus[1].store.business)
+print("3: ", MrsMoney.knownManus)
+print("4: ", MrsMoney.knownManus[0].store.business.name, MrsMoney.knownManus[1].store.business.name, MrsMoney.knownManus[2].store.business.name, MrsMoney.knownManus[3].store.business.name)
+print("5: ", MrsMoney.knownManus[0].store, MrsMoney.knownManus[1].store, MrsMoney.knownManus[2].store, MrsMoney.knownManus[3].store)
+# print("6: ", MrsMoney.known)

@@ -6,32 +6,41 @@ from transitions import Machine
 #Conversations are markov chains. Works as follows: a column vector for each CURRENT state j, a row vector for each TARGET state i.
 #Each entry i,j = the probability of moving to state i from state j.
 #target state D = end of conversation. We start in state D when initializing conversation.
-#column vectors sum to 1
+#row vectors sum to 1, internal lists are columns.
 
 #Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
 class Conversation(object):
-    #a. stores, b.manufacturers, c.friends, d.end conversation
+    #a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
     topicMatrix = [
-    [0.00,0.50,0.375,0.25],
-    [0.50,0.00,0.375,0.25],
-    [0.25,0.25,0.000,0.25],
-    [0.25,0.25,0.250,0.25]
+    [0.00,0.45,0.25,0.25,0],
+    [0.45,0.00,0.25,0.25,0],
+    [0.15,0.15,0.00,0.25,0],
+    [0.15,0.15,0.25,0.00,1.0],
+    [0.25,0.25,0.25,0.25,0]
+    ]
+
+    topicMatrix = [
+    [0.00,0.45,0.25,0.25,0],
+    [0.45,0.00,0.25,0.25,0],
+    [0.15,0.15,0.00,0.25,0],
+    [0.15,0.15,0.25,0.00,1.0],
+    [0.25,0.25,0.25,0.25,0]
     ]
 
     #a. different store, b. new topic, c. end convo, d. prices
     storeMatrix = [
-    [0.0,0.0,.25,0.4],
-    [0.0,0.0,.25,0.4],
-    [0.0,0.0,.25,0.0],
-    [1.0,1.0,.25,0.2]
+    [0.0,0.0,0.25,0.4],
+    [0.0,0.0,0.25,0.4],
+    [0.0,0.0,0.25,0.0],
+    [1.0,1.0,0.25,0.2]
     ]
 
     #a. different manufacturer, b. new topic, c. end convo, d. prices
     manuMatrix = [
-    [0.0,0.0,.25,0.3],
-    [0.0,0.0,.25,0.3],
-    [0.0,0.0,.25,0.2],
-    [1.0,1.0,.25,0.2]
+    [0.0,0.0,0.25,0.3],
+    [0.0,0.0,0.25,0.3],
+    [0.0,0.0,0.25,0.2],
+    [1.0,1.0,0.25,0.2]
     ]
 
     #a. different friend, b. new topic, c. end convo, d. family, e. job, f. skills
@@ -44,13 +53,24 @@ class Conversation(object):
     [0.33,0.33,0.25,0.35,0.35,0.00]
     ]
 
-    states = ['topic','store','manu','friend', 'exit']
+    #a. introduction, b. new topic, c. end convo, d. myfamily, e. myjob, f. myskills
+    myselfMatrix = [
+    [0.0,0,0.15,0.00,0.00,0.00],
+    [0.2,0,0.15,0.25,0.25,0.25],
+    [0.2,0,0.15,0.25,0.25,0.25],
+    [0.2,0,0.15,0.00,0.25,0.25],
+    [0.2,1,0.15,0.25,0.00,0.25],
+    [0.2,0,0.15,0.25,0.25,0.00]
+    ]
+
+    states = ['topic','store','manu','friend', 'myself', 'exit']
 
     transitions = [
-    {'trigger' : 'toTopic',   'source': '*',      'dest' :'topic'},
-    {'trigger' : 'toStore',   'source': 'topic',  'dest' : 'store'},
-    {'trigger' : 'toManu' ,   'source': 'topic' , 'dest' : 'manu' },
-    {'trigger' : 'toFriend' , 'source': 'topic',  'dest' : 'friend' },
+    {'trigger' : 'toTopic',   'source' : '*',     'dest' : 'topic'},
+    {'trigger' : 'toStore',   'source' : 'topic', 'dest' : 'store'},
+    {'trigger' : 'toManu' ,   'source' : 'topic', 'dest' : 'manu' },
+    {'trigger' : 'toFriend',  'source' : 'topic', 'dest' : 'friend' },
+    {'trigger' : 'toMyself',  'source' : 'topic', 'dest' : 'myself'},
     {'trigger' : 'toExit',    'source' : '*',     'dest' : 'exit'}
     ]
 
@@ -61,15 +81,17 @@ class Conversation(object):
         self.target = None
         self.machine  = Machine(model=self, states=Conversation.states, transitions=Conversation.transitions, initial='exit')
         self.menuDict = {
-            'topic'  : [self.toStore, self.toManu, self.toFriend, self.toExit],
+            'topic'  : [self.toStore, self.toManu, self.toFriend, self.toMyself, self.toExit],
             'store'  : [self.different, self.toTopic, self.toExit, self.prices],
             'manu'   : [self.different, self.toTopic, self.toExit, self.prices],
-            'friend' : [self.different, self.toTopic, self.toExit, self.family, self.job, self.skills]
+            'friend' : [self.different, self.toTopic, self.toExit, self.family, self.job, self.skills],
+            'myself' : [self.introduction, self.toTopic, self.toExit, self.myfamily, self.myjob, self.myskills]
             }
         self.machine.on_enter_topic('topicHandler')
         self.machine.on_enter_store('storeHandler')
         self.machine.on_enter_manu('manuHandler')
         self.machine.on_enter_friend('friendHandler')
+        self.machine.on_enter_myself('myselfHandler')
         self.machine.on_enter_exit('exitHandler')
 
     def beginConversation(self, firstPerson, secondPerson, isPlayer=False):
@@ -185,6 +207,57 @@ class Conversation(object):
     def skills(self):
         None
 
+    def myfamily(self):
+        pass
+
+    def myjob(self):
+        #info: jobs, jobUnits, *salaries
+        #profiles
+        firstProfile = self.secondPerson.peopleManager(self.firstPerson)
+        secondProfile = self.firstPerson.peopleManager(self.secondPerson)
+
+        #variables
+        firstJob = self.firstPerson.getJob()
+        secondJob = self.secondPerson.getJob()
+
+        try:
+            firstJobType = firstJob.getJobType()
+            firstJobUnit = firstJob.getUnit()
+            firstJobLoc = firstJobUnit.getName()
+        except:
+            firstJobType = "Jobhunter"
+            firstJobUnit = None
+            firstJobLoc = "home"        
+        
+        try:
+            secondJobType = secondJob.getJobType()
+            secondJobUnit = secondJob.getUnit()
+            secondJobLoc = secondJobUnit.getName()
+        except:
+            secondJobType = "Jobhunter"
+            secondJobUnit = None
+            secondJobLoc = "home"
+
+        dayNum = self.firstPerson.model.getDayNum()
+
+        #update profiles
+        firstProfile.updateJob(firstJob, dayNum)
+        # firstProfile.updateSalary(salaryRange, dayNum)
+        secondProfile.updateJob(secondJob, dayNum)
+        # secondProfile.updateSalary(salaryRange, dayNum)
+
+        if firstJobUnit is not None:
+            self.secondPerson.unitManager(firstJobUnit)
+        if secondJobUnit is not None:
+            self.firstPerson.unitManager(secondJobUnit)       
+
+        #thoughts
+        self.firstPerson.think(self.secondPerson.name + " told me about their job as a " + secondJobType + " at " + secondJobLoc + ".")
+        self.secondPerson.think(self.firstPerson.name + " told me about their job as a " + firstJobType + " at " + firstJobLoc + ".")
+
+    def myskills(self):
+        pass
+
     #dialogues are chosen here, but the actual method call is in the handler (eg prices)
     def talk(self, matrix, stateVector):
 
@@ -211,7 +284,8 @@ class Conversation(object):
 
     def topicHandler(self):
         matrix = Conversation.topicMatrix
-        stateVector = [0,0,0,1]
+        stateVector = [0,0,0,0,1]
+        self.firstPerson.think("topicHandler")
 
         stateVector = self.talk(matrix, stateVector)
         for i in range(len(stateVector)):
@@ -222,6 +296,8 @@ class Conversation(object):
     def storeHandler(self):
         matrix = Conversation.storeMatrix
         stateVector = [0,1,0,0]
+        self.firstPerson.think("storeHandler")
+
         self.different()
 
         while self.state == 'store':
@@ -234,6 +310,8 @@ class Conversation(object):
     def manuHandler(self):
         matrix = Conversation.manuMatrix
         stateVector = [0,1,0,0]
+        self.firstPerson.think("manuHandler")
+
         self.different()
 
         while self.state == 'manu':
@@ -246,9 +324,23 @@ class Conversation(object):
     def friendHandler(self):
         matrix = Conversation.friendMatrix
         stateVector = [0,1,0,0,0,0]
+        self.firstPerson.think("friendHandler")
+        
         self.different()
 
         while self.state == 'friend':
+            stateVector = self.talk(matrix, stateVector)
+            for i in range(len(stateVector)):
+                if stateVector[i] == 1:
+                    self.menuDict[self.state][i]()
+                    break
+
+    def myselfHandler(self):
+        matrix = Conversation.myselfMatrix
+        stateVector = [0,1,0,0,0,0]
+        self.firstPerson.think("myselfHandler")
+
+        while self.state == 'myself':
             stateVector = self.talk(matrix, stateVector)
             for i in range(len(stateVector)):
                 if stateVector[i] == 1:

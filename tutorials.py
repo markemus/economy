@@ -14,13 +14,13 @@ welcome = """Welcome to Jonestown!
 
 main_display = """Office screen
 
-        This is the Office screen. Here you can see a list of the Businesses you own,
-        and can create new Businesses as well.
+        This is the Office screen. Here you can see a list of the 
+        Businesses you own, and can create new Businesses as well.
 
         You can use the buttons or hotkeys to navigate.
 
-        There are 4 layers for every financial enterprise: the Business layer, the Unit layer, 
-        the Job layer, and the Order layer. 
+        There are 4 layers for every financial enterprise: the 
+        Business layer, the Unit layer, the Job layer, and the Order layer. 
 
         """
 

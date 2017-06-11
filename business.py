@@ -239,4 +239,4 @@ class Business(object):
         for order in self.transportOrders:
             order.execute()
         for unit in self.m_unitList:
-            unit.big_data.update()
+            unit.bigdata.update()

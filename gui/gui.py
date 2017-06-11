@@ -14,9 +14,9 @@ import tutorials
 
 #WARNING: throws error if run from here. Import to economy directory and run from there. Necessary because image files are stored there.
 
-TITLE_FONT = ("Black chancery", "18", "bold")
-TEXT_FONT = ("Black chancery", "15")
-BUTTON_FONT = ("Black chancery", "13")
+TITLE_FONT = ("Courier", "18", "bold")
+TEXT_FONT = ("Courier", "15", "bold")
+BUTTON_FONT = ("Courier", "13")
 
 class gui(tk.Tk):
 
@@ -32,6 +32,7 @@ class gui(tk.Tk):
 
         self.wm_title("Jonestown")
         # root.resizable(0,0)
+        self.geometry('1920x1080')
 
         #megaFrames
         leftSide    =tk.Frame(self)
@@ -57,20 +58,27 @@ class gui(tk.Tk):
         #root grid
         leftSide.grid( row=0, column=0, sticky=tk.NSEW)
         rightSide.grid(row=0, column=1, sticky=tk.NSEW)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
         #leftSide grid
         titleBar.grid(row=0, column=0)
         self.display_cont.grid( row=1, column=0)
         self.text_cont.grid(row=2, column=0, sticky='nsew')
+        leftSide.grid_rowconfigure(0, weight=1)
+        leftSide.grid_rowconfigure(1, weight=1)
+        leftSide.grid_rowconfigure(2, weight=1)
+        leftSide.grid_columnconfigure(0, weight=1)
 
         #rightSide grid
         charDisplay.grid(row=0, column=0, sticky='nsew')
         keyboard.grid(   row=1, column=0, sticky="nsew")
-        rightSide.grid_rowconfigure(1, weight=1)
         rightSide.grid_rowconfigure(0, weight=1)
+        rightSide.grid_rowconfigure(1, weight=1)
         quitter.grid(    row=3, column=0, sticky="nsew")
 
-        self.display_cont.show_frame("list_display")
+        self.display_cont.show_frame("main_display")
 
     def getChar(self):
         return self.char
@@ -107,15 +115,13 @@ class display_controller(tk.Frame):
 
         self.frames = {}
 
-        for display in (main_display, matplotlib_display, list_display):
+        for display in (main_display, matplotlib_display, list_display, canvas_display):
             page_name = display.__name__
             frame = display(parent=self, controller=self, root=root)
             self.frames[page_name] = frame
 
             #stack frames
             frame.grid(row=0, column=0, sticky="nsew")
-
-        self.show_frame("list_display")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
@@ -133,6 +139,18 @@ class display_controller(tk.Frame):
     def display_list(self, values_dict):
         self.frames["list_display"].display_list(values_dict)
         self.show_frame("list_display")
+
+    def display_spreadsheet(self, spreadsheet):
+        self.frames["list_display"].display_spreadsheet(spreadsheet)
+        self.show_frame("list_display")
+
+    def display_p_profile(self, values_dict):
+        self.frames["canvas_display"].display_p_profile(**values_dict)
+        self.show_frame("canvas_display")
+
+    def display_s_profile(self, values_dict):
+        self.frames["canvas_display"].display_s_profile(**values_dict)
+        self.show_frame("canvas_display")
 
 
 
@@ -243,10 +261,8 @@ class list_display(tk.Frame):
         leftBar.image = leftBarImage
 
         self.display_var = tk.StringVar()
-
         self.display = tk.Label(self, image=parchment, textvar=self.display_var,font=TEXT_FONT, width=800, height=500, borderwidth=5, 
-            relief=tk.RIDGE, compound=tk.CENTER)
-
+            relief=tk.RIDGE, compound=tk.CENTER, justify=tk.LEFT)
         self.display.image = parchment
 
         rightBar = tk.Label(self, image=rightBarImage, width=150, height=500)
@@ -260,11 +276,82 @@ class list_display(tk.Frame):
         self.tkraise()
 
     def display_list(self, values_dict):
-        string = "List \n\n"
-        for key in values_dict.keys():
+        string = "List \n"
+        for key in sorted(values_dict.keys(), key=str.lower):
             string += "\n" + str(key) + ": " + str(values_dict[key])
 
         self.display_var.set(string)
+
+    #can handle up to six columns
+    def display_spreadsheet(self, spreadsheet):
+
+        def justify(item):
+            spaces = " " + (" " * (8 - len(item))) + "|"
+            item = item[:8]
+            item += spaces
+            return item
+
+        string = "Spreadsheet \n"
+        for array in spreadsheet:
+            string += "\n"
+            
+            for item in array:
+                string += justify(item)
+
+        self.display_var.set(string)
+
+
+
+
+class canvas_display(tk.Frame):
+    #tags: temp,
+
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.root = root 
+        leftBarImage = tk.PhotoImage( file="./images/greenWheat.gif")
+        rightBarImage = tk.PhotoImage(file="./images/nightWheat.gif")
+        parchment = tk.PhotoImage(    file='./images/parchment.gif')
+
+        leftBar = tk.Label(self, image=leftBarImage, width= 150, height=500)
+        leftBar.image = leftBarImage
+
+        self.display = tk.Canvas(self, width=790, height=490, borderwidth=5, relief=tk.RIDGE)
+        self.display.create_image(0,0, anchor="nw", image=parchment)
+        self.display.image = parchment
+
+        rightBar = tk.Label(self, image=rightBarImage, width=150, height=500)
+        rightBar.image = rightBarImage
+
+        leftBar.grid(row=0, column=0)
+        self.display.grid(row=0, column=1)
+        rightBar.grid(row=0, column=2)
+
+    def raise_frame(self):
+        self.tkraise()
+
+    def display_p_profile(self, name, job, locality, birthday, spouse, house):
+        details = ("Name: " + name + "\n" +
+            "Job: " + job + "\n" + 
+            "Locality: " + locality + "\n" +
+            "Birthday: " + birthday + "\n" +
+            "Spouse: " + spouse + "\n" +
+            "House: " + house + "\n")
+
+        self.display.delete("temp")
+        self.display.create_text(395, 20, text="Person Profile", font=TITLE_FONT, tags="temp")
+        self.display.create_text(10, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
+
+    def display_s_profile(self, name, prices, familiarity, experience, locality, location):
+        details = ("Name: " + name + "\n" +
+            "Prices: " + prices + "\n" +
+            "Familiarity: " + familiarity + "\n" +
+            "Experience: " + experience + "\n" +
+            "Location: " + location + "\n")
+
+        self.display.delete("temp")
+        self.display.create_text(395, 20, text="Store Profile", font=TITLE_FONT, tags="temp")
+        self.display.create_text(10, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
 
 
 
@@ -1517,7 +1604,7 @@ class people_profiles(tk.Frame):
 
     def callbackFactory(self, profile):
         def callback(event=None):
-            return self.root.display_cont.display_list(profile.get_values())
+            return self.root.display_cont.display_p_profile(profile.get_values_dict())
         return callback
     
     def raise_frame(self):
@@ -1584,7 +1671,7 @@ class store_profiles(tk.Frame):
 
     def callbackFactory(self, profile):
         def callback(event=None):
-            return self.controller.show_frame("s_profile_data", profile)
+            return self.root.display_cont.display_s_profile(profile.get_values_dict())
         return callback
     
     def raise_frame(self):

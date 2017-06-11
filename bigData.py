@@ -8,8 +8,8 @@ class bigdata(object):
         materials       = d.getMaterials()
         # self.avgPrices  = [0 for i in materials]
         self.sales      = []
-        self.prices     = []
-        self.crafted = []
+        self.price      = []
+        self.crafted    = []
 
     # def addSale(self, materialIndex, amount, price):
 
@@ -21,7 +21,7 @@ class bigdata(object):
 
     def update(self):
         self.sales.append(self.unit.sales)
-        self.prices.append(self.unit.prices)
+        self.price.append(self.unit.price)
         self.crafted.append(self.unit.crafted)
 
     def getData(self):

@@ -12,6 +12,7 @@ class PersonProfile(object):
     def __init__(self, person):
         dayNum = person.getLocality().model.getDayNum()
         self.name = person.name
+        self.locality = person.locality
         self.children = ([], dayNum)
         self.person = person
         self.muList = [(0,0) for i in d.getMaterials()]
@@ -58,6 +59,13 @@ class PersonProfile(object):
         return self.person
 
     def get_values(self):
+        spreadsheet = []
+        spreadsheet.append(["name", "job", "locality", "birthday", "spouse", "house"])
+        spreadsheet.append([str(self.name), str(self.job), str(self.locality), str(self.birthday), str(self.spouse), str(self.house)])
+        
+        return spreadsheet
+
+    def get_values_dict(self):
         values_dict = {}
         values_dict["name"] = str(self.name)
         values_dict["locality"] = str(self.locality)
@@ -67,6 +75,7 @@ class PersonProfile(object):
         values_dict["house"] = str(self.house)
 
         return values_dict
+
 
 class StoreProfile(object):
     name = None
@@ -84,6 +93,17 @@ class StoreProfile(object):
         self.locality = store.getLocality()
         self.name = store.name
         self.avgPrices = ([0 for i in d.getMaterials()], dayNum)
+
+    def get_values_dict(self):
+        values_dict = {}
+        values_dict["name"] = str(self.name)
+        values_dict["prices"] = str(self.avgPrices)
+        values_dict["familiarity"] = str(self.familiarity)
+        values_dict["experience"] = str(self.experience)
+        values_dict["locality"] = str(self.locality)
+        values_dict["location"] = str(self.location)
+
+        return values_dict
 
     def updatePrices(self, prices, dayNum):
         n = self.familiarity
