@@ -56,8 +56,8 @@ class Unit(object):
         self.laborTotal = 0
         self.rentTotal  = 0
 
-    def __str__(self):
-        return self.character
+    # def __str__(self):
+    #     return self.character
 
     def toString(self):
         print("------------------------------------------")

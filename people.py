@@ -1,7 +1,10 @@
-import database as d
 import math
 import random
+
+import database as d
 from conversation import Convo
+from profiles import PersonProfile
+from profiles import StoreProfile
 
 class People:
     name = "John Doe"
@@ -32,7 +35,7 @@ class People:
         self.inventory = [0 for i in range(len(d.materialsList))]
         self.thoughts = []
         #profiles
-        self.knownPeople = []
+        self.knownPeople = {}
         self.knownManus = []
         self.knownStores = []
         self.knownHomes = []
@@ -91,9 +94,9 @@ class People:
 
         profile.updateBirthday(self.birthday)
         profile.updateJob(self.job, dayNum)
-        profile.updateSpouse(self.spouse, dayNum)
+        profile.updateFamily(spouse = (self.spouse, dayNum))
         profile.updateHouse(self.home, dayNum)
-        profile.house = self.home
+        # profile.house = self.home
         profile.updateMuList(self.muList, dayNum)
 
     def toString(self):
@@ -179,13 +182,20 @@ class People:
             #thoughts
             self.think("I should check today's prices once I'm already here at work.")
 
+    #sleep
+    def spouseConversations(self):
+        spouse = self.peopleManager(self).getSpouse()[0]
+        if spouse is not None:
+            Convo.beginConversation(self, spouse)
+
+    #work
     def workConversations(self):
-        #talk to some people at work
         if self.job is not None:
             coworkers = self.job.getEmployees()
             totalCoworkers = len(coworkers)
 
-            numberOfConvos = random.randrange(4)
+            # numberOfConvos = random.randrange(4)
+            numberOfConvos = 1
             if numberOfConvos > totalCoworkers:
                 numberOfConvos = totalCoworkers
 
@@ -195,6 +205,16 @@ class People:
 
                 if conversee is not self:
                     Convo.beginConversation(self, conversee)
+
+    #for use during Rest
+    def familyConversations(self):
+        family = self.peopleManager(self).getFamilyList()
+
+        if len(family) > 0:
+            conversee = family[random.randrange(len(family))]
+            Convo.beginConversation(self, conversee)
+        else:
+            self.think("I'm all alone in the world.")
 
     def newChurch(self, church):
         self.church = church
@@ -398,19 +418,19 @@ class People:
     def randomPerson(self, oldPerson=None):
         length = len(self.knownPeople)
         if length >= 2:
-            personIndex = random.randint(0, length-1)
-            tryPerson = self.knownPeople[personIndex]
+            tryPerson = self.knownPeople[random.choice(list(self.knownPeople.keys()))]
 
             if (tryPerson is not oldPerson) or (oldPerson is None):
                 newPerson = tryPerson
             else:
                 newPerson = self.randomPerson(oldPerson)
-        
+
         elif length == 1 and oldPerson == None:
-            newPerson = self.knownPeople[0]
-        
+            newPerson = self.knownPeople[list(self.knownPeople.keys())[0]]
+
         else:
             newPerson = None
+
         return newPerson
 
     def randomStore(self, oldStore=None):
@@ -432,19 +452,12 @@ class People:
         
         return newStore
 
-    def peopleManager(self, target):
-        from profiles import PersonProfile
-
-        notFound = True
-        for testProfile in self.knownPeople:
-            if testProfile.person is target:
-                targetProfile = testProfile
-                notFound = False
-                break
-        
-        if notFound:
+    def peopleManager(self, target):        
+        if target in self.knownPeople:
+            targetProfile = self.knownPeople[target]
+        else:
             targetProfile = PersonProfile(target)
-            self.knownPeople.append(targetProfile)
+            self.knownPeople[target] = targetProfile
 
         return targetProfile
 
@@ -456,7 +469,7 @@ class People:
         missions = target.getMissions()
 
         #search
-        for i in range((len(missions))):
+        for i in range(len(missions)):
             if missions[i] and notFound:
 
                 unitList = self.knownUnitLists[i]
@@ -484,6 +497,9 @@ class People:
         state = self.model.clock.state
         thought = (dayNum, weekDay, date, state, thought)
         self.thoughts.append(thought)
+
+        if self.model.char == self:
+            self.model.out(str(thought[0]).ljust(6) + thought[1].ljust(10) + str(thought[2]).ljust(18) + thought[3].ljust(10) + thought[4] + "\n")
 
     def printThoughts(self):
         print(self.name, "thought:")
@@ -519,7 +535,7 @@ class People:
         return self.muList
 
     def getKnownPeople(self):
-        return self.knownPeople
+        return self.knownPeople.values()
 
     def getKnownStores(self):
         return self.knownStores
@@ -532,6 +548,9 @@ class People:
 
     def getSkill(self, skillIndex):
         return self.skills[skillIndex]
+
+    def getSkills(self):
+        return self.skills
 
     def setJob(self, job, salary):
         self.job = job

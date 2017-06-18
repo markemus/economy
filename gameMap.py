@@ -127,7 +127,7 @@ class Locality(object):
                     rowAppearance = rowAppearance + "."
 
                 else:
-                    rowAppearance = rowAppearance + str(i)
+                    rowAppearance = rowAppearance + i.character
             
             print(rowAppearance)
 

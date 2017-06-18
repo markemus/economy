@@ -330,17 +330,21 @@ class canvas_display(tk.Frame):
     def raise_frame(self):
         self.tkraise()
 
-    def display_p_profile(self, name, job, locality, birthday, spouse, house):
-        details = ("Name: " + name + "\n" +
-            "Job: " + job + "\n" + 
-            "Locality: " + locality + "\n" +
-            "Birthday: " + birthday + "\n" +
-            "Spouse: " + spouse + "\n" +
-            "House: " + house + "\n")
+    def display_p_profile(self, name, job, locality, birthday, father, mother, spouse, siblings, children, house):
+        details = (
+            "Name: " + name + "\n" +
+            "DOB: " + birthday + "\n" +
+            "Works as a " + job + "\n" + 
+            "Married to " + spouse + "\n" +
+            "Lives at " + house + " in " + locality + "\n" +
+            "Parents: " + father + " " + mother + "\n" +
+            "Siblings: " + siblings + "\n" +
+            "Children: " + children + "\n")
 
         self.display.delete("temp")
         self.display.create_text(395, 20, text="Person Profile", font=TITLE_FONT, tags="temp")
-        self.display.create_text(10, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
+        self.display.create_rectangle(30, 30, 170, 170, tags="temp")
+        self.display.create_text(200, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
 
     def display_s_profile(self, name, prices, familiarity, experience, locality, location):
         details = ("Name: " + name + "\n" +

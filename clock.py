@@ -25,7 +25,7 @@ class Clock(object):
         peopleList      = d.getPeople()
         localityList    = d.getLocality()
 
-        self.model.out("\nEveryone goes to sleep.")
+        self.model.out("Everyone goes to sleep.\n")
         for person in peopleList:
             person.sleepHandler()
 
@@ -46,11 +46,11 @@ class Clock(object):
         bossList        = d.getBosses()
         localityList    = d.getLocality()
 
-        self.model.out("\nEverybody goes to work.")
+        self.model.out("Everybody goes to work.\n")
 
         if self.model.week.state == 'Friday':
             self.model.salaryPayer.paySalaries()
-            self.model.out("\nSalaries were paid today.")
+            self.model.out("Salaries were paid today.\n")
 
         if self.model.week.state == 'Sunday':
             for person in peopleList:
@@ -73,7 +73,7 @@ class Clock(object):
         businessList = d.getBusinesses()
         peopleList = d.getPeople()
 
-        self.model.out("\nEverybody relaxes.")
+        self.model.out("Everybody relaxes.\n")
 
         for boss in bossList:
             for business in boss.getBusinesses():
@@ -87,7 +87,7 @@ class Clock(object):
         businessList = d.getBusinesses()
         peopleList = d.getPeople()
 
-        self.model.out("\nEverybody goes shopping.")
+        self.model.out("Everybody goes shopping.\n")
 
         for business in businessList:
             business.shopHandler()

@@ -73,7 +73,7 @@ class Business(object):
             owner.unitManager(unit)
 
             #they tell all their friends about their new venture.
-            for friend in owner.knownPeople:
+            for friend in owner.getKnownPeople():
                 friend.person.unitManager(unit)
 
     def removeJob(self, job):

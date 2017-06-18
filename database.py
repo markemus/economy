@@ -35,12 +35,13 @@ planted = ["grain", "beer", "meat", "fruit", "wood"]
 crafted = ["flour", "bread", "chair", "table"]
 
 #name lists
-maleNameList = ['John','Jake','Joseph']
-femaleNameList = ['Jane','Joan','Jeanne']
-lastNameList = ['Johnson','Jacobson','Josephson']
+maleNameList = open("boynames", "r").read().splitlines()
+femaleNameList = open("girlnames", "r").read().splitlines()
+lastNameList = open("lastnames", "r").read().splitlines()
 
 #these are identified by these same indices throughout the program.
 equipmentList = ["millstone"]
+skillsList = [0,0,0,0,0,0,0,0,0]
 materialsList = ["grain", "flour", "beer", "bread", "meat", "fruit", "wood", "chair", "table"]
 unitMissions = ["manu", "store", "house", "church"]
 
@@ -121,6 +122,9 @@ def getComponents(materialIndex):
 
 def getAllComponents():
     return components
+
+def getSkills():
+    return skillsList
 
 def getPeople():
     return peopleList

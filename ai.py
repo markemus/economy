@@ -73,7 +73,7 @@ class StartupAI(object):
         highestMU = [0 for i in d.getMaterials()]
 
         for profile in peopleProfiles:
-            #[0] because tuple
+            
             muList = profile.getMuList()[0]
             maxMu = muList.index(max(muList))
             highestMU[maxMu] += 1
@@ -413,16 +413,17 @@ class SalaryPayer(object):
                     for employee in job.employees:
                         employee.addCapital(salary)
 
-                        #thoughts
                         employee.think("I got paid " + str(salary) + " ducats today by " + job.business.name + ".")
                 else:
                     allWell = False
 
-                toString=("\nSalaries were paid by " + job.business.name + " to their " + job.jobType + "s." + 
-                      "\nTotal amount:" +    str(totalSalary) +
-                      "\nTotal employees:" + str(totalEmployees) +
-                      "\nAll was well?" +    str(allWell) + "\n")
-                self.model.out(toString)
+                #out
+                if self.model.char in job.business.owners:
+                    toString=("\nSalaries were paid by " + job.business.name + " to their " + job.jobType + "s." + 
+                          "\nTotal amount:" +    str(totalSalary) +
+                          "\nTotal employees:" + str(totalEmployees) +
+                          "\nAll was well?" +    str(allWell) + "\n")
+                    self.model.out(toString)
 
                 #unit needs totalSalary to calculate labor costs- if not paid, no cost, right?
                 if allWell == False:
@@ -431,39 +432,3 @@ class SalaryPayer(object):
                 laborCost += totalSalary
 
             unit.setLaborTotal(laborCost)
-
-
-# # # test
-
-# def check_node(node):
-#         is_empty = False
-        
-#         if node is None:
-#             is_empty = True
-        
-#         return is_empty
-
-# def findProperty(local_map):
-#         # local_map = locality.local_map
-
-#         j = 0
-#         xy = None
-#         for i in range(len(local_map)):
-
-#             j = 0
-            
-#             if xy is not None:
-#                 print("not None")
-#                 break
-
-#             while i >= j:
-#                 print(i, j)
-#                 if check_node(local_map[i][j]):
-#                     xy = (i,j)
-#                     break
-#                 if check_node(local_map[j][i]):
-#                     xy = (j,i)
-#                     break
-#                 j += 1
-
-#         return xy

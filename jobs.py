@@ -274,7 +274,7 @@ class Manager(Job):
                 else:
                     manager.think("My employees didn't have the " + d.materialsList[materialIndex] + " ready when I needed it.")
             else:
-                manager.think("Why am I being asked to transfer goods that don't belong to us?")
+                manager.think("I can't transfer goods at " + str(theUnit) + ", it doesn't belong to us.")
 
         return isTransfer
 

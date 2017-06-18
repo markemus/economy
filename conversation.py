@@ -11,20 +11,20 @@ from transitions import Machine
 #Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
 class Conversation(object):
     #a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
-    topicMatrix = [
-    [0.00,0.45,0.25,0.25,0],
-    [0.45,0.00,0.25,0.25,0],
-    [0.15,0.15,0.00,0.25,0],
-    [0.15,0.15,0.25,0.00,1.0],
-    [0.25,0.25,0.25,0.25,0]
-    ]
+    # topicMatrix = [
+    # [0.00,0.45,0.25,0.25,0.25],
+    # [0.45,0.00,0.25,0.25,0.25],
+    # [0.15,0.15,0.00,0.25,0.25],
+    # [0.15,0.15,0.25,0.00,0.25],
+    # [0.25,0.25,0.25,0.25,0.00]
+    # ]
 
     topicMatrix = [
-    [0.00,0.45,0.25,0.25,0],
-    [0.45,0.00,0.25,0.25,0],
-    [0.15,0.15,0.00,0.25,0],
-    [0.15,0.15,0.25,0.00,1.0],
-    [0.25,0.25,0.25,0.25,0]
+    [0.00,0.45,0.25,0.25,0.25],
+    [0.45,0.00,0.25,0.25,0.25],
+    [0.15,0.15,0.00,0.25,0.25],
+    [0.15,0.15,0.25,0.00,0.25],
+    [0.25,0.25,0.25,0.25,0.00]
     ]
 
     #a. different store, b. new topic, c. end convo, d. prices
@@ -55,11 +55,11 @@ class Conversation(object):
 
     #a. introduction, b. new topic, c. end convo, d. myfamily, e. myjob, f. myskills
     myselfMatrix = [
-    [0.0,0,0.15,0.00,0.00,0.00],
+    [0.0,1,0.15,0.00,0.00,0.00],
     [0.2,0,0.15,0.25,0.25,0.25],
     [0.2,0,0.15,0.25,0.25,0.25],
     [0.2,0,0.15,0.00,0.25,0.25],
-    [0.2,1,0.15,0.25,0.00,0.25],
+    [0.2,0,0.15,0.25,0.00,0.25],
     [0.2,0,0.15,0.25,0.25,0.00]
     ]
 
@@ -129,11 +129,6 @@ class Conversation(object):
 
     def prices(self):
         if self.target is not None:
-            # if self.state == 'store':
-            #     firstProfile  = self.firstPerson.storeManager(self.target)
-            #     secondProfile = self.secondPerson.storeManager(self.target)
-
-            # elif self.state == 'manu':
             firstProfile  = self.firstPerson.unitManager(self.target)
             secondProfile = self.secondPerson.unitManager(self.target)
 
@@ -171,29 +166,53 @@ class Conversation(object):
                 self.secondPerson.think("There is a bug in conversation.prices.")
 
     def family(self):
-        None
+        if self.target is not None:
+            #info: family, people
+            #profiles
+            p1 = self.firstPerson.peopleManager(self.target)
+            p2 = self.secondPerson.peopleManager(self.target)
+
+            #variables
+            f1 = p1.getFamily()
+            f2 = p2.getFamily()
+            ff = []
+
+            #update profiles
+            for a, b in zip(f1, f2):
+                if a[-1] >= b[-1]:
+                    ff.append(a)
+                else:
+                    ff.append(b)
+
+            p1.updateFamily(*ff)
+            p2.updateFamily(*ff)
+
+            #thoughts
+            self.firstPerson.think(self.secondPerson.name + " and I talked about " + self.target.name + "'s family.")
+            self.secondPerson.think(self.firstPerson.name + " and I talked about " + self.target.name + "'s family.")            
+
+        else:
+            self.firstPerson.think("I don't really know anything about my friends' families.")
+            self.secondPerson.think("I don't really know anything about my friends' families.")
 
     def job(self):
         if self.target is not None:
+            #profiles
             firstProfile = self.firstPerson.peopleManager(self.target)
             secondProfile = self.secondPerson.peopleManager(self.target)
 
+            #variables
             firstJob  = firstProfile.getJob()
             secondJob = secondProfile.getJob()
-            firstDayNum  = firstJob[1]
-            secondDayNum = secondJob[1]
 
-            if firstDayNum > secondDayNum:
-                job = firstJob[0]
-                secondProfile.updateJob(job, firstDayNum)
-                #thoughts
+            #update profiles
+            if firstJob[1] > secondJob[1]:
+                secondProfile.updateJob(*firstJob)
                 self.firstPerson.think("I told " + self.secondPerson.name + " about " + self.target.name + "'s new job.")
                 self.secondPerson.think(self.firstPerson.name + " told me about " + self.target.name + "'s new job.")
 
-            elif secondDayNum > firstDayNum:
-                job = secondJob[0]
-                firstProfile.updateJob(job, secondDayNum)
-                #thoughts
+            elif secondJob[1] > firstJob[1]:
+                firstProfile.updateJob(*secondJob)
                 self.firstPerson.think(self.secondPerson.name + " told me about " + self.target.name + "'s new job.")
                 self.secondPerson.think("I told " + self.firstPerson.name + " about " + self.target.name + "'s new job.")
 
@@ -201,15 +220,56 @@ class Conversation(object):
                 self.firstPerson.think(self.secondPerson.name + " and I talked about " + self.target.name + "'s job.")
                 self.secondPerson.think(self.firstPerson.name + " and I talked about " + self.target.name + "'s job.")
         else:
-            self.firstPerson.think("I need to make more friends.")
-            self.secondPerson.think("I need to make more friends.")
+            self.firstPerson.think("I need to get to know more people with jobs!")
+            self.secondPerson.think("I need to get to know more people with jobs!")
 
     def skills(self):
-        None
+        #info: skills
+        if self.target is not None:
+            #profiles
+            firstProfile = self.firstPerson.peopleManager(self.target)
+            secondProfile = self.secondPerson.peopleManager(self.target)
+
+            #variables
+            firstSkills = firstProfile.getSkills()
+            secondSkills = secondProfile.getSkills()
+
+            #update profiles
+            if firstSkills[1] > secondSkills[1]:
+                secondProfile.updateSkills(*firstSkills)
+                self.firstPerson.think("I told " + self.secondPerson.name + " about how good " + self.target.name + " is with their hands.")
+                self.secondPerson.think(self.firstPerson.name + " told me about how good " + self.target.name + " is with their hands.")
+
+            elif secondSkills[1] > firstSkills[1]:
+                firstProfile.updateSkills(*secondSkills)
+                self.firstPerson.think(self.secondPerson.name + " told me about how good " + self.target.name + " is with their hands.")
+                self.secondPerson.think("I told " + self.firstPerson.name + " about how good " + self.target.name + " is with their hands.")
+
+            else:
+                self.firstPerson.think(self.secondPerson.name + " and I talked about how good " + self.target.name + " is with their hands.")
+                self.secondPerson.think(self.firstPerson.name + " and I talked about how good " + self.target.name + " is with their hands.")
+
+        else:
+            self.firstPerson.think("I should spend more times doing things with my friends.")
+            self.secondPerson.think("I should spend more times doing things with my friends.")
 
     def myfamily(self):
-        pass
+        #info: family, people
+        #profiles
+        firstProfile = self.secondPerson.peopleManager(self.firstPerson)
+        secondProfile = self.firstPerson.peopleManager(self.secondPerson)
 
+        firstOwn = self.firstPerson.peopleManager(self.firstPerson)
+        secondOwn = self.secondPerson.peopleManager(self.secondPerson)
+
+        #update profiles
+        firstProfile.updateFamily(firstOwn.getFather(), firstOwn.getMother(), firstOwn.getSpouse(), firstOwn.getSiblings(), firstOwn.getChildren())
+        secondProfile.updateFamily(secondOwn.getFather(), secondOwn.getMother(), secondOwn.getSpouse(), secondOwn.getSiblings(), secondOwn.getChildren())
+
+        #thoughts
+        self.firstPerson.think(self.secondPerson.name + " caught me up on their family life.")
+        self.secondPerson.think(self.firstPerson.name + " caught me up on their family life.")
+        
     def myjob(self):
         #info: jobs, jobUnits, *salaries
         #profiles
@@ -219,32 +279,41 @@ class Conversation(object):
         #variables
         firstJob = self.firstPerson.getJob()
         secondJob = self.secondPerson.getJob()
+        dayNum = self.firstPerson.model.getDayNum()
 
         try:
             firstJobType = firstJob.getJobType()
             firstJobUnit = firstJob.getUnit()
             firstJobLoc = firstJobUnit.getName()
+            firstSalary = firstJob.getSalary()
         except:
             firstJobType = "Jobhunter"
             firstJobUnit = None
             firstJobLoc = "home"        
+            firstSalary = 0
         
         try:
             secondJobType = secondJob.getJobType()
             secondJobUnit = secondJob.getUnit()
             secondJobLoc = secondJobUnit.getName()
+            secondSalary = secondJob.getSalary()
         except:
             secondJobType = "Jobhunter"
             secondJobUnit = None
             secondJobLoc = "home"
+            secondSalary = 0
 
-        dayNum = self.firstPerson.model.getDayNum()
 
         #update profiles
-        firstProfile.updateJob(firstJob, dayNum)
-        # firstProfile.updateSalary(salaryRange, dayNum)
-        secondProfile.updateJob(secondJob, dayNum)
-        # secondProfile.updateSalary(salaryRange, dayNum)
+        if dayNum > firstProfile.getJob()[1]:
+            firstProfile.updateJob(firstJob, dayNum)
+        if dayNum > firstProfile.getSalary()[1]:
+            firstProfile.updateSalary(firstSalary, dayNum)
+        
+        if dayNum > secondProfile.getJob()[1]:
+            secondProfile.updateJob(secondJob, dayNum)
+        if dayNum > secondProfile.getSalary()[1]:
+            secondProfile.updateSalary(firstSalary, dayNum)
 
         if firstJobUnit is not None:
             self.secondPerson.unitManager(firstJobUnit)
@@ -256,7 +325,25 @@ class Conversation(object):
         self.secondPerson.think(self.firstPerson.name + " told me about their job as a " + firstJobType + " at " + firstJobLoc + ".")
 
     def myskills(self):
-        pass
+        #info skills
+        #profiles
+        firstProfile = self.secondPerson.peopleManager(self.firstPerson)
+        secondProfile = self.firstPerson.peopleManager(self.secondPerson)
+
+        #variables
+        firstSkills = self.firstPerson.getSkills()
+        secondSkills = self.secondPerson.getSkills()
+        dayNum = self.firstPerson.model.getDayNum()
+
+        #update profiles
+        if dayNum > firstProfile.getSkills()[1]:
+            firstProfile.updateSkills(firstSkills, dayNum)
+        if dayNum > secondProfile.getSkills()[1]:
+            secondProfile.updateSkills(secondSkills, dayNum)
+
+        #thoughts
+        self.firstPerson.think(self.secondPerson.name + " and I talked shop for a while.")
+        self.secondPerson.think(self.firstPerson.name + " and I talked shop for a while.")
 
     #dialogues are chosen here, but the actual method call is in the handler (eg prices)
     def talk(self, matrix, stateVector):
