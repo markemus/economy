@@ -1,18 +1,20 @@
-import database as d
-import people as p
-import jobs as j
-import unit as u
-import business as b
-import gameMap as g
-import profiles as pr
-import generator as gen
-import ai
 import random
+import cProfile
+
+import ai
+import business as b
+import database as d
+import gameMap as g
+import generator as gen
+import jobs as j
+import orders as o
+import people as p
+import profiles as pr
+import unit as u
+
 from conversation import Convo
 from gui import gui
 from model import Model
-
-import orders as o
 
 #main
 
@@ -25,23 +27,20 @@ MrMoney = d.getPeople()[0]
 MrsMoney = d.getPeople()[1]
 yourHome = u.House(Jonestown, (3,5))
 you = model.gui.char
-# model.gui.char.name = "Brian Jones"
-you.addCapital(10000)
 
 CatholicChurch = d.getChurches()[0]
 ProtestantChurch  = d.getChurches()[1]
 
+# bossNumber = 0
+# peopleList = d.getPeople()
+# while bossNumber < 100:
+#     boss = peopleList[bossNumber]
+#     model.builder.newBusiness(boss)
+#     d.bossList.append(boss)
 
-bossNumber = 0
-peopleList = d.getPeople()
-while bossNumber < 100:
-    boss = peopleList[bossNumber]
-    model.builder.newBusiness(boss)
-    d.bossList.append(boss)
-
-    bossNumber += 1
-if you in d.bossList:
-    d.bossList.remove(you)
+#     bossNumber += 1
+# if you in d.bossList:
+#     d.bossList.remove(you)
 
 #testbus
 testBus = you.startBusiness("Williamson Shipping LTD", 3000)
@@ -61,9 +60,10 @@ testBread = testBus.craftOrderManager(testBaker, d.BREAD_INDEX)
 testFlour.setAmount(50000)
 testBread.setAmount(50000)
 
-# testFarm.addSales(d.GRAIN_INDEX, 40)
 testFarm.DMC[d.GRAIN_INDEX] = 50
+testBakery.DMC[d.BREAD_INDEX] = 50
 testFarm.addStock(d.GRAIN_INDEX, 100)
+testBakery.addSales(d.BREAD_INDEX, 40)
 
 # for mat in range(len(d.getMaterials())):
 #     testMill.addStock(mat, 5000)
@@ -71,10 +71,11 @@ testFarm.addStock(d.GRAIN_INDEX, 100)
 
 model.gui.mainloop()
 
-for unit in testBus.getUnits():
-    print(unit.toString())
-    print(unit.incubator.toString())
+# for unit in testBus.getUnits():
+#     print(unit.toString())
+#     print(unit.incubator.toString())
 
+# model.clock.runDay()
 # model.clock.runDay()
 # model.clock.runDay()
 # model.clock.runDay()
@@ -96,3 +97,27 @@ for unit in testBus.getUnits():
 # print("7: ", employee.peopleManager(MrsMoney).skills)
 # Jonestown.printMap()
 MrMoney.printThoughts()
+# for unit in d.unitList:
+#     print(unit)
+
+# print(model.startupAI.optimalList(MrMoney))
+
+# for religion in d.getReligions():
+#     print("religion: ", religion, " ", religion.name)
+#     churches = religion.getLocalBusiness(Jonestown).getUnits()
+#     print("churches: ", len(churches))
+    
+#     for church in churches:
+#         print("flock: ", len(church.flock))
+
+# print(MrMoney.name)
+# print(MrsMoney.name)
+
+
+
+# # cProfile
+
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# cProfile.run("model.clock.runDay()",sort="cumtime")

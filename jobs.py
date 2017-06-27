@@ -242,6 +242,16 @@ class Farmer(Job):
 
 
 
+class Owner(Job):
+
+    jobType = "Job Creator"
+
+    def __init__(self, business, unit):
+        Job.__init__(self, 1, business, unit, salary=40)
+
+
+
+
 class Manager(Job):
 
     jobType = "Manager"
@@ -258,15 +268,15 @@ class Manager(Job):
         if len(self.employees) > 0:
             manager = self.employees[0]
 
-            if (business == ourBusiness):
-                if (amount > theUnit.getStock(materialIndex)):
-                    amount = theUnit.getStock(materialIndex)
-                if amount > theUnit.getOutput(materialIndex):
-                    amount -= theUnit.getOutput(materialIndex)
+            # if (business == ourBusiness):
+            if (amount > theUnit.getStock(materialIndex)):
+                amount = theUnit.getStock(materialIndex)
+            if amount > theUnit.getOutput(materialIndex):
+                amount -= theUnit.getOutput(materialIndex)
 
-                theUnit.addStock(materialIndex, -amount)
-                theUnit.addOutput(materialIndex, amount)
-                isTransfer = True
+            theUnit.addStock(materialIndex, -amount)
+            theUnit.addOutput(materialIndex, amount)
+            isTransfer = True
 
             if isTransfer:
                 if amount != 0:

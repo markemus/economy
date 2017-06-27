@@ -19,10 +19,11 @@ class People:
     spouse = None
     church = None
 
-    def __init__(self, model, theirName, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion):
+    def __init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion):
         d.addPeople(self)
         self.model = model
-        self.name = theirName
+        self.firstname = firstname
+        self.lastname = lastname
         self.gender = theirGender
         self.age = theirAge
         self.birthday = self.model.calendar.date()
@@ -45,10 +46,24 @@ class People:
         self.businesses = []
         #initial values
         self.marginalUtility()
+        self.isboss = False
+
+    @property
+    def name(self):
+        return self.firstname + " " + self.lastname
+
+    @name.setter
+    def name(self, value):
+        if len(value.split(' ')) >= 2:
+            self.firstname, self.lastname = value.split(maxsplit=1)
+        else:
+            self.firstname = value
+        self.peopleManager(self).name = value
 
     def sleepHandler(self):
         self.think("My bed is so cozy.")
         self.update_my_profile()
+        self.spouseConversations()
         self.eat()
         self.drink()
 
@@ -60,6 +75,7 @@ class People:
     def restHandler(self):
         self.think("I can finally relax a little.")
         self.jobHandler()
+        self.familyConversations()
 
     def shopHandler(self):
         self.marginalUtility()
@@ -96,8 +112,15 @@ class People:
         profile.updateJob(self.job, dayNum)
         profile.updateFamily(spouse = (self.spouse, dayNum))
         profile.updateHouse(self.home, dayNum)
-        # profile.house = self.home
         profile.updateMuList(self.muList, dayNum)
+
+    #only bosses can create businesses
+    def bossmaker(self):
+        if not self.isboss:
+            if self.capital >= 5000 and self.model.char is not self:
+                d.addBoss(self)
+                self.model.builder.newBusiness(self)
+                self.isboss = True
 
     def toString(self):
         name = self.getName()
@@ -184,9 +207,8 @@ class People:
 
     #sleep
     def spouseConversations(self):
-        spouse = self.peopleManager(self).getSpouse()[0]
-        if spouse is not None:
-            Convo.beginConversation(self, spouse)
+        if self.spouse is not None:
+            Convo.beginConversation(self, self.spouse)
 
     #work
     def workConversations(self):
@@ -509,10 +531,7 @@ class People:
 
     def getName(self):
         return self.name
-
-    def setName(self, name):
-        self.name = name
-
+        
     def getGender(self):
         return self.gender
 
@@ -570,6 +589,11 @@ class People:
         else:
             return("woman")
 
+    def setSpouse(self, spouse):
+        self.spouse = spouse
+        if self.getGender() == 1:
+            self.lastname = spouse.lastname
+
     def getCapital(self):
         return self.capital
 
@@ -581,3 +605,6 @@ class People:
 
     def getInventory(self):
         return self.inventory
+
+    def getReligion(self):
+        return self.religion

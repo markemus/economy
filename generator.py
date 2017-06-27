@@ -50,17 +50,17 @@ class generator(object):
             #name
             firstNameList = d.getFirstNameList(gender)
 
-            i_firstName = random.randrange(len(firstNameList))
-            firstName = firstNameList[i_firstName]
+            i = random.randrange(len(firstNameList))
+            firstname = firstNameList[i]
 
-            i_lastName = random.randrange(len(lastNameList))
-            lastName = lastNameList[i_lastName]
+            j = random.randrange(len(lastNameList))
+            lastname = lastNameList[j]
 
-            gennedName = firstName + " " + lastName
+            # gennedName = firstName + " " + lastName
 
             #home            
-            i_home = (count // 2)
-            home = houseList[i_home]
+            k = (count // 2)
+            home = houseList[k]
 
             #religion
             if count < (p_quantity/2):
@@ -69,30 +69,21 @@ class generator(object):
                 religion = religionList[1]
 
             #gen
-            gennedPerson = p.People(self.model, gennedName, gender, 18, locality, home, [1,1,1,1,1,1,1,1,1,1], religion)
+            gennedPerson = p.People(self.model, firstname, lastname, gender, 18, locality, home, [1,1,1,1,1,1,1,1,1,1], religion)
             gennedPerson.addCapital(100)
+
+            #spouses
+            if (count % 2 == 1):
+                spouse = d.getPeople()[-2]
+                self.generateSpouse(gennedPerson, spouse)
             
-            church = religion.getBusinesses()[0].getUnits()[0]
-            gennedPerson.unitManager(church)
-            gennedPerson.newChurch(church)
+            # church = religion.getBusinesses()[0].getUnits()[0]
+            # gennedPerson.unitManager(church)
+            # gennedPerson.newChurch(church)
 
-    def generateStore(self, locality):
-        #NewWorldDefaults are starting businesses for the world. They have no owner and will run out of supplies and go bankrupt.
-        NewWorldDefaults = bu.Business(None, "New World Starting Stores", locality, 200)
-        NewWorldGeneralStore = u.Bakery("New World General Store", locality, (1,3), NewWorldDefaults)
-        dayNum = locality.clock.getDayNum()
-        
-        for i in range(len(NewWorldGeneralStore.output)):
-            NewWorldGeneralStore.addOutput(i,50)
-            NewWorldGeneralStore.price[i] = 1
-
-        for person in d.getPeople():
-            p_NewWorldGS = pr.StoreProfile(NewWorldGeneralStore)
-            person.knownStores.append(p_NewWorldGS)
-            p_NewWorldGS.updateLocality(locality)
-            p_NewWorldGS.updateLocation(NewWorldGeneralStore.getLocation())
-            p_NewWorldGS.updatePrices(NewWorldGeneralStore.getPrice(), dayNum)
-            p_NewWorldGS.updateExperience(.0000000001)
+    def generateSpouse(self, wife, husband):
+        husband.setSpouse(wife)
+        wife.setSpouse(husband)
 
     def generateReligions(self, locality):
         Catholic = rel.Catholicism()
@@ -104,25 +95,11 @@ class generator(object):
         Catholic.addBusiness(localCatholic)
         Protestant.addBusiness(localProtestant)
 
-        cChurch = u.Church("Blessed Mother Cathedral", locality, (0,1), localCatholic, Catholic)
-        pChurch = u.Church("Martin Luther Prayer Hall", locality, (1,1), localProtestant, Protestant)
-
         religionList = [Catholic, Protestant]
         return religionList
 
-    def makeFriends(self):
-        peopleList = d.getPeople()
-        for person in peopleList:
-            for count in range(20):
-                i = random.randrange(len(peopleList))
-                friend = peopleList[i]
-                friendProfile = person.peopleManager(friend)
-                friendProfile.updateMuList(friend.getMuList(), person.locality.getDayNum())
-                personProfile = friend.peopleManager(person)
-                personProfile.updateMuList(person.getMuList(), person.locality.getDayNum())
-
-    #people must be even int
-    #for now we only generate a single locality
+    #people must be even int because marriages
+    #we only generate a single locality- don't ask
     def generateWorld(self, p_quantity, w_width, w_height):
         peopleList = []
 
@@ -143,6 +120,56 @@ class generator(object):
         houseList = self.generateHouses(h_quantity, gennedLocality)
         religions = self.generateReligions(gennedLocality)
         self.generatePeople(p_quantity, gennedLocality, houseList, religions)
-        # self.makeFriends()
 
         return gennedWorld
+
+    #makes are called by model after worldgen completes
+
+    def makeFriends(self):
+        peopleList = d.getPeople()
+        for person in peopleList:
+            for count in range(20):
+                i = random.randrange(len(peopleList))
+                friend = peopleList[i]
+                friendProfile = person.peopleManager(friend)
+                friendProfile.updateMuList(friend.getMuList(), person.locality.getDayNum())
+                personProfile = friend.peopleManager(person)
+                personProfile.updateMuList(person.getMuList(), person.locality.getDayNum())
+
+    #just gives money- actual boss stuff handled in clock and people
+    def makeBosses(self):
+        peopleList = d.getPeople()
+        for i in range(100):
+            boss = random.choice(peopleList)
+            if boss.capital < 10000:
+                boss.capital += 10000
+
+    def makeChurches(self, locality):
+        peopleList = d.getPeople()
+        perChurch = 30
+        churchNum = math.floor(len(peopleList) / perChurch)
+        religions = d.getReligions()
+        religionNum = len(d.getReligions())
+
+        if churchNum < 1:
+            churchNum = 1
+
+        for religion in religions:
+            churchPer = math.ceil(churchNum / religionNum)
+            business = religion.getLocalBusiness(locality)
+            
+            for i in range(churchPer):
+                churchName = random.choice(religion.churchNames)
+                location = locality.find_property()
+                newChurch = u.Church(churchName, locality, location, business, religion)
+                locality.claim_node(location, newChurch)
+
+    def assignChurches(self):
+        peopleList = d.getPeople()
+
+        for person in peopleList:
+            religion = person.getReligion()
+            business = religion.getLocalBusiness(person.getLocality())
+            church = random.choice(business.getUnits())
+            person.unitManager(church)
+            person.newChurch(church)

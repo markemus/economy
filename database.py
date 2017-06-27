@@ -58,7 +58,7 @@ bossList = []
 #utility
 #people will buy up to the number below INCLUSIVE.
 utilityLimitList = [0,2,6,3,2,2,0,2,1]
-utilityScaleList = [0,2,6,10,20,15,0,50,75]
+utilityScaleList = [0,2,6,100,20,15,0,2,4]
 happinessMax = 80.8626720903
 
 def addBusiness(business):

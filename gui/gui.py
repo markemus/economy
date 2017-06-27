@@ -330,16 +330,17 @@ class canvas_display(tk.Frame):
     def raise_frame(self):
         self.tkraise()
 
-    def display_p_profile(self, name, job, locality, birthday, father, mother, spouse, siblings, children, house):
+    def display_p_profile(self, name, job, locality, birthday, father, mother, spouse, siblings, children, house, mu):
         details = (
             "Name: " + name + "\n" +
             "DOB: " + birthday + "\n" +
             "Works as a " + job + "\n" + 
-            "Married to " + spouse + "\n" +
             "Lives at " + house + " in " + locality + "\n" +
+            "Married to " + spouse + "\n" +
             "Parents: " + father + " " + mother + "\n" +
             "Siblings: " + siblings + "\n" +
-            "Children: " + children + "\n")
+            "Children: " + children + "\n" +
+            "Needs: " + mu + "\n")
 
         self.display.delete("temp")
         self.display.create_text(395, 20, text="Person Profile", font=TITLE_FONT, tags="temp")
@@ -422,7 +423,7 @@ class static_data(tk.Frame):
 
     def update_frame(self, event=None):
         char = self.root.getChar()
-        self.charName.set(char.getName())
+        self.charName.set(char.name)
         self.age.set("You are " + str(char.getAge()) + " years old.")
         self.locality.set("You live in the town of " + char.getLocality().getName() + ".")
         #should account for property
@@ -625,7 +626,7 @@ class welcome(tk.Frame):
 
     def set_name(self, event=None):
         name = self.name_var.get()
-        self.root.char.setName(name)
+        self.root.char.name = name
         self.root.event_generate("<<refresh>>", when="tail")
         self.controller.show_frame("main_keyboard")
 

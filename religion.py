@@ -17,6 +17,12 @@ class Religion(object):
     def getBusinesses(self):
         return self.businesses
 
+    def getLocalBusiness(self, locality):
+        for business in self.businesses:
+            if business.locality == locality:
+                return business
+        return None
+
     def getJobs(self):  
         return self.jobList
 
@@ -38,6 +44,11 @@ class Catholicism(Religion):
         "Crux Fidelis (Saint Venantius Fortunatus)",
         "Beautiful Savior/Crusader's Hymn (anonymous)",
         "Domine Jesu Christe (Mozart)"]
+        self.churchNames = [
+        "Blessed Mother Cathedral", 
+        "Cathedral Basilica of the Immaculate Conception",
+        "Most Pure Heart of Mary Catholic Church",
+        "St Joseph's Roman Catholic Church"]
 
 
 class Protestantism(Religion):
@@ -52,3 +63,8 @@ class Protestantism(Religion):
         'Antioch (Sacred Harp 277)',
         'Idumea (Sacred Harp 47b)',
         'Hallelujah (Sacred Harp 146)']
+        self.churchNames = [
+        "Holy Spirit Ministry",
+        "Emmanuel House of Prayer",
+        "Lloyd Street Church",
+        "St Mark's Lutheran Church"]

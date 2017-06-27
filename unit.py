@@ -394,6 +394,7 @@ class Farm(Manufactury):
         self.can_make[d.GRAIN_INDEX] = True
         self.tech[d.GRAIN_INDEX] = 16
         self.stock[d.GRAIN_INDEX] = 50
+        self.DMC[d.GRAIN_INDEX] = 1
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -414,6 +415,7 @@ class Mill(Manufactury):
         self.tech[d.FLOUR_INDEX] = 40
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
+        self.DMC[d.GRAIN_INDEX] = 1
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -434,6 +436,7 @@ class Brewery(Manufactury):
         self.tech[d.BEER_INDEX] = 60
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
+        self.DMC[d.GRAIN_INDEX] = 1
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -456,6 +459,7 @@ class Bakery(Manufactury):
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
         self.stock[d.FLOUR_INDEX] = 50
+        self.DMC[d.FLOUR_INDEX] = 1
 
         d.addUnit(self)
         if self.business is not None:
@@ -474,6 +478,7 @@ class Lumberyard(Manufactury):
         self.tech[d.WOOD_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
         self.stock[d.WOOD_INDEX] = 50
+        self.DMC[d.WOOD_INDEX] = 1
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -495,6 +500,7 @@ class Joinery(Manufactury):
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
         self.stock[d.WOOD_INDEX] = 50
+        self.DMC[d.WOOD_INDEX] = 1
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)

@@ -1,0 +1,15 @@
+TODO:
+
+-add Friends
+-converse with friends during Shop? Rest?
+
+-save store profiles in dicts
+-display profiles in order- alphabetical, last updated.
+
+-add children
+-make needs real.
+-thoughts should include parent functions.
+
+DONE:
+-finish spouses
+-optimize Conversations

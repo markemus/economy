@@ -11,56 +11,49 @@ from transitions import Machine
 #Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
 class Conversation(object):
     #a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
-    # topicMatrix = [
-    # [0.00,0.45,0.25,0.25,0.25],
-    # [0.45,0.00,0.25,0.25,0.25],
-    # [0.15,0.15,0.00,0.25,0.25],
-    # [0.15,0.15,0.25,0.00,0.25],
-    # [0.25,0.25,0.25,0.25,0.00]
-    # ]
 
     topicMatrix = [
-    [0.00,0.45,0.25,0.25,0.25],
-    [0.45,0.00,0.25,0.25,0.25],
-    [0.15,0.15,0.00,0.25,0.25],
-    [0.15,0.15,0.25,0.00,0.25],
-    [0.25,0.25,0.25,0.25,0.00]
+    [0.00,0.20,0.15,0.15,0.25],
+    [0.20,0.00,0.15,0.15,0.25],
+    [0.15,0.15,0.00,0.20,0.25],
+    [0.15,0.15,0.20,0.00,0.25],
+    [0.50,0.50,0.50,0.50,0.00]
     ]
 
     #a. different store, b. new topic, c. end convo, d. prices
     storeMatrix = [
-    [0.0,0.0,0.25,0.4],
-    [0.0,0.0,0.25,0.4],
-    [0.0,0.0,0.25,0.0],
-    [1.0,1.0,0.25,0.2]
+    [0.0,0.0,0.25,0.25],
+    [0.0,0.0,0.25,0.25],
+    [0.0,0.0,0.25,0.50],
+    [1.0,1.0,0.25,0.00]
     ]
 
     #a. different manufacturer, b. new topic, c. end convo, d. prices
     manuMatrix = [
-    [0.0,0.0,0.25,0.3],
-    [0.0,0.0,0.25,0.3],
-    [0.0,0.0,0.25,0.2],
-    [1.0,1.0,0.25,0.2]
+    [0.0,0.0,0.25,0.25],
+    [0.0,0.0,0.25,0.25],
+    [0.0,0.0,0.25,0.50],
+    [1.0,1.0,0.25,0.00]
     ]
 
     #a. different friend, b. new topic, c. end convo, d. family, e. job, f. skills
     friendMatrix = [
-    [0.00,0.00,0.15,0.10,0.10,0.10],
-    [0.00,0.00,0.15,0.10,0.10,0.10],
-    [0.00,0.00,0.15,0.10,0.10,0.10],
-    [0.34,0.34,0.15,0.00,0.35,0.35],
-    [0.33,0.33,0.15,0.35,0.00,0.35],
-    [0.33,0.33,0.25,0.35,0.35,0.00]
+    [0.00,0.00,0.15,0.1,0.1,0.1],
+    [0.00,0.00,0.15,0.2,0.2,0.2],
+    [0.00,0.00,0.15,0.5,0.5,0.5],
+    [0.34,0.34,0.15,0.0,0.1,0.1],
+    [0.33,0.33,0.15,0.1,0.0,0.1],
+    [0.33,0.33,0.25,0.1,0.1,0.0]
     ]
 
     #a. introduction, b. new topic, c. end convo, d. myfamily, e. myjob, f. myskills
     myselfMatrix = [
     [0.0,1,0.15,0.00,0.00,0.00],
-    [0.2,0,0.15,0.25,0.25,0.25],
-    [0.2,0,0.15,0.25,0.25,0.25],
-    [0.2,0,0.15,0.00,0.25,0.25],
-    [0.2,0,0.15,0.25,0.00,0.25],
-    [0.2,0,0.15,0.25,0.25,0.00]
+    [0.2,0,0.15,0.20,0.20,0.20],
+    [0.2,0,0.15,0.50,0.50,0.50],
+    [0.2,0,0.15,0.00,0.15,0.15],
+    [0.2,0,0.15,0.15,0.00,0.15],
+    [0.2,0,0.15,0.15,0.15,0.00]
     ]
 
     states = ['topic','store','manu','friend', 'myself', 'exit']
@@ -102,8 +95,11 @@ class Conversation(object):
         self.toTopic()
 
     def introduction(self):
-        self.firstPerson.peopleManager(self.secondPerson)
-        self.secondPerson.peopleManager(self.firstPerson)
+        p2 = self.firstPerson.peopleManager(self.secondPerson)
+        p1 = self.secondPerson.peopleManager(self.firstPerson)
+
+        p2.name = self.secondPerson.name
+        p1.name = self.firstPerson.name
 
     def different(self):
         if self.state == 'friend':

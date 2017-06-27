@@ -2,8 +2,6 @@ import database as d
 import copy
 
 class PersonProfile(object):
-    name = None
-    locality = None
     birthday = None
     job = (None, 0)
     spouse = (None, 0)
@@ -13,7 +11,9 @@ class PersonProfile(object):
 
     def __init__(self, person, father=(None, 0), mother=(None, 0), spouse=(None, 0), siblings = (None, 0), children = (None, 0)):
         dayNum = person.getLocality().model.getDayNum()
-        self.name = person.name
+        # self.name = person.name
+        self.firstname = person.firstname
+        self.lastname = person.lastname
         self.locality = person.locality
         self.children = (dayNum)
         self.person = person
@@ -24,6 +24,17 @@ class PersonProfile(object):
         self.spouse = spouse
         self.siblings = siblings
         self.children = children
+
+    @property
+    def name(self):
+        return self.firstname + " " + self.lastname
+
+    @name.setter
+    def name(self, value):
+        if len(value.split()) >= 2:
+            self.firstname, self.lastname = value.split(maxsplit=1)
+        else:
+            self.firstname = value
 
     def updateBirthday(self, birthday):
         self.birthday = birthday
@@ -43,8 +54,8 @@ class PersonProfile(object):
 
     #if you don't care how they're related
     def getFamilyList(self):
-        siblings = [sibling[0] for sibling in self.siblings]
-        children = [child[0] for child in self.children]
+        siblings = [sibling for sibling in self.siblings[:-1]]
+        children = [child for child in self.children[:-1]]
         family = [self.father[0], self.mother[0], self.spouse[0]] + siblings + children
         family = [mem for mem in family if mem is not None]
         return family
@@ -119,6 +130,7 @@ class PersonProfile(object):
         values_dict["children"] = str(self.children)
         values_dict["spouse"] = str(self.spouse)
         values_dict["house"] = str(self.house)
+        values_dict["mu"] = str(self.muList)
 
         return values_dict
 

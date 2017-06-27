@@ -140,6 +140,7 @@ class Builder(object):
                           "Lumberjack" : (d.WOOD_INDEX,),
                           "Carpenter" : (d.CHAIR_INDEX, d.TABLE_INDEX,)}
         business = job.getBusiness()
+        unit = job.getUnit()
         materialIndexList = jobProductLink[job.getJobType()]
 
         for i in materialIndexList:
@@ -148,7 +149,7 @@ class Builder(object):
             craftOrder.setAmount(10)
             self.model.jobPoster.managePositions(job, craftOrder)
 
-            transferOrder = business.transferOrderManager(business.jobList[0], job.unit, i)
+            transferOrder = business.transferOrderManager(unit.staff.manager, unit, i)
             transferOrder.setAmount(10)
 
     
@@ -200,10 +201,11 @@ class Builder(object):
 
         startupHQ = boss.getHome()
 
-        ManagerJob = jobs.Manager(newBus, startupHQ, 40)
-        TransportJob = jobs.Carrier(1, newBus, startupHQ, 40)
+        OwnerJob = jobs.Owner(newBus, startupHQ)
+        # ManagerJob = jobs.Manager(newBus, startupHQ, 40)
+        # TransportJob = jobs.Carrier(1, newBus, startupHQ, 40)
 
-        self.model.hirer.jobApplication(boss, ManagerJob)
+        self.model.hirer.jobApplication(boss, OwnerJob)
 
         i_build = self.model.startupAI.whatToBuild(boss)
         self.model.builder.buildChain(boss.businesses[0], i_build)
@@ -215,8 +217,8 @@ class Builder(object):
 
 class Character(p.People):
     
-    def __init__(self, model, theirName, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion):
-        p.People.__init__(self, model, theirName, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion)
+    def __init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion):
+        p.People.__init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion)
 
     def startBusiness(self, busiName, cash):
         newBusiness = None

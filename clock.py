@@ -64,6 +64,7 @@ class Clock(object):
                 business.workHandler()
             for person in peopleList:
                 person.workHandler()
+                person.bossmaker()
             for boss in bossList:
                 i_build = self.model.startupAI.whatToBuild(boss)
                 self.model.builder.buildChain(boss.businesses[0], i_build)

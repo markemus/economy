@@ -22,10 +22,13 @@ class Model(object):
         self.ourWorld       = ourGen.generateWorld(10000, 10, 10)
         Jonestown           = d.getLocality()[0]
         yourHome            = u.House(Jonestown, (3,5))
-        self.char           = ai.Character(self, "John Doe", 0, 18, Jonestown, yourHome, [0,0], d.getReligions()[0])
+        self.char           = ai.Character(self, "Markemus", "Aristobulus", 0, 18, Jonestown, yourHome, [0,0], d.getReligions()[0])
+        self.char.addCapital(10000)
         ourGen.makeFriends()
+        ourGen.makeBosses()
+        ourGen.makeChurches(Jonestown)
+        ourGen.assignChurches()
         self.gui            = gui.gui(self.char)
-        # self.gui.mainloop()
 
     def out(self, text):
         self.gui.out(text)
