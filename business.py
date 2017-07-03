@@ -121,6 +121,9 @@ class Business(object):
     def getUnits(self):
         return self.m_unitList
 
+    def getEmployees(self):
+        return self.m_employees
+
     #was getEmployees
     def get_emp_dict(self):
         empDict = {}

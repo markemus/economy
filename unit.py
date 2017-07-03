@@ -24,7 +24,7 @@ class Unit(object):
     equipment = None
     # [grain, flour, bread, beer]
     output = None
-    money = 0
+    # money = 0
     #Boolean is clunky, but allows each unit to have multiple purposes- work from home, etc.
     isMarket = False
 
@@ -75,23 +75,45 @@ class Unit(object):
     def getPrice(self):
         return self.price
 
-    def sell(self, who, amount, i_item):
-        if self.output[i_item] >= amount:
-            thisPrice = self.price[i_item]
+    # def sell(self, who, amount, i_item):
+    #     if self.output[i_item] >= amount:
+    #         thisPrice = self.price[i_item]
 
-            who.addCapital(-thisPrice)
-            who.addInventory(i_item, amount)
-            self.addCapital(thisPrice)
-            self.addOutput(i_item, -amount)
+    #         who.addCapital(-thisPrice)
+    #         self.business.addCash(thisPrice)
+    #         who.addInventory(i_item, amount)
+    #         self.addOutput(i_item, -amount)
             
-            sold = True
-        else:
-            sold = False
+    #         sold = True
+    #     else:
+    #         sold = False
         
-        if sold:
-            self.addSales(i_item, amount)
-        else:
-            self.addFailSales(i_item, amount)
+    #     if sold:
+    #         self.addSales(i_item, amount)
+    #     else:
+    #         self.addFailSales(i_item, amount)
+
+    #     return sold
+
+    def sell(self, who, amounts):
+        sold = False
+        cost = sum(self.price[i] * amounts[i] for i in range(len(self.output)))
+
+        #verify
+        if who.canAfford(cost):
+            if (self.output[i] >= amounts[i] for i in range(len(self.output))):
+
+                #sale
+                who.addCapital(-cost)
+                self.business.addCash(cost)
+                
+                for i in range(len(self.output)):
+                    self.addOutput(i, -amounts[i])
+                    who.addInventory(i, amounts[i])
+
+                    self.addSales(i, amounts[i])
+
+                    sold = True
 
         return sold
 
@@ -278,8 +300,8 @@ class Unit(object):
     def getProduction(self):
         return ([0,1,2,3,4,5,6,7,8], self.crafted)
         
-    def addCapital(self, amount):
-        self.money += amount
+    # def addCapital(self, amount):
+    #     self.money += amount
 
     def addJob(self, job):
         self.jobList.append(job)
@@ -519,9 +541,17 @@ class House(Unit):
     def __init__(self, unitLocality, unitLocationTuple, business=None, unitName="House"):
         Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.missions[d.HOME_INDEX] = True
+        self.tenants = set()
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
+
+    def addTenant(self, tenant):
+        self.tenants.add(tenant)
+
+    def removeTenant(self, tenant):
+        self.tenants.remove(tenant)
+
 
 
 

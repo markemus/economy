@@ -268,7 +268,6 @@ class Manager(Job):
         if len(self.employees) > 0:
             manager = self.employees[0]
 
-            # if (business == ourBusiness):
             if (amount > theUnit.getStock(materialIndex)):
                 amount = theUnit.getStock(materialIndex)
             if amount > theUnit.getOutput(materialIndex):

@@ -25,95 +25,72 @@ model.week.machine.set_state('Friday')
 #players
 MrMoney = d.getPeople()[0]
 MrsMoney = d.getPeople()[1]
-yourHome = u.House(Jonestown, (3,5))
 you = model.gui.char
 
 CatholicChurch = d.getChurches()[0]
 ProtestantChurch  = d.getChurches()[1]
 
-# bossNumber = 0
-# peopleList = d.getPeople()
-# while bossNumber < 100:
-#     boss = peopleList[bossNumber]
-#     model.builder.newBusiness(boss)
-#     d.bossList.append(boss)
-
-#     bossNumber += 1
-# if you in d.bossList:
-#     d.bossList.remove(you)
-
 #testbus
-testBus = you.startBusiness("Williamson Shipping LTD", 3000)
+testBus = you.startBusiness("Williamson Shipping LTD")
 testFarm = u.Farm("Bill's Farm", Jonestown, (23,23), testBus)
 testMill = u.Mill("Bill's Mill", Jonestown, (23,25), testBus)
 testBakery = u.Bakery("Bill's Bakery", Jonestown, (25,25), testBus)
 
+#jobs
 testFarmer = j.Farmer(10, testBus, testFarm, 40)
 testMiller = j.Miller(10, testBus, testMill, 40)
 testBaker = j.Baker(10, testBus, testBakery, 40)
 
-# testGrain = testBus.craftOrderManager(testFarmer, d.GRAIN_INDEX)
+#craft orders
+testGrain = testBus.craftOrderManager(testFarmer, d.GRAIN_INDEX)
 testFlour = testBus.craftOrderManager(testMiller, d.FLOUR_INDEX)
 testBread = testBus.craftOrderManager(testBaker, d.BREAD_INDEX)
 
-# testGrain.setAmount(50000)
+testGrain.setAmount(50000)
 testFlour.setAmount(50000)
 testBread.setAmount(50000)
 
 testFarm.DMC[d.GRAIN_INDEX] = 50
 testBakery.DMC[d.BREAD_INDEX] = 50
-testFarm.addStock(d.GRAIN_INDEX, 100)
+testFarm.addStock(d.GRAIN_INDEX, 10000)
 testBakery.addSales(d.BREAD_INDEX, 40)
 
-# for mat in range(len(d.getMaterials())):
-#     testMill.addStock(mat, 5000)
-# you.peopleManager(you).updateFamily(spouse=(MrsMoney, 5))
+#harvest orders
+harvestOrder = testBus.harvestOrderManager(testFarmer, d.GRAIN_INDEX)
+harvestOrder.setAmount(50000)
+
+#transport orders
+grainTrans = testBus.transportOrderManager(testFarm.staff.carrier, testFarm, testMill, d.GRAIN_INDEX)
+grainTrans.setAmount(500)
+
+flourTrans = testBus.transportOrderManager(testMill.staff.carrier, testMill, testBakery, d.FLOUR_INDEX)
+flourTrans.setAmount(500)
+
+#transfer orders
+breadFer = testBus.transferOrderManager(testBakery.staff.manager, testBakery, d.BREAD_INDEX)
+breadFer.setAmount(500)
+
+# # Main
+
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
+# model.clock.runDay()
 
 model.gui.mainloop()
 
-# for unit in testBus.getUnits():
-#     print(unit.toString())
-#     print(unit.incubator.toString())
-
-# model.clock.runDay()
-# model.clock.runDay()
-# model.clock.runDay()
-# model.clock.runDay()
-# model.clock.runDay()
-# model.clock.runDay()
-# model.clock.runDay()
-
-# employee = testFarm.jobList[2].getEmployees()[0]
-# Convo.beginConversation(MrsMoney, employee)
-# MrsMoney.printThoughts()
-# # print("1: ", MrsMoney.peopleManager(employee).job[0].unit.name)
-# print("2: ", employee.job.business.name)
-# # print("3: ", MrMoney.knownManus[0].store, MrMoney.knownManus[1].store)
-# # print("4: ", MrMoney.knownManus[0].store.business, MrMoney.knownManus[1].store.business)
-# print("3: ", MrsMoney.knownManus)
-# # print("4: ", MrsMoney.knownManus[0].store.business.name, MrsMoney.knownManus[1].store.business.name, MrsMoney.knownManus[2].store.business.name, MrsMoney.knownManus[3].store.business.name)
-# # print("5: ", MrsMoney.knownManus[0].store, MrsMoney.knownManus[1].store, MrsMoney.knownManus[2].store, MrsMoney.knownManus[3].store)
-# print("6: ", MrsMoney.peopleManager(employee).skills)
-# print("7: ", employee.peopleManager(MrsMoney).skills)
-# Jonestown.printMap()
-MrMoney.printThoughts()
-# for unit in d.unitList:
-#     print(unit)
-
-# print(model.startupAI.optimalList(MrMoney))
-
-# for religion in d.getReligions():
-#     print("religion: ", religion, " ", religion.name)
-#     churches = religion.getLocalBusiness(Jonestown).getUnits()
-#     print("churches: ", len(churches))
-    
-#     for church in churches:
-#         print("flock: ", len(church.flock))
-
-# print(MrMoney.name)
-# print(MrsMoney.name)
-
-
+for unit in testBus.getUnits():
+    print(unit.toString())
+    print(unit.incubator.toString())
 
 # # cProfile
 
@@ -121,3 +98,33 @@ MrMoney.printThoughts()
 # model.clock.runDay()
 # model.clock.runDay()
 # cProfile.run("model.clock.runDay()",sort="cumtime")
+
+# print(model.char.knownStores)
+# for store in model.char.knownStores:
+#     print(store)
+
+# # print(you.muList)
+# # # # you.home.output[d.BREAD_INDEX] = 54
+# testBakery.output[d.BREAD_INDEX] = 1
+# testBakery.output[d.BEER_INDEX] = 50
+# testBakery.output[d.CHAIR_INDEX] = 50
+# testBakery.price[d.BREAD_INDEX] = 5
+# testBakery.price[d.BEER_INDEX] = 5
+# testBakery.price[d.CHAIR_INDEX] = 5
+# # # you.allMu()
+# # # print(you.muList)
+# # you.goShopping()
+# # you.printThoughts()
+
+# # # you.capital = 0
+# print(you.muList)
+# print(you.capital, testBus.cash)
+# print(you.home.output, testBakery.output)
+# print(testBakery.price)
+# you.purchase(testBakery)
+# you.storeAtHome()
+# print(you.capital, testBus.cash)
+# print(you.home.output, testBakery.output)
+# you.allMu()
+# print(you.muList)
+# you.printThoughts()

@@ -1,5 +1,6 @@
 import math
 import random
+import copy
 
 import database as d
 from conversation import Convo
@@ -12,7 +13,7 @@ class People:
     age = 0
     locality = None                     #a localMap
     home = None                         #a Unit in homeTown
-    skills = [0,0,0,0,0,0,0,0,0,0]      #each index represents a particular skill- shoemaking, or lumberjacking, etc.
+    skills = [0 for i in d.getMaterials()]      #each index represents a particular skill- shoemaking, or lumberjacking, etc.
     job = None                          #None is unemployed
     salary = 0
     capital = 0
@@ -43,9 +44,10 @@ class People:
         self.knownChurches = []
         self.knownUnitLists = [self.knownManus, self.knownStores, self.knownHomes, self.knownChurches]
         self.myProfile = self.peopleManager(self)
+        self.myProfile.updateOpinion(100)
         self.businesses = []
         #initial values
-        self.marginalUtility()
+        self.allMu()
         self.isboss = False
 
     @property
@@ -75,12 +77,12 @@ class People:
     def restHandler(self):
         self.think("I can finally relax a little.")
         self.jobHandler()
-        self.familyConversations()
+        self.friendConversations()
 
     def shopHandler(self):
-        self.marginalUtility()
+        self.allMu()
         self.goShopping()
-        self.marginalUtility()
+        self.allMu()
 
     def jobHandler(self):
         if self.job is None:
@@ -113,6 +115,7 @@ class People:
         profile.updateFamily(spouse = (self.spouse, dayNum))
         profile.updateHouse(self.home, dayNum)
         profile.updateMuList(self.muList, dayNum)
+        profile.updateSkills(self.skills, dayNum)
 
     #only bosses can create businesses
     def bossmaker(self):
@@ -228,7 +231,7 @@ class People:
                 if conversee is not self:
                     Convo.beginConversation(self, conversee)
 
-    #for use during Rest
+    #don't use unless you add children
     def familyConversations(self):
         family = self.peopleManager(self).getFamilyList()
 
@@ -237,6 +240,13 @@ class People:
             Convo.beginConversation(self, conversee)
         else:
             self.think("I'm all alone in the world.")
+
+    def friendConversations(self):
+        friend = self.randomPerson().person
+
+        Convo.beginConversation(self, friend)
+
+        self.think(friend.name + " and I hung out this afternoon.")
 
     def newChurch(self, church):
         self.church = church
@@ -249,10 +259,10 @@ class People:
         happiness = round(d.getMaxHappiness() - totalSadness)
         return happiness
 
-    #updates muList- run at start of shop state.
+    #updates muList- run at start and end of shop state. We want it to be persistent even after they eat, for example
     #limit zeroes mu curve for each item
     #scale scales mu curve for each item
-    def marginalUtility(self):
+    def allMu(self):
         limitList = d.getUtilityLimit()
         scaleList = d.getUtilityScale()
 
@@ -272,10 +282,22 @@ class People:
 
             limit = limitList[itemIndex]
             scale = scaleList[itemIndex]
-            mu =  scale * ((math.sqrt(limit) / math.sqrt(itemCount)) - 1)
+            # mu =  scale * ((math.sqrt(limit) / math.sqrt(itemCount)) - 1)
+            mu = self.singleMu(itemIndex, itemCount)
             muList[itemIndex] = mu
         
         self.muList = muList
+
+    def singleMu(self, i, count):
+        limitList = d.getUtilityLimit()
+        scaleList = d.getUtilityScale()
+        
+        limit = limitList[i]
+        scale = scaleList[i]
+       
+        mu = scale * ((math.sqrt(limit) / math.sqrt(count)) - 1)
+
+        return mu
 
     def goShopping(self):
         p_chosenStore = self.chooseStore()[0]
@@ -289,41 +311,42 @@ class People:
     def pyth(self, unit):
         locality = unit.getLocality()
         location = unit.getLocation()
+        isLocal = False
+
         #distance
         if (locality == self.locality) and (location is not None):
             distanceX = self.location[0] - location[0]
             distanceY = self.location[1] - location[1]
             distance = math.sqrt(distanceX ** 2 + distanceY ** 2)
-            isLocal = 1
+            isLocal = True
         else:
             #distance must be defined and != 0
             distance = 1000000
         return (distance, isLocal)
 
+    #returns (storeProfile, weight)
     def chooseStore(self):
+        #weights
         F = 1
-        E = 1
+        E = 2
         D = 1
         bestWeight = (None, 0)
 
-        for store in self.knownStores:
-            locality = store.getLocality()
-            location = store.getLocation()
+        #possible stores
+
+        for store in self.possStores():
+            #vars
             familiarity = store.getFamiliarity()
             experience = store.getExperience()
             avgPrices = store.getPrices()
-            isLocal = 0
 
             #distance
-            pythTuple = self.pyth(store)
-            distance = pythTuple[0]
-            isLocal = pythTuple[1]
+            distance, isLocal = self.pyth(store)
 
             #desiredItemWeight
             muList = self.getMuList()
             mu = max(muList)
-            i = muList.index(mu)
-            price = avgPrices[i]
+            price = avgPrices[muList.index(mu)]
 
             if price != 0:
                 desiredItemWeight = mu/price
@@ -334,40 +357,62 @@ class People:
             weight = (1 / distance) * (familiarity * F) * (experience * E) * (desiredItemWeight * D)
             
             if (weight > bestWeight[1]) or (bestWeight[0] is None):
-                if (isLocal == 1):
+                if isLocal:
                     bestWeight = (store, weight)
-        #thoughts                    
+        #thoughts
         if bestWeight[0] is not None:
             self.think(bestWeight[0].name + " seems like a good place to shop.")
         else:
             self.think("I can't think of anywhere to go shopping.")
         return bestWeight
 
-    def purchase(self, store):
-        price = store.getPrice()
-        value = [0 for item in self.muList]
-        i_bestValue = 0
-        bestPrice = 0
-        isAbleToAffordAnything = False
-        sold = False
+    def possStores(self):
+        possStores = []
 
-        #find optimal
-        for i in range(len(self.muList)):
-            if price[i] == 0:
-                thisValue = 0
+        for store in self.knownStores:
+            if store.familiarity == 1:
+                self.think("I want to check out that new place I heard about, " + store.name)
+                possStores = [store]
+                break
             else:
-                thisValue = self.muList[i] / price[i]
-            thisPrice = price[i]
-            value[i] = thisValue
-            #not optimal- if w,x,y,z with mu/price in that order, what if I can afford either w+z or x+y? NP problem.
-            if thisValue > value[i_bestValue] and thisPrice < self.capital:
-                i_bestValue = i
-                bestPrice = thisPrice
-                isAbleToAffordAnything = True
+                possStores.append(store)
 
-        #purchase
-        if isAbleToAffordAnything:
-            sold = store.sell(self, 1, i_bestValue)
+        return possStores
+
+    def canAfford(self, amount):
+        if self.capital >= amount:
+            return True
+        else:
+            return False
+
+    def purchase(self, store):
+        
+        buyMore = True
+        price = store.getPrice()
+        available = copy.copy(store.getAllOutput())
+        cash = self.capital
+        muList = self.muList
+        buy = [0 for i in d.getMaterials()]
+        value = [self.muList[i] / price[i] if available[i] != 0 and price[i] != 0 else 0 for i in range(len(self.muList))]
+        #we don't want them to spend all their money on overpriced stuff- they'll need it tomorrow! Utility of money is CONSTANT.
+        MONEYUTIL = 1
+
+        while True:
+            i = value.index(max(value))
+
+            if (value[i] < MONEYUTIL) or (cash < price[i]):
+                break
+
+            bestPrice = price[i]
+            cash -= bestPrice
+            buy[i] += 1
+            available[i] -= 1
+            value[i] = (self.singleMu(i, self.home.output[i] + buy[i]) / price[i] if available[i] != 0 else 0)
+
+        if sum(buy) > 0:
+            sold = store.sell(self, buy)
+        else:
+            sold = False
 
         #update profile
         storeProfile = self.unitManager(store)
@@ -377,7 +422,7 @@ class People:
         #familiarity should increase with each visit
         storeProfile.updateFamiliarity()
         
-        #experience should increase only if they had a good experience- rudimentary
+        #experience should increase only if they had a good experience
         if sold:
             experience = experience * 1.1
         else:
@@ -390,10 +435,15 @@ class People:
 
         #thoughts
         if sold:
-            item = d.getMaterials()[i_bestValue]
-            self.think("I bought a " + item + " today at " + store.name + " for " + str(bestPrice) + " ducats.")
+            bought = ""
+            for i in range(len(d.getMaterials())):
+                if buy[i] > 0:
+                    bought += str(buy[i]) + " " + d.getMaterials()[i] + ", "
+            bought = bought[:-2]
+
+            self.think("I bought " + bought + " today at " + store.name + ".")
         else:
-            self.think("I can't afford anything at " + store.name)
+            self.think("I can't afford anything at " + store.name + ".")
 
     def storeAtHome(self):
         storage = self.home.output
@@ -544,6 +594,9 @@ class People:
     def getHome(self):
         return self.home
 
+    def setHome(self, home):
+        self.home = home
+
     def getJob(self):
         return self.job
 
@@ -554,7 +607,7 @@ class People:
         return self.muList
 
     def getKnownPeople(self):
-        return self.knownPeople.values()
+        return list(self.knownPeople.values())
 
     def getKnownStores(self):
         return self.knownStores

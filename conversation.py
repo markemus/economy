@@ -101,6 +101,9 @@ class Conversation(object):
         p2.name = self.secondPerson.name
         p1.name = self.firstPerson.name
 
+        p2.updateOpinion(1)
+        p1.updateOpinion(1)
+
     def different(self):
         if self.state == 'friend':
             testTarget = self.firstPerson.randomPerson(self.target)
@@ -137,29 +140,29 @@ class Conversation(object):
                 prices = firstPrices[0]
                 secondProfile.updatePrices(prices, firstDayNum)
                 #thoughts
-                self.firstPerson.think("I told " + self.secondPerson.name + " about " + self.target.name + "'s new prices.")
-                self.secondPerson.think(self.firstPerson.name + " told me about " + self.target.name + "'s new prices.")
+                self.firstPerson.think("I told " + self.secondPerson.name + " about the prices at " + self.target.name)
+                self.secondPerson.think(self.firstPerson.name + " told me about the prices at " + self.target.name)
 
             elif secondDayNum > firstDayNum:
                 prices = secondPrices[0]
                 firstProfile.updatePrices(prices, secondDayNum)
                 #thoughts
-                self.firstPerson.think(self.secondPerson.name + " told me about " + self.target.name + "'s new prices.")
-                self.secondPerson.think("I told " + self.firstPerson.name + " about " + self.target.name + "'s new prices.")
+                self.firstPerson.think(self.secondPerson.name + " told me about the prices at " + self.target.name)
+                self.secondPerson.think("I told " + self.firstPerson.name + " about the prices at " + self.target.name)
 
             else:
                 self.firstPerson.think(self.secondPerson.name + " and I talked about " + self.target.name + "'s prices.")
                 self.secondPerson.think(self.firstPerson.name + " and I talked about " + self.target.name + "'s prices.")
         else:
             if self.state == 'store':
-                self.firstPerson.think(self.secondPerson.name + " and I talked about how weird it is that there are no stores in the area.")
-                self.secondPerson.think(self.firstPerson.name + " and I talked about how weird it is that there are no stores in the area.")
+                self.firstPerson.think(self.secondPerson.name + " listened to me gripe about how I can't find anywhere to shop.")
+                self.secondPerson.think(self.firstPerson.name + " told me that they can't find anywhere to shop.")
             elif self.state == 'manu':
-                self.firstPerson.think(self.secondPerson.name + " and I talked about how weird it is that there are no manufacturers in the area.")
-                self.secondPerson.think(self.firstPerson.name + " and I talked about how weird it is that there are no manufacturers in the area.")
+                self.firstPerson.think("I mentioned to " + self.secondPerson.name + " that I don't know anything about the local industry.")
+                self.secondPerson.think(self.firstPerson.name + " told me that they don't know much about the local industry.")
             else:
-                self.firstPerson.think("There is a bug in conversation.prices.")
-                self.secondPerson.think("There is a bug in conversation.prices.")
+                self.firstPerson.think("There is a bug in conversation.prices. (not manu or store)")
+                self.secondPerson.think("There is a bug in conversation.prices. (not manu or store)")
 
     def family(self):
         if self.target is not None:
@@ -184,8 +187,8 @@ class Conversation(object):
             p2.updateFamily(*ff)
 
             #thoughts
-            self.firstPerson.think(self.secondPerson.name + " and I talked about " + self.target.name + "'s family.")
-            self.secondPerson.think(self.firstPerson.name + " and I talked about " + self.target.name + "'s family.")            
+            self.firstPerson.think(self.secondPerson.name + " and I gossipped about " + self.target.name + "'s family.")
+            self.secondPerson.think(self.firstPerson.name + " and I gossipped about " + self.target.name + "'s family.")            
 
         else:
             self.firstPerson.think("I don't really know anything about my friends' families.")
@@ -204,20 +207,20 @@ class Conversation(object):
             #update profiles
             if firstJob[1] > secondJob[1]:
                 secondProfile.updateJob(*firstJob)
-                self.firstPerson.think("I told " + self.secondPerson.name + " about " + self.target.name + "'s new job.")
-                self.secondPerson.think(self.firstPerson.name + " told me about " + self.target.name + "'s new job.")
+                self.firstPerson.think("I told " + self.secondPerson.name + " what " + self.target.name + " does for a living.")
+                self.secondPerson.think(self.firstPerson.name + " told me what " + self.target.name + " does for a living.")
 
             elif secondJob[1] > firstJob[1]:
                 firstProfile.updateJob(*secondJob)
-                self.firstPerson.think(self.secondPerson.name + " told me about " + self.target.name + "'s new job.")
-                self.secondPerson.think("I told " + self.firstPerson.name + " about " + self.target.name + "'s new job.")
+                self.firstPerson.think(self.secondPerson.name + " told me what " + self.target.name + " does for a living.")
+                self.secondPerson.think("I told " + self.firstPerson.name + " about " + self.target.name + " does for a living.")
 
             else:
                 self.firstPerson.think(self.secondPerson.name + " and I talked about " + self.target.name + "'s job.")
                 self.secondPerson.think(self.firstPerson.name + " and I talked about " + self.target.name + "'s job.")
         else:
-            self.firstPerson.think("I need to get to know more people with jobs!")
-            self.secondPerson.think("I need to get to know more people with jobs!")
+            self.firstPerson.think("I don't know what any of my friends do for a living!")
+            self.secondPerson.think("I don't know what any of my friends do for a living!")
 
     def skills(self):
         #info: skills
@@ -246,8 +249,8 @@ class Conversation(object):
                 self.secondPerson.think(self.firstPerson.name + " and I talked about how good " + self.target.name + " is with their hands.")
 
         else:
-            self.firstPerson.think("I should spend more times doing things with my friends.")
-            self.secondPerson.think("I should spend more times doing things with my friends.")
+            self.firstPerson.think("I should spend more time doing things with my friends.")
+            self.secondPerson.think("I should spend more time doing things with my friends.")
 
     def myfamily(self):
         #info: family, people
@@ -368,7 +371,7 @@ class Conversation(object):
     def topicHandler(self):
         matrix = Conversation.topicMatrix
         stateVector = [0,0,0,0,1]
-        self.firstPerson.think("topicHandler")
+        # self.firstPerson.think("topicHandler")
 
         stateVector = self.talk(matrix, stateVector)
         for i in range(len(stateVector)):
@@ -379,7 +382,7 @@ class Conversation(object):
     def storeHandler(self):
         matrix = Conversation.storeMatrix
         stateVector = [0,1,0,0]
-        self.firstPerson.think("storeHandler")
+        # self.firstPerson.think("storeHandler")
 
         self.different()
 
@@ -393,7 +396,7 @@ class Conversation(object):
     def manuHandler(self):
         matrix = Conversation.manuMatrix
         stateVector = [0,1,0,0]
-        self.firstPerson.think("manuHandler")
+        # self.firstPerson.think("manuHandler")
 
         self.different()
 
@@ -407,7 +410,7 @@ class Conversation(object):
     def friendHandler(self):
         matrix = Conversation.friendMatrix
         stateVector = [0,1,0,0,0,0]
-        self.firstPerson.think("friendHandler")
+        # self.firstPerson.think("friendHandler")
         
         self.different()
 
@@ -421,7 +424,7 @@ class Conversation(object):
     def myselfHandler(self):
         matrix = Conversation.myselfMatrix
         stateVector = [0,1,0,0,0,0]
-        self.firstPerson.think("myselfHandler")
+        # self.firstPerson.think("myselfHandler")
 
         while self.state == 'myself':
             stateVector = self.talk(matrix, stateVector)

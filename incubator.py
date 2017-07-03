@@ -1,15 +1,18 @@
+import math
+
 import database as d
 
 class incubator(object):
 
     def __init__(self, parent):
         self.parent = parent
-        self.grow_days = {"grain" : 5, "beer" : 10, "wood" : 5}
-        self.rot_days = {"grain" : 5, "beer" : 10, "wood" : 5}
+        self.grow_days = {"grain" : 120, "beer" : 10, "wood" : 5}
+        self.rot_days = {"grain" : 90, "beer" : 10, "wood" : 5}
         self.growing = {"grain" : [], "beer" : [], "wood" : []}
         self.grow_timers = {"grain" : [], "beer" : [], "wood" : []}
         self.ripe = {"grain" : [], "beer" : [], "wood" : []}
         self.rot_timers = {"grain" : [], "beer" : [], "wood" : []}
+        self.ratios = {"grain" : 20, "beer" : 1, "wood" : 1}
 
     def itorzero(self, it):
         value = 0
@@ -24,7 +27,7 @@ class incubator(object):
             self.grow_timers[mat].append(growtime)
 
     def ripen(self, mat):
-        ready = self.growing[mat][0]
+        ready = math.floor(self.growing[mat][0] * self.ratios[mat])
         timer = self.itorzero(self.rot_days[mat] - sum(self.rot_timers[mat]))
         self.ripe[mat].append(ready)
         self.rot_timers[mat].append(timer)

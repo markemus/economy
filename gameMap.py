@@ -131,5 +131,25 @@ class Locality(object):
             
             print(rowAppearance)
 
+    def get_print_map(self):
+
+        print_map = ""
+
+        for row in self.local_map:
+            
+            rowAppearance = ""
+            
+            for i in row:
+
+                if (i == None):
+                    rowAppearance = rowAppearance + "X"
+
+                else:
+                    rowAppearance = rowAppearance + i.character
+            
+            print_map += rowAppearance + "\n"
+
+        return print_map
+
     def getDayNum(self):
         return self.model.getDayNum()

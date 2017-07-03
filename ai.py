@@ -192,23 +192,29 @@ class Builder(object):
             for target in chains[toBuild]:
                 self.buildIt(business, locality, target)
 
-    #this method is outdated- not necessarily broken, but should be rethought
-    def newBusiness(self, boss):
+    def newBusiness(self, boss, busiName=None, capital=3000):
 
-        busiName = boss.getName() + "'s business"
-        newBus = bu.Business([boss], busiName, boss.locality, 1000000)
-        boss.businesses.append(newBus)
+        newBus = None
 
-        startupHQ = boss.getHome()
+        if busiName is None:
+            busiName = boss.getName() + " Trading Company"
 
-        OwnerJob = jobs.Owner(newBus, startupHQ)
-        # ManagerJob = jobs.Manager(newBus, startupHQ, 40)
-        # TransportJob = jobs.Carrier(1, newBus, startupHQ, 40)
+        if boss.capital >= capital:
+            boss.capital -= capital
+            newBus = bu.Business([boss], busiName, boss.locality, capital)
+            boss.businesses.append(newBus)
 
-        self.model.hirer.jobApplication(boss, OwnerJob)
+            startupHQ = boss.getHome()
 
-        i_build = self.model.startupAI.whatToBuild(boss)
-        self.model.builder.buildChain(boss.businesses[0], i_build)
+            OwnerJob = jobs.Owner(newBus, startupHQ)
+
+            self.model.hirer.jobApplication(boss, OwnerJob)
+
+            if boss != self.model.char:
+                i_build = self.model.startupAI.whatToBuild(boss)
+                self.model.builder.buildChain(boss.businesses[0], i_build)
+
+        return newBus
 
 
 
@@ -220,17 +226,13 @@ class Character(p.People):
     def __init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion):
         p.People.__init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion)
 
-    def startBusiness(self, busiName, cash):
-        newBusiness = None
-        if self.capital >= cash:
-            self.capital -= cash
-            newBusiness = bu.Business([self], busiName, self.locality, cash)
-            self.businesses.append(newBusiness)
+    def startBusiness(self, busiName, capital=3000):
+        newBusiness = self.model.builder.newBusiness(self, busiName, capital)
 
         return newBusiness
 
     def build(self, business, unit, unitName):
-        units = {"farm" : u.Farm, "house" : u.House, "bakery" : u.Bakery, "mill" : u.Mill, "warehouse" : u.Warehouse, "church" : u.Church}
+        units = {"farm" : u.Farm, "bakery" : u.Bakery, "mill" : u.Mill, "warehouse" : u.Warehouse, "church" : u.Church}
         if business in self.businesses:
             newUnit = units[unit](unitName, business.getLocality(), business)
 
@@ -420,12 +422,12 @@ class SalaryPayer(object):
                     allWell = False
 
                 #out
-                if self.model.char in job.business.owners:
-                    toString=("\nSalaries were paid by " + job.business.name + " to their " + job.jobType + "s." + 
-                          "\nTotal amount:" +    str(totalSalary) +
-                          "\nTotal employees:" + str(totalEmployees) +
-                          "\nAll was well?" +    str(allWell) + "\n")
-                    self.model.out(toString)
+                # if self.model.char in job.business.owners:
+                #     toString=("\nSalaries were paid by " + job.business.name + " to their " + job.jobType + "s." + 
+                #           "\nTotal amount:" +    str(totalSalary) +
+                #           "\nTotal employees:" + str(totalEmployees) +
+                #           "\nAll was well?" +    str(allWell) + "\n")
+                #     self.model.out(toString)
 
                 #unit needs totalSalary to calculate labor costs- if not paid, no cost, right?
                 if allWell == False:

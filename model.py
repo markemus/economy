@@ -1,9 +1,10 @@
-import database as d
-import clock as cl
 import ai
+import clock as cl
+import database as d
 import generator
-import unit as u
 from gui import gui
+import people as p
+import unit as u
 
 class Model(object):
 
@@ -21,9 +22,17 @@ class Model(object):
         ourGen              = generator.generator(self)
         self.ourWorld       = ourGen.generateWorld(10000, 10, 10)
         Jonestown           = d.getLocality()[0]
-        yourHome            = u.House(Jonestown, (3,5))
-        self.char           = ai.Character(self, "Markemus", "Aristobulus", 0, 18, Jonestown, yourHome, [0,0], d.getReligions()[0])
+        #char
+        address             = Jonestown.find_property()
+        yourHome            = u.House(Jonestown, address)
+        Jonestown.claim_node(address, yourHome)
+        self.char           = ai.Character(self, "Markemus", "Aristobulus", 0, 18, Jonestown, yourHome, [1 for i in d.getMaterials()], d.getReligions()[0])
+        yourHome.addTenant(self.char)
+        spouse              = p.People(self, "Susan", "Spinster", 1, 18, Jonestown, yourHome, [1 for i in d.getMaterials()], d.getReligions()[0])
+        yourHome.addTenant(spouse)
         self.char.addCapital(10000)
+        #makes
+        ourGen.makeSpouses()
         ourGen.makeFriends()
         ourGen.makeBosses()
         ourGen.makeChurches(Jonestown)

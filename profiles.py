@@ -17,13 +17,14 @@ class PersonProfile(object):
         self.locality = person.locality
         self.children = (dayNum)
         self.person = person
-        self.muList = [(0,0) for i in d.getMaterials()]
-        self.skills = ([0 for i in d.getSkills()],0)
+        self.muList = ([0 for i in d.getMaterials()], 0)
+        self.skills = ([0 for i in d.getSkills()], 0)
         self.father = father
         self.mother = mother
         self.spouse = spouse
         self.siblings = siblings
         self.children = children
+        self.opinion = 0
 
     @property
     def name(self):
@@ -35,6 +36,13 @@ class PersonProfile(object):
             self.firstname, self.lastname = value.split(maxsplit=1)
         else:
             self.firstname = value
+
+    def getOpinion(self):
+        return self.opinion
+
+    def updateOpinion(self, change):
+        if self.opinion <= 99:
+            self.opinion = (self.opinion + change if self.opinion + change <= 100 else 100)
 
     def updateBirthday(self, birthday):
         self.birthday = birthday
@@ -73,7 +81,7 @@ class PersonProfile(object):
         self.house = (p_house, dayNum)
 
     def updateMuList(self, muList, dayNum):
-        self.muList = (muList, dayNum)
+        self.muList = (copy.copy(muList), dayNum)
 
     def getBirthday(self):
         return self.birthday
@@ -118,22 +126,34 @@ class PersonProfile(object):
         
         return spreadsheet
 
+    def attribute_list(self, array, name):
+        att_array = []
+        
+        for item in array:
+            att = getattr(item, name)
+            att_array.append(att)
+
+        return att_array
+
     def get_values_dict(self):
         values_dict = {}
+        empty = "???"
+
         values_dict["name"] = str(self.name)
-        values_dict["locality"] = str(self.locality)
-        values_dict["birthday"] = str(self.birthday)
-        values_dict["job"] = str(self.job)
-        values_dict["father"] = str(self.father)
-        values_dict["mother"] = str(self.mother)
-        values_dict["siblings"] = str(self.siblings)
+        values_dict["locality"] = str(self.locality.name)
+        values_dict["birthday"] = (str(self.birthday) if self.birthday is not None else empty)
+        values_dict["job"] = (str(self.job[0].jobType + " at " + self.job[0].unit.name) if self.job[0] is not None else empty)
+        values_dict["father"] = (str(self.father[0].name) if self.father[0] is not None else empty)
+        values_dict["mother"] = (str(self.mother[0].name) if self.mother[0] is not None else empty)
+        values_dict["siblings"] = str(self.siblings) 
         values_dict["children"] = str(self.children)
-        values_dict["spouse"] = str(self.spouse)
-        values_dict["house"] = str(self.house)
-        values_dict["mu"] = str(self.muList)
+        values_dict["spouse"] = (str(self.spouse[0].name) if self.spouse[0] is not None else empty)
+        values_dict["house"] = (str(self.house[0].location) if self.house[0] is not None else empty)
+        values_dict["mu"] = str([round(x, 2) for x in self.muList[0]])
+        values_dict["skills"] = (str(self.skills) if self.skills[1] != 0 else empty)
+        values_dict["opinion"] = (str(self.opinion))
 
         return values_dict
-
 
 class StoreProfile(object):
     name = None

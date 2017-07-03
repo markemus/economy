@@ -25,17 +25,20 @@ class Clock(object):
         peopleList      = d.getPeople()
         localityList    = d.getLocality()
 
-        self.model.out("Everyone goes to sleep.\n")
+        # self.model.out("Everyone goes to sleep.\n")
         for person in peopleList:
             person.sleepHandler()
 
+        #daily data
         for business in self.model.getCharBusinesses():
             self.model.out(business.hiredOut())
 
             for unit in business.getUnits():
                 self.model.out(unit.dailyRevenue())
                 self.model.out(unit.dailyCrafted())
-            
+                self.model.out("\n")
+        
+        self.model.out("The day ends. \n")
         self.next_day()
 
     def workHandler(self):
@@ -46,11 +49,9 @@ class Clock(object):
         bossList        = d.getBosses()
         localityList    = d.getLocality()
 
-        self.model.out("Everybody goes to work.\n")
-
         if self.model.week.state == 'Friday':
             self.model.salaryPayer.paySalaries()
-            self.model.out("Salaries were paid today.\n")
+            # self.model.out("Salaries were paid today.\n")
 
         if self.model.week.state == 'Sunday':
             for person in peopleList:
@@ -74,7 +75,7 @@ class Clock(object):
         businessList = d.getBusinesses()
         peopleList = d.getPeople()
 
-        self.model.out("Everybody relaxes.\n")
+        # self.model.out("Everybody relaxes.\n")
 
         for boss in bossList:
             for business in boss.getBusinesses():
@@ -88,12 +89,14 @@ class Clock(object):
         businessList = d.getBusinesses()
         peopleList = d.getPeople()
 
-        self.model.out("Everybody goes shopping.\n")
+        # self.model.out("Everybody goes shopping.\n")
 
         for business in businessList:
             business.shopHandler()
         for person in peopleList:
             person.shopHandler()
+
+        
 
     def toString(self):
         print("Today is " 
@@ -149,7 +152,7 @@ class Calendar(object):
         self.year += 1
 
     def date(self):
-        date = self.state + " " + str(self.dayOfMonth) + " " + str(self.year)
+        date = self.state + " " + str(self.dayOfMonth) + ", " + str(self.year)
         return date
 
 #example calendar. Also is the secular calendar- each religion has their own.

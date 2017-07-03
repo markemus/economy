@@ -56,8 +56,6 @@ class generator(object):
             j = random.randrange(len(lastNameList))
             lastname = lastNameList[j]
 
-            # gennedName = firstName + " " + lastName
-
             #home            
             k = (count // 2)
             home = houseList[k]
@@ -69,21 +67,9 @@ class generator(object):
                 religion = religionList[1]
 
             #gen
-            gennedPerson = p.People(self.model, firstname, lastname, gender, 18, locality, home, [1,1,1,1,1,1,1,1,1,1], religion)
+            gennedPerson = p.People(self.model, firstname, lastname, gender, 18, locality, home, [1 for i in d.getMaterials()], religion)
             gennedPerson.addCapital(100)
-
-            #spouses
-            if (count % 2 == 1):
-                spouse = d.getPeople()[-2]
-                self.generateSpouse(gennedPerson, spouse)
-            
-            # church = religion.getBusinesses()[0].getUnits()[0]
-            # gennedPerson.unitManager(church)
-            # gennedPerson.newChurch(church)
-
-    def generateSpouse(self, wife, husband):
-        husband.setSpouse(wife)
-        wife.setSpouse(husband)
+            gennedPerson.home.addTenant(gennedPerson)
 
     def generateReligions(self, locality):
         Catholic = rel.Catholicism()
@@ -104,7 +90,7 @@ class generator(object):
         peopleList = []
 
         #need even number of people for marriages
-        if p_quantity % 2 != 0.0:
+        if p_quantity % 2 != 0:
             print("Please choose an even number of people for your world.")
             return False
 
@@ -116,7 +102,7 @@ class generator(object):
         gennedLocality = self.generateLocality(l_location)
 
         #houses, people, store
-        h_quantity = int(p_quantity/2)
+        h_quantity = p_quantity // 2
         houseList = self.generateHouses(h_quantity, gennedLocality)
         religions = self.generateReligions(gennedLocality)
         self.generatePeople(p_quantity, gennedLocality, houseList, religions)
@@ -124,6 +110,23 @@ class generator(object):
         return gennedWorld
 
     #makes are called by model after worldgen completes
+
+    def makeSpouses(self):
+        peopleList = d.getPeople()
+        
+        i = 0
+
+        for index in range((len(peopleList) // 2)):
+            wife = peopleList[i]
+            husband = peopleList[i + 1]
+            wife.setSpouse(husband)
+            husband.setSpouse(wife)
+
+            wife.home.removeTenant(wife)
+            wife.setHome(husband.getHome())
+            wife.home.addTenant(wife)
+
+            i += 2
 
     def makeFriends(self):
         peopleList = d.getPeople()

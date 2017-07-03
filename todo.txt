@@ -1,15 +1,33 @@
 TODO:
 
--add Friends
--converse with friends during Shop? Rest?
+-daily data (in clock) should update a particular screen instead of dumping to out().
 
--save store profiles in dicts
--display profiles in order- alphabetical, last updated.
+-Businesses and units need sales[] screen.
+-Businesses and units need output[] screen.
 
--add children
--make needs real.
--thoughts should include parent functions.
+-make more needs real.
+-more products.
+
+-salaries should be calced into price of grain (if not already). 2 days worth.
+
+-confirm ai working correctly
+-confirm prices working correctly
+
+-GUI color correction and alignment.
 
 DONE:
 -finish spouses
 -optimize Conversations
+-char needs a spouse
+-need map display for town.
+-add Friends
+-converse with friends during Shop? Rest?
+-display profiles in order alphabetically- lastname, firstname
+-profiles should have a scrollbar or next button.
+-fix size issues with people profiles keyboard.
+-fix profiles hotkeys (removed)
+-Add short business_static_data display underneath static_data in GUI.
+-"no stores in area" isn't very informative (convos)
+-People should visit every store at least once. (refactor chooseStore)
+-shopping should be smarter- not just single best product?
+-people should not buy products once the value < 1 (instead of == 0)
