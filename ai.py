@@ -12,11 +12,8 @@ class StartupAI(object):
 
     #O(n^2). Not ideal, but n SHOULD be low. Can we make O(n)?
     def whatToBuild(self, investor):
-        # ratings = [0 for i in self.requiredStock]
-        # prices = [0 for i in self.requiredStock]
-
-        knownStock = self.knownStock(investor)
-        #dummy ai will build full product lines, so all are equally possible.
+        # knownStock = self.knownStock(investor)
+        #current dumb ai will build full product lines, so all are equally possible.
         # possibilities = self.possibilities(investor, knownStock)
         possibilities = self.tempPossibilities(investor)
         optimalList = self.optimalList(investor)
@@ -76,7 +73,8 @@ class StartupAI(object):
             
             muList = profile.getMuList()[0]
             maxMu = muList.index(max(muList))
-            highestMU[maxMu] += 1
+            if muList[maxMu] != 0:
+                highestMU[maxMu] += 1
 
         return highestMU
 
@@ -106,7 +104,6 @@ class StartupAI(object):
 
 #factory for supply chains. 
 class Builder(object):
-    # availableProperty = (0,3)
 
     def __init__(self, model):
         self.model = model
@@ -114,7 +111,7 @@ class Builder(object):
     def initial_demand(self, unit):
         for i in range(len(unit.can_make)):
             if unit.can_make[i]:
-                unit.sales[i] = 10
+                unit.failSales[i] = 500
 
     def jobMaker(self, unit):
         unitJobLink = { "Farm"      : jobs.Farmer,
@@ -125,20 +122,21 @@ class Builder(object):
                         "Joinery"   : jobs.Carpenter}
 
         slots = 10
-        salary = 40
+        salary = 6
 
-        newJob = unitJobLink[unit.getUnitType()](slots, unit.getBusiness(), unit, 40)
+        newJob = unitJobLink[unit.getUnitType()](slots, unit.getBusiness(), unit, salary)
 
         return newJob
 
     #also makes transfer orders
     def craftOrderMaker(self, job):
+        # final commas needed so they're all tuples
         jobProductLink = {"Farmer" : (d.GRAIN_INDEX,),
                           "Miller" : (d.FLOUR_INDEX,),
                           "Baker"  : (d.BREAD_INDEX,),
                           "Brewer" : (d.BEER_INDEX,),
                           "Lumberjack" : (d.WOOD_INDEX,),
-                          "Carpenter" : (d.CHAIR_INDEX, d.TABLE_INDEX,)}
+                          "Carpenter" : (d.CHAIR_INDEX, d.TABLE_INDEX)}
         business = job.getBusiness()
         unit = job.getUnit()
         materialIndexList = jobProductLink[job.getJobType()]
@@ -149,10 +147,8 @@ class Builder(object):
             craftOrder.setAmount(10)
             self.model.jobPoster.managePositions(job, craftOrder)
 
-            transferOrder = business.transferOrderManager(unit.staff.manager, unit, i)
+            transferOrder = business.transferOrderManager(unit, i)
             transferOrder.setAmount(10)
-
-    
         
     def buildIt(self, business, locality, toBuild):
         unitLocation = locality.find_property()
@@ -223,8 +219,8 @@ class Builder(object):
 
 class Character(p.People):
     
-    def __init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion):
-        p.People.__init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion)
+    def __init__(self, model, firstname, lastname, theirGender, theirHometown, theirHome,theirReligion):
+        p.People.__init__(self, model, firstname, lastname, theirGender, theirHometown, theirHome, theirReligion)
 
     def startBusiness(self, busiName, capital=3000):
         newBusiness = self.model.builder.newBusiness(self, busiName, capital)
@@ -253,28 +249,89 @@ class ProductionAI(object):
         self.model = model
 
     def setProduction(self, business):
+        # print("\nBusiness: ", business.name)
 
-        jobLists        = [business.getHarvestJobs(), business.getCraftingJobs()]
-        orderManagers    = [business.harvestOrderManager, business.craftOrderManager]
+        for job in business.getCraftingJobs():
+            jobUnit = job.getUnit()
+            demand  = jobUnit.getTotalDemand()
 
-        for x in range(len(jobLists)):
-            
-            jobList = jobLists[x]
+            # print("Unit: ", jobUnit.name)
+            # print("Job: ", job.name)
+            # print("Demand: ", demand)
 
-            for job in jobList:
-                jobUnit     = job.getUnit()
-                unitDemand  = jobUnit.getTotalDemand()
-                # unitStock   = jobUnit.getAllStock()
+            for i in range(len(demand)):
 
-                for i in range(len(unitDemand)):
-                    demand = unitDemand[i]
-
-                    if demand > 0:
-                        order = orderManagers[x](job, i)
+                if (jobUnit.can_make[i] and demand[i] > 0):
                     
-                        if order.getAmount() < demand:
-                            order.setAmount(demand)
-                            self.model.jobPoster.managePositions(job, order)
+                    #crafted
+                    if d.is_crafted(i):
+                        self.setCraftOrder(business, job, demand[i], i)
+
+                    #planted
+                    elif d.is_planted(i):
+                        self.setPlantOrder(business, job, i)
+                        
+
+    def setCraftOrder(self, business, job, demand, i):
+        jobUnit = job.getUnit()
+        order = business.craftOrderManager(job, i)
+        transfer = business.transferOrderManager(jobUnit, i)
+
+        sellDemand = jobUnit.sales[i] + jobUnit.failSales[i]
+        
+        for component in d.getComponents(i):
+            transport = business.transportOrderManager(jobUnit, component[0])
+            
+            if transport is not None:
+                needed = component[1] * demand
+                transport.setAmount(needed)
+                # print("Transport: ", d.getMaterials()[component[0]], needed)
+            else:
+                #build unit?
+                pass
+
+        if order.getAmount() < demand:
+            self.model.jobPoster.managePositions(job, order)
+
+        # print("Old CraftOrder: ", order.amount)
+        order.setAmount(demand)
+        transfer.setAmount(sellDemand)
+        # print("CraftOrder: ", d.getMaterials()[i], demand)
+        # print("TransferOrder: ", d.getMaterials()[i], demand)
+
+    def setPlantOrder(self, business, job, i):
+        jobUnit = job.getUnit()
+        order = business.craftOrderManager(job, i)
+        transfer = business.transferOrderManager(jobUnit, i)
+
+        grow_days = jobUnit.incubator.getGrowDays(i)
+        sales = jobUnit.bigdata.getRecentSales(grow_days)
+        failSales = jobUnit.bigdata.getRecentFailSales(grow_days)
+
+        realDemand = sum(sold[i] for sold in sales) + sum(sold[i] for sold in failSales)
+
+        for component in d.getComponents(i):
+            transport = business.transportOrderManager(jobUnit, component[0])
+
+            if transport is not None:
+                needed = component[1] * realDemand
+                transport.setAmount(needed)
+            else:
+                #build unit?
+                pass
+
+        if order.getAmount() < realDemand:
+            self.model.jobPoster.managePositions(job, order)
+
+        order.setAmount(realDemand)
+        transfer.setAmount(realDemand)
+
+
+
+
+
+
+
 
 
 
@@ -286,6 +343,7 @@ class JobPoster(object):
     def __init__(self, model):
         self.model = model
 
+    #don't fire anyone for now, just go bankrupt- that's fine. AI is loyal.
     def managePositions(self, job, order):
         slots           = job.getSlots()
         employees       = job.getEmployees()
@@ -420,14 +478,6 @@ class SalaryPayer(object):
                         employee.think("I got paid " + str(salary) + " ducats today by " + job.business.name + ".")
                 else:
                     allWell = False
-
-                #out
-                # if self.model.char in job.business.owners:
-                #     toString=("\nSalaries were paid by " + job.business.name + " to their " + job.jobType + "s." + 
-                #           "\nTotal amount:" +    str(totalSalary) +
-                #           "\nTotal employees:" + str(totalEmployees) +
-                #           "\nAll was well?" +    str(allWell) + "\n")
-                #     self.model.out(toString)
 
                 #unit needs totalSalary to calculate labor costs- if not paid, no cost, right?
                 if allWell == False:

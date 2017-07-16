@@ -153,3 +153,6 @@ class Locality(object):
 
     def getDayNum(self):
         return self.model.getDayNum()
+
+    def date(self):
+        return self.model.calendar.date()

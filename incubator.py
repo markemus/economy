@@ -6,13 +6,15 @@ class incubator(object):
 
     def __init__(self, parent):
         self.parent = parent
-        self.grow_days = {"grain" : 120, "beer" : 10, "wood" : 5}
-        self.rot_days = {"grain" : 90, "beer" : 10, "wood" : 5}
-        self.growing = {"grain" : [], "beer" : [], "wood" : []}
-        self.grow_timers = {"grain" : [], "beer" : [], "wood" : []}
-        self.ripe = {"grain" : [], "beer" : [], "wood" : []}
-        self.rot_timers = {"grain" : [], "beer" : [], "wood" : []}
-        self.ratios = {"grain" : 20, "beer" : 1, "wood" : 1}
+        self.grow_days = {"grain" : 270, "beer" : 10, "wood" : 5, "meat" : 1, "fruit" : 1}
+        self.rot_days = {"grain" : 65, "beer" : 10, "wood" : 5, "meat" : 1, "fruit" : 1}
+        self.growing = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
+        self.grow_timers = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
+        self.ripe = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
+        self.rot_timers = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
+        
+        #ratios including germination chance; wheat has an 80% germination chance and an avg yield of 110 grains per stalk.
+        self.ratios = {"grain" : 88, "beer" : 1, "wood" : 1, "meat" : 1, "fruit" : 1}
 
     def itorzero(self, it):
         value = 0
@@ -95,6 +97,10 @@ class incubator(object):
         + "Rot timers: " + str(self.rot_timers) + "\n")
 
         return string
+
+    def getGrowDays(self, materialIndex):
+        mat = d.getMaterials()[materialIndex]
+        return self.grow_days[mat]
 
 # #test
 

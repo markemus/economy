@@ -13,25 +13,25 @@ class People:
     age = 0
     locality = None                     #a localMap
     home = None                         #a Unit in homeTown
-    skills = [0 for i in d.getMaterials()]      #each index represents a particular skill- shoemaking, or lumberjacking, etc.
+    # skills = [0 for i in d.getMaterials()]      #each index represents a particular skill- shoemaking, or lumberjacking, etc.
     job = None                          #None is unemployed
     salary = 0
     capital = 0
     spouse = None
     church = None
 
-    def __init__(self, model, firstname, lastname, theirGender, theirAge, theirHometown, theirHome, theirSkills, theirReligion):
+    def __init__(self, model, firstname, lastname, theirGender, theirHometown, theirHome, theirReligion):
         d.addPeople(self)
         self.model = model
         self.firstname = firstname
         self.lastname = lastname
         self.gender = theirGender
-        self.age = theirAge
+        # self.age = theirAge
         self.birthday = self.model.calendar.date()
         self.locality = theirHometown
         self.home = theirHome
         self.location = theirHome.location
-        self.skills = theirSkills
+        # self.skills = theirSkills
         self.religion = theirReligion
         self.muList = [0 for i in range(len(d.materialsList))]
         self.inventory = [0 for i in range(len(d.materialsList))]
@@ -48,6 +48,7 @@ class People:
         self.businesses = []
         #initial values
         self.allMu()
+        self.maxSadness = sum(self.muList)
         self.isboss = False
 
     @property
@@ -61,13 +62,6 @@ class People:
         else:
             self.firstname = value
         self.peopleManager(self).name = value
-
-    def sleepHandler(self):
-        self.think("My bed is so cozy.")
-        self.update_my_profile()
-        self.spouseConversations()
-        self.eat()
-        self.drink()
 
     def workHandler(self):
         self.think("Off to work!")
@@ -83,6 +77,13 @@ class People:
         self.allMu()
         self.goShopping()
         self.allMu()
+
+    def sleepHandler(self):
+        self.think("My bed is so cozy.")
+        self.update_my_profile()
+        self.spouseConversations()
+        self.eat()
+        self.drink()
 
     def jobHandler(self):
         if self.job is None:
@@ -115,7 +116,7 @@ class People:
         profile.updateFamily(spouse = (self.spouse, dayNum))
         profile.updateHouse(self.home, dayNum)
         profile.updateMuList(self.muList, dayNum)
-        profile.updateSkills(self.skills, dayNum)
+        # profile.updateSkills(self.skills, dayNum)
 
     #only bosses can create businesses
     def bossmaker(self):
@@ -244,19 +245,19 @@ class People:
     def friendConversations(self):
         friend = self.randomPerson().person
 
-        Convo.beginConversation(self, friend)
-
-        self.think(friend.name + " and I hung out this afternoon.")
+        if friend is not self:
+            Convo.beginConversation(self, friend)
+            self.think(friend.name + " and I hung out this afternoon.")
+        else:
+            self.think("I enjoyed spending some time alone this afternoon.")
 
     def newChurch(self, church):
         self.church = church
         self.church.addMember(self)
 
     def getHappiness(self):
-        totalSadness = 0
-        for i in self.muList:
-            totalSadness += i
-        happiness = round(d.getMaxHappiness() - totalSadness)
+        sadness = sum(self.muList)
+        happiness = 100 * ((self.maxSadness - sadness) / self.maxSadness)
         return happiness
 
     #updates muList- run at start and end of shop state. We want it to be persistent even after they eat, for example
@@ -265,12 +266,7 @@ class People:
     def allMu(self):
         limitList = d.getUtilityLimit()
         scaleList = d.getUtilityScale()
-
-        #owned
-        if self.home != None:
-            owned = self.home.getAllOutput()
-        else:
-            owned = [0 for item in limitList]
+        owned = self.home.getAllOutput()
 
         #muList calc
         muList = [0 for item in owned]
@@ -282,7 +278,6 @@ class People:
 
             limit = limitList[itemIndex]
             scale = scaleList[itemIndex]
-            # mu =  scale * ((math.sqrt(limit) / math.sqrt(itemCount)) - 1)
             mu = self.singleMu(itemIndex, itemCount)
             muList[itemIndex] = mu
         
@@ -345,11 +340,11 @@ class People:
 
             #desiredItemWeight
             muList = self.getMuList()
-            mu = max(muList)
-            price = avgPrices[muList.index(mu)]
+            maxMu = max(muList)
+            price = avgPrices[muList.index(maxMu)]
 
             if price != 0:
-                desiredItemWeight = mu/price
+                desiredItemWeight = maxMu/price
             else:
                 desiredItemWeight = 0
 
@@ -371,7 +366,7 @@ class People:
 
         for store in self.knownStores:
             if store.familiarity == 1:
-                self.think("I want to check out that new place I heard about, " + store.name)
+                self.think("I want to check out that new place I heard about, " + store.name + ".")
                 possStores = [store]
                 break
             else:
@@ -389,11 +384,10 @@ class People:
         
         buyMore = True
         price = store.getPrice()
-        available = copy.copy(store.getAllOutput())
         cash = self.capital
         muList = self.muList
         buy = [0 for i in d.getMaterials()]
-        value = [self.muList[i] / price[i] if available[i] != 0 and price[i] != 0 else 0 for i in range(len(self.muList))]
+        value = [self.muList[i] / price[i] if price[i] != 0 else 0 for i in range(len(self.muList))]
         #we don't want them to spend all their money on overpriced stuff- they'll need it tomorrow! Utility of money is CONSTANT.
         MONEYUTIL = 1
 
@@ -406,17 +400,38 @@ class People:
             bestPrice = price[i]
             cash -= bestPrice
             buy[i] += 1
-            available[i] -= 1
-            value[i] = (self.singleMu(i, self.home.output[i] + buy[i]) / price[i] if available[i] != 0 else 0)
+            value[i] = (self.singleMu(i, self.home.output[i] + buy[i]) / price[i])
 
         if sum(buy) > 0:
-            sold = store.sell(self, buy)
+            (amounts, cost, sold) = store.sell(self, copy.copy(buy))
+
+            if sold:
+                if (amounts == buy):
+                    self.think("I bought " + self.listtostr(amounts) + " for " + str(cost) + " today at " + store.name + ".")
+                else:
+                    self.think("I went to buy " + self.listtostr(buy) + " at " + store.name + " but they only had " + self.listtostr(amounts) + ".")
+            else:
+                self.think("I went to " + store.name + " to buy " + self.listtostr(buy) + " but they ran out. I hate that place!")
         else:
             sold = False
+            self.think("I don't really need anything from " + store.name + ". What a waste of time.")
 
         #update profile
+        self.updateStore(store, sold)        
+
+    def listtostr(self, array):
+        string = ""
+        for i in range(len(array)):
+            if array[i] > 0:
+                string += str(array[i]) + " " + d.getMaterials()[i] + ", "
+        string = string[:-2]
+
+        return string
+
+    def updateStore(self, store, sold):
         storeProfile = self.unitManager(store)
-        familiarity = storeProfile.getFamiliarity()
+        price = store.getPrice()
+        # familiarity = storeProfile.getFamiliarity()
         experience = storeProfile.getExperience()        
 
         #familiarity should increase with each visit
@@ -432,18 +447,6 @@ class People:
 
         #price
         storeProfile.updatePrices(price, store.getLocality().getDayNum())
-
-        #thoughts
-        if sold:
-            bought = ""
-            for i in range(len(d.getMaterials())):
-                if buy[i] > 0:
-                    bought += str(buy[i]) + " " + d.getMaterials()[i] + ", "
-            bought = bought[:-2]
-
-            self.think("I bought " + bought + " today at " + store.name + ".")
-        else:
-            self.think("I can't afford anything at " + store.name + ".")
 
     def storeAtHome(self):
         storage = self.home.output
@@ -533,7 +536,7 @@ class People:
 
         return targetProfile
 
-    def unitManager(self, target):
+    def unitManager(self, target, heardabout=None):
 
         from profiles import StoreProfile
 
@@ -552,7 +555,7 @@ class People:
                         break
         #create
         if notFound:
-            targetProfile = StoreProfile(target)
+            targetProfile = StoreProfile(target, heardabout)
             
             for i in range(len(missions)):
                 if missions[i]:
@@ -571,13 +574,13 @@ class People:
         self.thoughts.append(thought)
 
         if self.model.char == self:
-            self.model.out(str(thought[0]).ljust(6) + thought[1].ljust(10) + str(thought[2]).ljust(18) + thought[3].ljust(10) + thought[4] + "\n")
+            self.model.out(str(thought[0]).ljust(6) + thought[1].ljust(10) + str(thought[2]).ljust(19) + thought[3].ljust(10) + thought[4] + "\n")
 
     def printThoughts(self):
         print(self.name, "thought:")
         print("Day:  " + "Weekday:  " + "Date:             " + "Period:   " + "Thought:")
         for thought in self.thoughts:
-            print(str(thought[0]).ljust(6) + thought[1].ljust(10) + str(thought[2]).ljust(18) + thought[3].ljust(10) + thought[4])
+            print(str(thought[0]).ljust(6) + thought[1].ljust(10) + str(thought[2]).ljust(19) + thought[3].ljust(10) + thought[4])
 
     def getName(self):
         return self.name
@@ -585,8 +588,8 @@ class People:
     def getGender(self):
         return self.gender
 
-    def getAge(self):
-        return self.age
+    # def getAge(self):
+    #     return self.age
 
     def getLocality(self):
         return self.locality
@@ -615,14 +618,17 @@ class People:
     def getKnownManus(self):
         return self.knownManus
 
+    def getKnownChurches(self):
+        return self.knownChurches
+
     def getSalary(self):
         return self.salary
 
-    def getSkill(self, skillIndex):
-        return self.skills[skillIndex]
+    # def getSkill(self, skillIndex):
+    #     return self.skills[skillIndex]
 
-    def getSkills(self):
-        return self.skills
+    # def getSkills(self):
+    #     return self.skills
 
     def setJob(self, job, salary):
         self.job = job

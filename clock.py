@@ -4,44 +4,28 @@ from transitions import State
 # from ai import startupAI, productionAI
 
 class Clock(object):
-    states = ['sleep','work','relax','shop']
+    states = ['work','relax','shop','sleep']
 
     def __init__(self, model):
-        self.dayNumber = 0
+        self.dayNumber = -1
         self.model = model
         self.machine = Machine(model=self, states=Clock.states, initial='sleep')
         self.machine.add_ordered_transitions()
-        self.machine.on_enter_sleep('sleepHandler')
         self.machine.on_enter_work('workHandler')
         self.machine.on_enter_relax('relaxHandler')
         self.machine.on_enter_shop('shopHandler')
+        self.machine.on_enter_sleep('sleepHandler')
 
     def next_day(self):
         self.model.week.next_state()
         self.model.calendar.next_day()
+        d.shufflePeople()
         self.dayNumber += 1
 
-    def sleepHandler(self):
-        peopleList      = d.getPeople()
-        localityList    = d.getLocality()
-
-        # self.model.out("Everyone goes to sleep.\n")
-        for person in peopleList:
-            person.sleepHandler()
-
-        #daily data
-        for business in self.model.getCharBusinesses():
-            self.model.out(business.hiredOut())
-
-            for unit in business.getUnits():
-                self.model.out(unit.dailyRevenue())
-                self.model.out(unit.dailyCrafted())
-                self.model.out("\n")
+    def workHandler(self):
         
-        self.model.out("The day ends. \n")
         self.next_day()
 
-    def workHandler(self):
         religionList    = d.getReligions()
         unitList        = d.getUnit()
         businessList    = d.getBusinesses()
@@ -51,7 +35,6 @@ class Clock(object):
 
         if self.model.week.state == 'Friday':
             self.model.salaryPayer.paySalaries()
-            # self.model.out("Salaries were paid today.\n")
 
         if self.model.week.state == 'Sunday':
             for person in peopleList:
@@ -60,7 +43,8 @@ class Clock(object):
                 for business in religion.getBusinesses():
                     for priest in business.getPriestJobs():
                         priest.service()
-        else:
+        #workday
+        if self.model.week.state != 'Sunday':
             for business in businessList:
                 business.workHandler()
             for person in peopleList:
@@ -75,13 +59,13 @@ class Clock(object):
         businessList = d.getBusinesses()
         peopleList = d.getPeople()
 
-        # self.model.out("Everybody relaxes.\n")
-
-        for boss in bossList:
-            for business in boss.getBusinesses():
-                self.model.productionAI.setProduction(business)
-        for business in businessList:
-            business.restHandler()
+        if self.model.week.state != 'Sunday':
+            for boss in bossList:
+                for business in boss.getBusinesses():
+                    self.model.productionAI.setProduction(business)
+            for business in businessList:
+                business.restHandler()
+        
         for person in peopleList:
             person.restHandler()
 
@@ -89,24 +73,34 @@ class Clock(object):
         businessList = d.getBusinesses()
         peopleList = d.getPeople()
 
-        # self.model.out("Everybody goes shopping.\n")
+        if self.model.week.state != 'Sunday':
+            for business in businessList:
+                business.shopHandler()
+            for person in peopleList:
+                person.shopHandler()
 
-        for business in businessList:
-            business.shopHandler()
+    def sleepHandler(self):
+        peopleList      = d.getPeople()
+        businessList    = d.getBusinesses()
+
         for person in peopleList:
-            person.shopHandler()
+            person.sleepHandler()
 
+        if self.model.week.state != 'Sunday':
+            for business in businessList:
+                business.sleepHandler()
         
+        self.model.out("The day ends. \n")
 
     def toString(self):
-        print("Today is " 
-            + self.locality.week.state 
+        return("Today is " 
+            + self.model.week.state 
             + ", " 
-            + str(self.locality.calendar.dayOfMonth) 
+            + str(self.model.calendar.dayOfMonth) 
             + " of " 
-            + self.locality.calendar.state 
+            + self.model.calendar.state 
             + " in the year " 
-            + str(self.locality.calendar.year) 
+            + str(self.model.calendar.year) 
             + "." 
             + " At this time of day people generally " 
             + self.state 
@@ -127,8 +121,7 @@ class Week(object):
 
     def __init__(self, model):
         self.model = model
-        # self.locality = locality
-        self.machine = Machine(model=self, states=Week.states, initial='Wednesday')
+        self.machine = Machine(model=self, states=Week.states, initial='Thursday')
         self.machine.add_ordered_transitions()
 
 class Calendar(object):
@@ -162,4 +155,4 @@ class SecularCalendar(Calendar):
     year = 1000
 
     def __init__(self):
-        Calendar.__init__(self, SecularCalendar.months, SecularCalendar.daysPerMonth, 'January', SecularCalendar.year)
+        Calendar.__init__(self, SecularCalendar.months, SecularCalendar.daysPerMonth, 'September', SecularCalendar.year)

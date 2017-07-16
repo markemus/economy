@@ -6,6 +6,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 import tkinter as tk
+import tkinter.scrolledtext as st
+
+import tkinter.font
 
 import copy
 from operator import attrgetter
@@ -22,9 +25,12 @@ import tkscrollframe as tsf
 # BUTTON_FONT = ("Courier", "13")
 
 TITLE_FONT = ("Black chancery", "18", "bold")
+
+# TITLE_FONT = tkinter.font.Font(root=None, family='Helvetica', size='18', weight='bold', underline=1)
 TEXT_FONT = ("Black chancery", "15")
 BUTTON_FONT = ("Black chancery", "13")
 MAP_FONT = ("Consolas", "5")
+
 
 class gui(tk.Tk):
 
@@ -39,8 +45,10 @@ class gui(tk.Tk):
         self.dynamic_hotkeys = []
 
         self.wm_title("Jonestown")
-        # root.resizable(0,0)
-        self.geometry('1920x1080')
+        self.resizable(0,0)
+        self.geometry('1414x940')
+        
+        
 
         #megaFrames
         leftSide    = tk.Frame(self)
@@ -52,11 +60,11 @@ class gui(tk.Tk):
         titleBar.image  = titleImage
 
         self.display_cont   = display_controller(   leftSide,  self)
-        self.text_cont      = text_output(          leftSide,  self, height=300, width=1114)
-        charDisplay         = static_data(          rightSide, self, height=474, width=300, background="yellow")
-        busDisplay          = bus_static_data(      rightSide, self, height=300, width=300, background="green")
-        keyboard            = key_controller(       rightSide, self, height=474, width=300, background="orange")
-        quitter             = quitBar(              rightSide, self,             width=300, background="red")
+        self.text_cont      = text_output(          leftSide,  self, height=150, width=900)
+        charDisplay         = static_data(          rightSide, self, height=100, width=300)
+        busDisplay          = bus_static_data(      rightSide, self, height=100, width=300)
+        keyboard            = key_controller(       rightSide, self, height=474, width=300)
+        quitter             = quitBar(              rightSide, self,             width=300)
         self.static_cont   = static_controller(self, charDisplay, busDisplay)
 
         #printout
@@ -85,12 +93,13 @@ class gui(tk.Tk):
         charDisplay.grid(row=0, column=0, sticky='nsew')
         busDisplay.grid(row=1, column=0, sticky='nsew')
         keyboard.grid(   row=2, column=0, sticky="nsew")
-        rightSide.grid_rowconfigure(0, weight=1)
-        rightSide.grid_rowconfigure(1, weight=1)
+        rightSide.grid_rowconfigure(0, weight=0)
+        rightSide.grid_rowconfigure(1, weight=0)
         rightSide.grid_rowconfigure(2, weight=1)
         quitter.grid(    row=3, column=0, sticky="nsew")
 
-        self.display_cont.show_frame("main_display")
+        # self.display_cont.show_frame("main_display")
+        # self.display_cont.line_chart([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], [[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]], "hello", "world", "title")
 
     def getChar(self):
         return self.char
@@ -147,6 +156,10 @@ class display_controller(tk.Frame):
         self.frames["matplotlib_display"].bar_chart(x, y, xlabel, ylabel, title)
         self.show_frame("matplotlib_display")
 
+    def line_chart(self, x, y, xlabel, ylabel, title):
+        self.frames["matplotlib_display"].line_chart(x, y, xlabel, ylabel, title)
+        self.show_frame("matplotlib_display")
+
     def display_list(self, values_dict):
         self.frames["list_display"].display_list(values_dict)
         self.show_frame("list_display")
@@ -160,7 +173,15 @@ class display_controller(tk.Frame):
         self.show_frame("canvas_display")
 
     def display_s_profile(self, values_dict):
-        self.frames["canvas_display"].display_s_profile(**values_dict)
+        self.frames["canvas_display"].display_s_profile(values_dict)
+        self.show_frame("canvas_display")
+
+    def display_m_profile(self, values_dict):
+        self.frames["canvas_display"].display_m_profile(values_dict)
+        self.show_frame("canvas_display")
+
+    def display_c_profile(self, values_dict):
+        self.frames["canvas_display"].display_c_profile(values_dict)
         self.show_frame("canvas_display")
 
     def display_map(self, localmap):
@@ -229,10 +250,11 @@ class matplotlib_display(tk.Frame):
         leftBar = tk.Label(self, image=leftBarImage, width= 150, height=510)
         leftBar.image = leftBarImage
 
-        self.fig = Figure(figsize=(6,5), dpi=100)
+        self.fig = Figure(figsize=(8,5), dpi=100)
         self.canvas = FigureCanvasTkAgg(self.fig, self)
         self.canvas.show()
         graphScreen = self.canvas.get_tk_widget()
+        graphScreen.config(borderwidth=5, relief=tk.RIDGE)
 
         rightBar = tk.Label(self, image=rightBarImage, width=150, height=510)
         rightBar.image = rightBarImage
@@ -255,10 +277,25 @@ class matplotlib_display(tk.Frame):
 
         graph.set_xticks(range(len(x)))
         graph.set_xticklabels(x)
+        # graph.grid()
+
+    def line_chart(self, x, y, xlabel, ylabel, title):
+        
+        self.fig.clf()
+        graph = self.fig.add_subplot(111)
+        
+        for z in y:
+            graph.plot(x, z)
+
+        graph.set_title(title)
+        graph.set_xlabel(xlabel)
+        graph.set_ylabel(ylabel)
+        graph.grid()
 
     def raise_frame(self):
         self.canvas.show()
         self.tkraise()
+
 
 
 
@@ -272,7 +309,7 @@ class list_display(tk.Frame):
         rightBarImage = tk.PhotoImage(file="./images/nightWheat.gif")
         parchment = tk.PhotoImage(    file='./images/parchment.gif')
 
-        leftBar = tk.Label(self, image=leftBarImage, width= 150, height=500)
+        leftBar = tk.Label(self, image=leftBarImage, width= 150, height=510)
         leftBar.image = leftBarImage
 
         self.display_var = tk.StringVar()
@@ -280,7 +317,7 @@ class list_display(tk.Frame):
             relief=tk.RIDGE, compound=tk.CENTER, justify=tk.LEFT)
         self.display.image = parchment
 
-        rightBar = tk.Label(self, image=rightBarImage, width=150, height=500)
+        rightBar = tk.Label(self, image=rightBarImage, width=150, height=510)
         rightBar.image = rightBarImage
 
         leftBar.grid(row=0, column=0)
@@ -328,14 +365,14 @@ class canvas_display(tk.Frame):
         rightBarImage = tk.PhotoImage(file="./images/nightWheat.gif")
         parchment = tk.PhotoImage(    file='./images/parchment.gif')
 
-        leftBar = tk.Label(self, image=leftBarImage, width= 150, height=500)
+        leftBar = tk.Label(self, image=leftBarImage, width= 150, height=510)
         leftBar.image = leftBarImage
 
-        self.display = tk.Canvas(self, width=790, height=490, borderwidth=5, relief=tk.RIDGE)
-        self.display.create_image(0,0, anchor="nw", image=parchment)
+        self.display = tk.Canvas(self, width=800, height=500, borderwidth=5, relief=tk.RIDGE)
+        self.display.create_image(6,6, anchor="nw", image=parchment)
         self.display.image = parchment
 
-        rightBar = tk.Label(self, image=rightBarImage, width=150, height=500)
+        rightBar = tk.Label(self, image=rightBarImage, width=150, height=510)
         rightBar.image = rightBarImage
 
         leftBar.grid(row=0, column=0)
@@ -351,13 +388,14 @@ class canvas_display(tk.Frame):
             "Name: " + values_dict["name"] + "\n" +
             "Opinion: " + values_dict["opinion"] + "\n" +
             "DOB: " + values_dict["birthday"] + "\n" +
+            "Met on: " + values_dict["meton"] + "\n"
             "Works as a " + values_dict["job"] + "\n" +
-            "Skills: " + values_dict["skills"] + "\n" +  
+            # "Skills: " + values_dict["skills"] + "\n" +  
             "Lives at " + values_dict["house"] + " in " + values_dict["locality"] + "\n" +
             "Married to " + values_dict["spouse"] + "\n" +
             "Parents: " + values_dict["father"] + " and " + values_dict["mother"] + "\n" +
-            "Siblings: " + values_dict["siblings"] + "\n" +
-            "Children: " + values_dict["children"] + "\n" +
+            # "Siblings: " + values_dict["siblings"] + "\n" +
+            # "Children: " + values_dict["children"] + "\n" +
             "Needs: " + values_dict["mu"] + "\n")
 
         self.display.delete("temp")
@@ -365,15 +403,40 @@ class canvas_display(tk.Frame):
         self.display.create_rectangle(30, 30, 170, 170, tags="temp")
         self.display.create_text(200, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
 
-    def display_s_profile(self, name, prices, familiarity, experience, locality, location):
-        details = ("Name: " + name + "\n" +
-            "Prices: " + prices + "\n" +
-            "Familiarity: " + familiarity + "\n" +
-            "Experience: " + experience + "\n" +
-            "Location: " + location + "\n")
+    def display_s_profile(self, values_dict):
+        details = ("Name: " + values_dict["name"] + "\n" +
+            "Prices: " + values_dict["prices"] + "\n" +
+            "Familiarity: " + values_dict["familiarity"] + "\n" +
+            "Experience: " + values_dict["experience"] + "\n" +
+            "Location: " + values_dict["location"] + "\n" +
+            "How did you hear about us?: " + values_dict["heardabout"] + "\n")
 
         self.display.delete("temp")
         self.display.create_text(395, 20, text="Store Profile", font=TITLE_FONT, tags="temp")
+        self.display.create_text(10, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
+
+    def display_m_profile(self, values_dict):
+        details = ("Name: " + values_dict["name"] + "\n" +
+            # "Prices: " + values_dict["prices"] + "\n" +
+            "Familiarity: " + values_dict["familiarity"] + "\n" +
+            "Experience: " + values_dict["experience"] + "\n" +
+            "Location: " + values_dict["location"] + "\n" +
+            "How did you hear about us?: " + values_dict["heardabout"] + "\n")
+
+        self.display.delete("temp")
+        self.display.create_text(395, 20, text="Factory Profile", font=TITLE_FONT, tags="temp")
+        self.display.create_text(10, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
+
+    def display_c_profile(self, values_dict):
+        details = ("Name: " + values_dict["name"] + "\n" +
+            # "Prices: " + values_dict["prices"] + "\n" +
+            "Familiarity: " + values_dict["familiarity"] + "\n" +
+            "Experience: " + values_dict["experience"] + "\n" +
+            "Location: " + values_dict["location"] + "\n" +
+            "How did you hear about us?: " + values_dict["heardabout"] + "\n")
+
+        self.display.delete("temp")
+        self.display.create_text(395, 20, text="Church Profile", font=TITLE_FONT, tags="temp")
         self.display.create_text(10, 30, text=details, anchor="nw", font=TEXT_FONT, tags="temp")
 
     def display_map(self, localmap):
@@ -394,9 +457,10 @@ class text_output(tk.Frame):
         tk.Frame.__init__(self, master=parent, *args, **kwargs)
         self.root = root
 
-        self.text = tk.Text(self, background="gray", state='normal', font=TEXT_FONT, width=159, height=20)
+        self.text = st.ScrolledText(self, background="gray", state='normal', font=TEXT_FONT, width=112, height=10, borderwidth=5, 
+            relief=tk.RIDGE,)
 
-        self.text.grid(row=0, column=0, sticky='nsew')
+        self.text.pack(side="left", fill="both", expand=True)
         self.out("Welcome to Jonestown!\n")
 
     def out(self, text):
@@ -428,36 +492,36 @@ class static_controller(object):
 class static_data(tk.Frame):
 
     def __init__(self, parent, root, *args, **kwargs):
-        tk.Frame.__init__(self, master=parent, *args, **kwargs)
+        tk.Frame.__init__(self, master=parent, *args, **kwargs, borderwidth=5, relief=tk.RIDGE)
         self.root = root
         
         self.charName = tk.StringVar()
-        self.age = tk.StringVar()
+        # self.age = tk.StringVar()
         self.locality = tk.StringVar()
         self.marriage = tk.StringVar()
         self.netWorth = tk.StringVar()
         self.happiness = tk.StringVar()
 
-        header =        tk.Label(self, text='Jonestown',                       font=TITLE_FONT)
-        nameLabel =     tk.Label(self, textvariable=self.charName, anchor='w', font=TEXT_FONT)
-        ageLabel =      tk.Label(self, textvariable=self.age,      anchor='w', font=TEXT_FONT)
+        # header =        tk.Label(self, text='Jonestown',                       font=TITLE_FONT)
+        nameLabel =     tk.Label(self, textvariable=self.charName, font=TITLE_FONT)
+        # ageLabel =      tk.Label(self, textvariable=self.age,      anchor='w', font=TEXT_FONT)
         localityLabel = tk.Label(self, textvariable=self.locality, anchor='w', font=TEXT_FONT)
         marriageLabel = tk.Label(self, textvariable=self.marriage, anchor='w', font=TEXT_FONT)
         netWorthLabel = tk.Label(self, textvariable=self.netWorth, anchor='w', font=TEXT_FONT)
         happinessLabel= tk.Label(self, textvariable=self.happiness, anchor='w', font=TEXT_FONT)
 
-        header.pack(fill=tk.X)
+        # header.pack(fill=tk.X)
         nameLabel.pack(fill=tk.X)
         marriageLabel.pack(fill=tk.X)
         localityLabel.pack(fill=tk.X)
-        ageLabel.pack(fill=tk.X)       
+        # ageLabel.pack(fill=tk.X)       
         netWorthLabel.pack(fill=tk.X)
         happinessLabel.pack(fill=tk.X)
 
     def update_frame(self, event=None):
         char = self.root.getChar()
         self.charName.set(char.name)
-        self.age.set(str(char.getAge()) + " years old.")
+        # self.age.set(str(char.getAge()) + " years old.")
         self.locality.set("Lives in the town of " + char.getLocality().getName() + ".")
         self.marriage.set("Married to " + str(char.spouse.name) + ".")
         #should account for property
@@ -471,7 +535,7 @@ class static_data(tk.Frame):
 class bus_static_data(tk.Frame):
 
     def __init__(self, parent, root, *args, **kwargs):
-        tk.Frame.__init__(self, master=parent, *args, **kwargs)
+        tk.Frame.__init__(self, master=parent, *args, **kwargs, borderwidth=5, relief=tk.RIDGE)
         self.root = root
 
         self.bus_name = tk.StringVar()
@@ -526,6 +590,8 @@ class key_controller(tk.Frame):
             house, 
             people_profiles, 
             store_profiles,
+            manu_profiles,
+            church_profiles,
             town):
 
             page_name = keyboard.__name__
@@ -596,10 +662,10 @@ class key_controller(tk.Frame):
             import orders as o
 
             business = self.get_business()
-            manager = self.get_unit().staff.manager
+            # manager = self.get_unit().staff.manager
             materialIndex = d.getMaterials().index(order_var.get())
 
-            transfer = business.transferOrderManager(manager, self.get_unit(), materialIndex)
+            transfer = business.transferOrderManager(self.get_unit(), materialIndex)
             amount = int("0" + amount_var.get())
             transfer.setAmount(amount)
             self.root.event_generate("<<refresh>>", when="tail")
@@ -610,10 +676,10 @@ class key_controller(tk.Frame):
         import orders as o
 
         business = self.get_business()
-        carrier = self.get_unit().staff.carrier
+        # carrier = self.get_unit().staff.carrier
         materialIndex = d.getMaterials().index(order_var.get())
 
-        transport = business.transportOrderManager(carrier, self.get_unit(), endunit, materialIndex)
+        transport = business.transportOrderManager(self.get_unit(), endunit, materialIndex)
         amount = int("0" + amount_var.get())
         transport.setAmount(amount)
         self.root.event_generate("<<refresh>>", when="tail")
@@ -623,6 +689,18 @@ class key_controller(tk.Frame):
         xy = entity.getProduction()
         products = [d.getMaterials()[xy[0][i]] for i in range(len(xy[0]))]
         display_cont.bar_chart(products, xy[1], "Products", "Crafted", entity.name + " Production")
+
+    def show_sales(self, entity):
+        display_cont = self.root.get_display_cont()
+        xy = entity.getSales()
+        products = [d.getMaterials()[xy[0][i]] for i in range(len(xy[0]))]
+        display_cont.bar_chart(products, xy[1], "Products", "Sold", entity.name + " Sales")
+
+    def show_prices(self, entity):
+        display_cont = self.root.get_display_cont()
+        x = d.getMaterials()
+        y = entity.getPrice()
+        display_cont.bar_chart(x, y, "Products", "Prices", entity.name + " Prices")
 
     def show_employees(self, entity):
         display_cont = self.root.get_display_cont()
@@ -640,6 +718,18 @@ class key_controller(tk.Frame):
         x = d.getMaterials()
         y = entity.getAllStock()
         display_cont.bar_chart(x, y, "Materials", "Amount", entity.name +" Stock")
+
+    def show_ledger(self, unit, i, which):
+        display_cont = self.root.get_display_cont()
+        x = list(range(1,30))
+        fakey = unit.bigdata.getMonth(i)
+        y = []
+
+        for j in range(len(which)):
+            if which[j] == 1:
+                y.append(fakey[j])
+
+        display_cont.line_chart(x, y, d.getMaterials()[i], "Amount", unit.name + " " + d.getMaterials()[i])
 
     def show_p_profile(self, profile):
         display_cont = self.root.get_display_cont()
@@ -696,6 +786,9 @@ class welcome(tk.Frame):
             self.root.char.name = name
         self.root.event_generate("<<refresh>>", when="tail")
         self.controller.show_frame("main_keyboard")
+
+
+
 
 class main_keyboard(tk.Frame):
 
@@ -840,7 +933,6 @@ class new_business(tk.Frame):
 
 
 
-
 class businessData(tk.Frame):
 
     def __init__(self, parent, controller, root):
@@ -848,22 +940,26 @@ class businessData(tk.Frame):
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
-        self.hotkeys = ["s", "p", "e", "n", "<Escape>"]
+        self.hotkeys = ["s", "c", "d", "e", "n", "<Escape>"]
         self.business = None
         self.busiName = tk.StringVar()
         self.busiName.set("busiName")
 
         header = tk.Label(self, textvariable=self.busiName,     font=TITLE_FONT)
         stock = tk.Button(self, text= "[s] Stock", font = BUTTON_FONT, command=lambda: controller.show_stock(self.business))
-        production = tk.Button(self, text="[p] Production", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
+        production = tk.Button(self, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
+        sales = tk.Button(self, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.business))
         employees = tk.Button(self, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
+        # prices = tk.Button(self, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.business))
         new_unit = tk.Button(self,text="[n] New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
         self.esc = tk.Button(self,text="[esc] Return to Office",font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
         stock.pack(fill=tk.X)
         production.pack(fill=tk.X)
+        sales.pack(fill=tk.X)
         employees.pack(fill=tk.X)
+        # prices.pack(fill=tk.X)
         new_unit.pack(fill=tk.X)
         self.esc.pack(fill=tk.X)
 
@@ -907,7 +1003,6 @@ class businessData(tk.Frame):
         
         self.set_hotkeys()
         self.show_splash()
-        # self.controller.show_stock(self.business)
         self.tkraise()
 
     def set_hotkeys(self):
@@ -921,8 +1016,10 @@ class businessData(tk.Frame):
 
         self.root.hotkeys = self.hotkeys
         self.root.bind("s", lambda x: self.controller.show_stock(self.business))
-        self.root.bind("p", lambda x: self.controller.show_production(self.business))
+        self.root.bind("c", lambda x: self.controller.show_production(self.business))
+        self.root.bind("d", lambda x: self.controller.show_sales(self.business))
         self.root.bind("e", lambda x: self.controller.show_employees(self.business))
+        # self.root.bind("p", lambda x: self.controller.show_prices(self.business))
         self.root.bind("n", lambda x: self.controller.show_frame("new_unit"))
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
@@ -1022,15 +1119,18 @@ class unitData(tk.Frame):
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
-        self.hotkeys = ["s", "p", "e", "m", "n","<Escape>"]
+        self.hotkeys = ["s", "c", "d", "e", "p", "l", "m", "n","<Escape>"]
         self.unit = None
         self.unitName = tk.StringVar()
         self.unitName.set("unitName")
 
         header = tk.Label(self, textvariable=self.unitName, font=TITLE_FONT)
         stock = tk.Button(self, text="[s] Stock", font=BUTTON_FONT, command=lambda: controller.show_stock(self.unit))
-        production = tk.Button(self, text="[p] Production", font=BUTTON_FONT, command=lambda: controller.show_production(self.unit))
+        production = tk.Button(self, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.unit))
+        sales = tk.Button(self, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.unit))
         employees = tk.Button(self, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.unit))
+        prices = tk.Button(self, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.unit))
+        ledger = tk.Button(self, text="[l] Ledger", font=BUTTON_FONT, command=lambda: controller.show_frame("ledger"))
         market = tk.Button(self, text="[m] Market", font=BUTTON_FONT, command=lambda: controller.show_frame("market"))
         new_job = tk.Button(self, text="[n] New Job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job"))
         self.esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=lambda: controller.show_frame("businessData"))
@@ -1038,7 +1138,10 @@ class unitData(tk.Frame):
         header.pack(fill=tk.X)
         stock.pack(fill=tk.X)
         production.pack(fill=tk.X)
+        sales.pack(fill=tk.X)
         employees.pack(fill=tk.X)
+        prices.pack(fill=tk.X)
+        ledger.pack(fill=tk.X)
         market.pack(fill=tk.X)
         new_job.pack(fill=tk.X)
         self.esc.pack(fill=tk.X)
@@ -1084,7 +1187,6 @@ class unitData(tk.Frame):
 
         self.set_hotkeys()
         self.show_splash()
-        # self.controller.show_stock(self.unit)
         self.tkraise()
 
     def set_hotkeys(self):
@@ -1098,8 +1200,11 @@ class unitData(tk.Frame):
 
         self.root.hotkeys = self.hotkeys
         self.root.bind("s", lambda x: self.controller.show_stock(self.unit))
-        self.root.bind("p", lambda x: self.controller.show_production(self.unit))
+        self.root.bind("c", lambda x: self.controller.show_production(self.unit))
+        self.root.bind("d", lambda x: self.controller.show_sales(self.unit))
         self.root.bind("e", lambda x: self.controller.show_employees(self.unit))
+        self.root.bind("p", lambda x: self.controller.show_prices(self.unit))
+        self.root.bind("l", lambda x: self.controller.show_frame("ledger"))
         self.root.bind("m", lambda x: self.controller.show_frame("market"))
         self.root.bind("n", lambda x: self.controller.show_frame("new_job"))
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("businessData"))
@@ -1119,15 +1224,67 @@ class ledger(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
-        self.hotkeys = ["w", "c", "s", "p" "<Escape>"]
+        self.hotkeys = ["<Return>" "<Escape>"]
+        self.dynamic_buttons = []
 
+        #main
         header = tk.Label(self, text="Ledger", font=TITLE_FONT)
-        weekly = tk.Button(self, text="[w] Weekly summary", font=BUTTON_FONT)
-        crafted = tk.Button(self, text="[c] Crafted over time", font=BUTTON_FONT)
-        sales = tk.Button(self, text="[s] Sales over time", font=BUTTON_FONT)
-        prices = tk.Button(self, text="[p] Prices over time", font=BUTTON_FONT)
+        self.mat = tk.IntVar()
+        self.left = tk.Frame(self)
+        self.right = tk.Frame(self)
+        enter = tk.Button(self, text="[enter] Go!", font=BUTTON_FONT, command=lambda: controller.show_ledger(self.controller.get_unit(), self.mat.get(), (self.price.get(), self.crafted.get(),self.sales.get(), self.failSales.get(), self.transports.get(), self.failTransports.get(), self.stock.get(), self.output.get())))
+        esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
+
+        #right
+        self.price = tk.IntVar(value=1)
+        self.crafted = tk.IntVar(value=1)
+        self.sales = tk.IntVar(value=1)        
+        self.failSales = tk.IntVar(value=1)
+        self.transports = tk.IntVar(value=1)
+        self.failTransports = tk.IntVar(value=1)
+        self.stock = tk.IntVar(value=1)
+        self.output = tk.IntVar(value=1)
+
+        p_button = tk.Checkbutton(self.right, text="Price", font=BUTTON_FONT, variable=self.price)
+        c_button = tk.Checkbutton(self.right, text="Crafted", font=BUTTON_FONT, variable=self.crafted)
+        s_button = tk.Checkbutton(self.right, text="Sales", font=BUTTON_FONT, variable=self.sales)
+        fs_button = tk.Checkbutton(self.right, text="Failed Sales", font=BUTTON_FONT, variable=self.failSales)
+        t_button = tk.Checkbutton(self.right, text="Transports", font=BUTTON_FONT, variable=self.transports)
+        ft_button = tk.Checkbutton(self.right, text="FailedTransports", font=BUTTON_FONT, variable=self.failTransports)
+        stock_button = tk.Checkbutton(self.right, text="Stock", font=BUTTON_FONT, variable=self.stock)
+        output_button = tk.Checkbutton(self.right, text="Output", font=BUTTON_FONT, variable=self.output)
+
+        p_button.pack(anchor="w")
+        c_button.pack(anchor="w")
+        s_button.pack(anchor="w")
+        fs_button.pack(anchor="w")
+        t_button.pack(anchor="w")
+        ft_button.pack(anchor="w")
+        stock_button.pack(anchor="w")
+        output_button.pack(anchor="w")
+        
+
+        header.grid(row=0, column=0, columnspan=2, sticky="new")
+        self.left.grid(row=1, column=0, sticky="n")
+        self.right.grid(row=1, column=1, sticky="n")
+        enter.grid(row=2, column=0, columnspan=2, sticky="new")
+        esc.grid(row=3, column=0, columnspan=2, stick="new")
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
     def raise_frame(self):
+        
+        for button in self.dynamic_buttons:
+            button.destroy()
+
+        key = 0
+        for material in d.getMaterials():
+            button = tk.Radiobutton(self.left, text=material, font=BUTTON_FONT, variable=self.mat, value=key)
+            self.dynamic_buttons.append(button)
+            button.pack(anchor="w")
+            key += 1
+
+        self.set_hotkeys()
         self.tkraise()
 
     def set_hotkeys(self):
@@ -1140,12 +1297,8 @@ class ledger(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        # self.root.bind("s", lambda x: self.controller.show_stock(self.unit))
-        # self.root.bind("p", lambda x: self.controller.show_production(self.unit))
-        # self.root.bind("e", lambda x: self.controller.show_employees(self.unit))
-        # self.root.bind("m", lambda x: self.controller.show_frame("market"))
-        # self.root.bind("n", lambda x: self.controller.show_frame("new_job"))
-        # self.root.bind("<Escape>", lambda x: self.controller.show_frame("businessData"))
+        self.root.bind("<Return>", lambda x: self.controller.show_ledger(self.controller.get_unit(), self.mat.get(), (self.price.get(), self.crafted.get(),self.sales.get(), self.failSales.get(), self.transports.get(), self.failTransports.get(), self.stock.get(), self.output.get())))
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
 
 
 class new_job(tk.Frame):
@@ -1631,15 +1784,19 @@ class house(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
-        self.hotkeys = ["s","p","<Escape>"]
+        self.hotkeys = ["s","p","f","c","<Escape>"]
         header = tk.Label(self, text="Home", font=TITLE_FONT)
         p_profiles = tk.Button(self, text="[p] People profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("people_profiles"))
         s_profiles = tk.Button(self, text="[s] Store profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("store_profiles"))
+        m_profiles = tk.Button(self, text="[f] Factory profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("manu_profiles"))
+        c_profiles = tk.Button(self, text="[c] Church profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("church_profiles"))
         esc = tk.Button(self,  text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
         p_profiles.pack(fill=tk.X)
         s_profiles.pack(fill=tk.X)
+        m_profiles.pack(fill=tk.X)
+        c_profiles.pack(fill=tk.X)
         esc.pack(fill=tk.X)
 
     def show_splash(self):
@@ -1662,6 +1819,8 @@ class house(tk.Frame):
         self.root.hotkeys = self.hotkeys
         self.root.bind("p", lambda x: self.controller.show_frame("people_profiles"))
         self.root.bind("s", lambda x: self.controller.show_frame("store_profiles"))
+        self.root.bind("f", lambda x: self.controller.show_frame("manu_profiles"))
+        self.root.bind("c", lambda x: self.controller.show_frame("church_profiles"))
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
@@ -1701,14 +1860,12 @@ class people_profiles(tsf.tkscrollframe):
         raw_profiles = char.getKnownPeople()
         profiles = sorted(raw_profiles, key=attrgetter('lastname', 'firstname'))
 
-        # key =1
         for profile in profiles:
             callback = self.callbackFactory(profile)
             newButton = tk.Button(self.frame, text= profile.name, font=BUTTON_FONT, command=callback)
             newButton.callback = callback
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
-            # key += 1
 
         self.esc.pack_forget()
         self.esc.pack(fill=tk.X)
@@ -1727,13 +1884,6 @@ class people_profiles(tsf.tkscrollframe):
         self.root.dynamic_hotkeys = []
         self.root.hotkeys = self.hotkeys
         self.root.bind("<Escape>", self.esc.callback)
-
-        # key = 1
-        # for button in self.dynamic_buttons:
-        #     self.root.bind(str(key), button.callback)
-        #     self.root.dynamic_hotkeys.append(str(key))
-        #     key += 1
-
 
 
 
@@ -1798,14 +1948,126 @@ class store_profiles(tsf.tkscrollframe):
         self.root.hotkeys = self.hotkeys
         self.root.bind("<Escape>", self.esc.callback)
 
-        # key = 1
-        # for button in self.dynamic_buttons:
-        #     self.root.bind(str(key), button.callback)
-        #     self.root.dynamic_hotkeys.append(str(key))
-        #     key += 1
 
 
 
+class manu_profiles(tsf.tkscrollframe):
+
+    def __init__(self, parent, controller, root):
+        tsf.tkscrollframe.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+        self.hotkeys = ["<Escape>"]
+        self.dynamic_buttons = []
+
+        #widgets go in self.frame not self
+        header = tk.Label(self.frame, text="Factory Profiles", font=TITLE_FONT)
+        self.esc = tk.Button(self.frame, text="[esc] Return to House", font=BUTTON_FONT, command=lambda: self.controller.show_frame("house"))
+        self.esc.callback = lambda event: self.controller.show_frame("house")
+
+        header.pack(fill=tk.X)
+        self.esc.pack(fill=tk.X)
+
+    def show_splash(self):
+        cont = self.controller.get_display_cont()
+        cont.update_frame("main_display", tutorials.manu_profiles)
+
+    def callbackFactory(self, profile):
+        def callback(event=None):
+            return self.root.display_cont.display_m_profile(profile.get_values_dict())
+        return callback
+    
+    def raise_frame(self):
+        for entry in self.dynamic_buttons:
+            entry.destroy()
+
+        char = self.root.getChar()
+        profiles = char.getKnownManus()
+
+        for profile in profiles:
+            callback = self.callbackFactory(profile)
+            newButton = tk.Button(self.frame, text= profile.name, font=BUTTON_FONT, command=callback)
+            newButton.callback = callback
+            newButton.pack(fill=tk.X)
+            self.dynamic_buttons.append(newButton)
+
+        self.esc.pack_forget()
+        self.esc.pack(fill=tk.X)
+
+        self.show_splash()
+        self.set_hotkeys()
+        self.tkraise()
+
+    def set_hotkeys(self):
+        for hotkey in self.root.hotkeys:
+            self.root.unbind(hotkey)
+            
+        for hotkey in self.root.dynamic_hotkeys:
+            self.root.unbind(hotkey)
+        
+        self.root.dynamic_hotkeys = []
+        self.root.hotkeys = self.hotkeys
+        self.root.bind("<Escape>", self.esc.callback)
+
+
+
+class church_profiles(tsf.tkscrollframe):
+
+    def __init__(self, parent, controller, root):
+        tsf.tkscrollframe.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+        self.hotkeys = ["<Escape>"]
+        self.dynamic_buttons = []
+
+        #widgets go in self.frame not self
+        header = tk.Label(self.frame, text="Church Profiles", font=TITLE_FONT)
+        self.esc = tk.Button(self.frame, text="[esc] Return to House", font=BUTTON_FONT, command=lambda: self.controller.show_frame("house"))
+        self.esc.callback = lambda event: self.controller.show_frame("house")
+
+        header.pack(fill=tk.X)
+        self.esc.pack(fill=tk.X)
+
+    def show_splash(self):
+        cont = self.controller.get_display_cont()
+        cont.update_frame("main_display", tutorials.church_profiles)
+
+    def callbackFactory(self, profile):
+        def callback(event=None):
+            return self.root.display_cont.display_c_profile(profile.get_values_dict())
+        return callback
+    
+    def raise_frame(self):
+        for entry in self.dynamic_buttons:
+            entry.destroy()
+
+        char = self.root.getChar()
+        profiles = char.getKnownChurches()
+
+        for profile in profiles:
+            callback = self.callbackFactory(profile)
+            newButton = tk.Button(self.frame, text= profile.name, font=BUTTON_FONT, command=callback)
+            newButton.callback = callback
+            newButton.pack(fill=tk.X)
+            self.dynamic_buttons.append(newButton)
+
+        self.esc.pack_forget()
+        self.esc.pack(fill=tk.X)
+
+        self.show_splash()
+        self.set_hotkeys()
+        self.tkraise()
+
+    def set_hotkeys(self):
+        for hotkey in self.root.hotkeys:
+            self.root.unbind(hotkey)
+            
+        for hotkey in self.root.dynamic_hotkeys:
+            self.root.unbind(hotkey)
+        
+        self.root.dynamic_hotkeys = []
+        self.root.hotkeys = self.hotkeys
+        self.root.bind("<Escape>", self.esc.callback)
 
 
 

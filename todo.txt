@@ -1,19 +1,22 @@
 TODO:
 
--daily data (in clock) should update a particular screen instead of dumping to out().
+-productionAI should manage planting and harvesting orders. (currently bugged, see dev.txt)
 
--Businesses and units need sales[] screen.
--Businesses and units need output[] screen.
+-People should know about fewer stores.
 
--make more needs real.
--more products.
+-more products
 
--salaries should be calced into price of grain (if not already). 2 days worth.
+-set R to .1 for price trending.
 
--confirm ai working correctly
--confirm prices working correctly
+UNIT TESTNG
 
--GUI color correction and alignment.
+-prices
+-crafting
+-planting
+-harvesting
+-salaries
+-ai
+-eating, drinking
 
 DONE:
 -finish spouses
@@ -31,3 +34,27 @@ DONE:
 -People should visit every store at least once. (refactor chooseStore)
 -shopping should be smarter- not just single best product?
 -people should not buy products once the value < 1 (instead of == 0)
+-Businesses and units need sales[] screen.
+-TotalDMC and dailyLabor are both 0 currently. oPrice is therefore 0 as well.
+-eliminate circular dependency- DMC and labor in priceGen
+-remove skills, age from Person, Profile, GUI, gen
+-GUI color correction and alignment.
+-salaries should be calced into price of grain (if not already). 2 days worth.
+-price display.
+-Big data display.
+-resize matplotlib display.
+-Polish outputs.
+-complain should add appropriate number of failsales (currently prices can't rise above breaking even).
+(other than that prices work).
+-people shouldn't converse with themselves.
+-fix happiness calculation. (needs better algorithm)
+-fix failsale bug specified in dev.txt
+-people should know what they actually bought when updating thoughts.
+-businesses should do NO WORK on Sundays. This includes pricing, transports, transfers, work... anything else?
+-business ai should create transfer + transport orders for units when created.
+-production ai should manage the volume of these orders when adjusting crafting orders.
+-bug in show_ledger displaying wrong label on line graph.
+-bug in thoughts out no space between state and year when more than 10 days into month.
+-Add "met on" entry to people profiles. date.
+-Add "heard about" entry to store profiles. person, date.
+-bug in bigdata output "wrapping around" if less than 30 days in storage- see bigdata graph.

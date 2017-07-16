@@ -32,7 +32,7 @@ class generator(object):
 
     def generateLocality(self, l_location):
         #locality size, name static for now
-        gennedLocality = g.Locality(self.model, l_location,150,150,"Jonestown")
+        gennedLocality = g.Locality(self.model, l_location, 150, 150, "Jonestown")
         return gennedLocality
 
     def generatePeople(self, p_quantity, locality, houseList, religionList):
@@ -67,7 +67,7 @@ class generator(object):
                 religion = religionList[1]
 
             #gen
-            gennedPerson = p.People(self.model, firstname, lastname, gender, 18, locality, home, [1 for i in d.getMaterials()], religion)
+            gennedPerson = p.People(self.model, firstname, lastname, gender, locality, home, religion)
             gennedPerson.addCapital(100)
             gennedPerson.home.addTenant(gennedPerson)
 

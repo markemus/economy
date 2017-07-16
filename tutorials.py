@@ -158,8 +158,8 @@ house = """House
 people_profiles = """People Profiles
 
         Here is everything you know about everyone you know. Their ages, birthdays, families, 
-        wealth, needs, and other info is tracked by your character. This information is 
-        updated through conversations with other citizens of Jonestown.
+        needs, and other info is tracked by your character. This information is updated 
+        through conversations with other citizens of Jonestown.
 
         Remember that this information is accurate but outdated.
 
@@ -175,12 +175,34 @@ store_profiles = """Store Profiles
 
         """
 
+manu_profiles = """Factory Profiles
+
+        Factories are where products are made. They overlap with stores, but not every 
+        factory is a store. Other than markets they function in exactly the same way as stores,
+        and are in fact modeled the same way internally.
+
+        """
+
+church_profiles = """Church Profiles
+
+        You must go to church every Sunday. Everyone does, and anyway, it's important. 
+
+        Here you can see all the churches you know about. If you aren't a member of a church
+        already your character will pick from one of these, but you are, so don't worry about
+        it.
+
+        """
+
+
 town = """Town
 
-        This screen doesn't do anything yet. And never will.
+        This is a map. It is not a good map, but you can kind of see what's happening. It 
+        updates daily. 
+
+        Let's say it's because of hardware limitations, even though it's really all my fault.
 
         """
 
 
 
-tutorials = [welcome, main_display, new_business, businessData, new_unit, unitData, new_job, jobData, new_order, market, new_transfer, house, town]
+tutorials = [welcome, main_display, new_business, businessData, new_unit, unitData, new_job, jobData, new_order, market, new_transfer, house, people_profiles, store_profiles, manu_profiles, church_profiles, town]

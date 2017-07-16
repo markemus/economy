@@ -1,3 +1,5 @@
+from random import shuffle
+
 #indices
 GRAIN_INDEX = 0
 FLOUR_INDEX = 1
@@ -30,9 +32,17 @@ table   = [(WOOD_INDEX, 100)]
 
 components = [grain, flour, beer, bread, meat, fruit, wood, chair, table]
 
+#growth ratios
+#plant 1 grain, harvest 20 grain
+
+growratios = []
+
 #production types
 planted = ["grain", "beer", "meat", "fruit", "wood"]
 crafted = ["flour", "bread", "chair", "table"]
+
+#planting seasons- only grain for now (which is winter wheat)
+seasons = ["September", "all", "all", "all", "all", "all", "all", "all", "all"]
 
 #name lists
 maleNameList = open("boynames", "r").read().splitlines()
@@ -57,9 +67,9 @@ bossList = []
 
 #utility
 #people will buy up to the number below INCLUSIVE.
-utilityLimitList = [0,2,6,3,2,2,0,2,1]
+utilityLimitList = [0,2,6,4,2,2,0,2,1]
 utilityScaleList = [0,2,6,100,20,15,0,2,4]
-happinessMax = 80.8626720903
+# happinessMax = sum( utilityLimitList[i] * utilityScaleList[i] for i in range(len(utilityLimitList)))
 
 def addBusiness(business):
     businessList.append(business)
@@ -128,6 +138,9 @@ def getSkills():
 
 def getPeople():
     return peopleList
+
+def shufflePeople():
+    shuffle(peopleList)
 
 def getUnit():
     return unitList

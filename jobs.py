@@ -112,41 +112,46 @@ class Job(object):
     #UNDER CONSTRUCTION
     #simple, for now
     def plant(self, materialIndex, amount):
-        #seeds are pounds of seeds- ~14500 seeds per pound, for the record
-        # jobUnit = self.getUnit()
-        seedsPer = 50
-        seeds = self.unit.getStock(materialIndex)
-        growing = self.unit.growingPlants(materialIndex)
-        farmers = len(self.getEmployees())
-        isEnough = True
-        isAllPlanted = False
-        material = d.getMaterials()[materialIndex]
+        
+        if any([d.seasons[materialIndex] == "all", d.seasons[materialIndex] == self.business.model.calendar.state]):
 
-        #reduce to number of seeds we have
-        if amount > seeds:
-            amount = seeds
+            #seeds are pounds of seeds- ~14500 seeds per pound, for the record
+            seeds = self.unit.getStock(materialIndex)
+            growing = self.unit.growingPlants(materialIndex)
+            farmers = len(self.getEmployees())
+            isEnough = True
+            isAllPlanted = False
+            material = d.getMaterials()[materialIndex]
 
-        #subtract already growing
-        if amount > growing:
-            amount = amount - growing
+            #reduce to number of seeds we have
+            if amount > seeds:
+                amount = seeds
+
+            #subtract already growing
+            if amount > growing:
+                amount = amount - growing
+            else:
+                amount = 0
+
+            #limit by farmer ability
+            maxPlanting = farmers * self.unit.tech[materialIndex]
+            if amount > maxPlanting:
+                amount = maxPlanting
+
+            #planting
+            self.unit.plantSeeds(materialIndex, amount)
+
+            #thoughts
+            for farmer in self.getEmployees():
+                if not isEnough:
+                    farmer.think("I ran out of " + material + " seeds at work today.")
+                if isAllPlanted:
+                    farmer.think("I finished planting "+ material + " today.")
+                farmer.think("I planted " + str(amount) + " " + material + " seeds today.")
         else:
-            amount = 0
-
-        #limit by farmer ability
-        maxPlanting = farmers * seedsPer
-        if amount > maxPlanting:
-            amount = maxPlanting
-
-        #planting
-        self.unit.plantSeeds(materialIndex, amount)
-
-        #thoughts
-        for farmer in self.getEmployees():
-            if not isEnough:
-                farmer.think("I ran out of " + material + " seeds at work today.")
-            if isAllPlanted:
-                farmer.think("I finished planting "+ material + " today.")
-            farmer.think("I planted " + material + " seeds today.")
+            material = d.getMaterials()[materialIndex]
+            for farmer in self.getEmployees():
+                farmer.think("It's not the planting season for " + material + ".")
 
     def harvest(self, materialIndex, amount):
         tech = self.unit.getTech(materialIndex)
@@ -208,15 +213,22 @@ class Carrier(Job):
         if (business1 == self.business):
             if (business2 == self.business):
                 if (amount > amountInStock):
+                    unit1.addFailTransports(materialIndex, amount - amountInStock)
                     amount = amountInStock
+
                 if amount > 0:
-                    priceList = unit1.getPrice()
-                    materialPrice = priceList[materialIndex]
-                    unit1.addSales(materialIndex, amount)
-                    unit2.setDMC(materialIndex, materialPrice)
+                    #DMC is the FULL natural price of the material, not just its DMC- it's the DMC of products MADE FROM this material.
+                    #we want natural price because we don't care about supply and demand within businesses.
+                    DMC = unit1.priceCalc(materialIndex)[2]
+                    unit2.setDMC(materialIndex, DMC)
+                    
+                    unit1.addTransports(materialIndex, amount)
                     unit2.addPurchase(materialIndex, amount)
+
+                    #transport
                     unit1.addStock(materialIndex, -amount)
                     unit2.addStock(materialIndex, amount)
+                    
                     isTransport = True
 
         #thoughts
@@ -237,7 +249,8 @@ class Farmer(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
-        self.business.addHarvestJob(self)
+        self.business.addCraftingJob(self)
+        # self.business.addHarvestJob(self)
 
 
 
@@ -247,7 +260,7 @@ class Owner(Job):
     jobType = "Job Creator"
 
     def __init__(self, business, unit):
-        Job.__init__(self, 1, business, unit, salary=40)
+        Job.__init__(self, 1, business, unit, salary=6)
 
 
 
@@ -272,20 +285,26 @@ class Manager(Job):
                 amount = theUnit.getStock(materialIndex)
             if amount > theUnit.getOutput(materialIndex):
                 amount -= theUnit.getOutput(materialIndex)
+            else:
+                amount = 0
 
             theUnit.addStock(materialIndex, -amount)
             theUnit.addOutput(materialIndex, amount)
             isTransfer = True
 
+            #thoughts
             if isTransfer:
                 if amount != 0:
                     manager.think("I transfered " + str(amount) + " " + d.materialsList[materialIndex] + " to " + theUnit.name + "'s output.")
                 else:
                     manager.think("My employees didn't have the " + d.materialsList[materialIndex] + " ready when I needed it.")
             else:
-                manager.think("I can't transfer goods at " + str(theUnit) + ", it doesn't belong to us.")
+                manager.think("I can't transfer goods at " + str(theUnit) + ". Strange...")
 
-        return isTransfer
+        else:
+            amount = 0
+
+        return amount
 
     def updatePrices(self, jobUnit):
         if jobUnit.business == self.business:

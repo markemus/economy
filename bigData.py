@@ -1,43 +1,103 @@
+import copy
+
 import database as d
 
+#bigdata makes SHALLOW COPIES of all lists passed to it.
 class bigdata(object):
 
     def __init__(self, unit):
 
         self.unit       = unit
-        materials       = d.getMaterials()
-        # self.avgPrices  = [0 for i in materials]
+        self.locality   = unit.getLocality()
         self.sales      = []
+        self.failSales  = []
         self.price      = []
+        self.oPrice     = []
         self.crafted    = []
+        self.customers  = []
+        self.planted    = []
+        self.harvested  = []
+        self.DMC        = []
+        self.stock      = []
+        self.output     = []
+        self.transports = []
+        self.failTransports = []
+    
+    def getData(self, dayNum):
+        values_dict = {}
 
-    # def addSale(self, materialIndex, amount, price):
+        for key in ("sales", "price", "customers", "planted", "crafted", "harvested"):
+            try:
+                values_dict[key] = getattr(self, key)[dayNum]
+            except (KeyError, IndexError):
+                values_dict[key] = None
 
-    #     mean    = self.avgPrices[materialIndex]
-    #     n       = self.sales[materialIndex]
+        return values_dict
 
-    #     self.avgPrices[materialIndex] = (mean * (n / (n + amount))) + ((price * amount) / (n + amount))
-    #     self.sales[materialIndex]    += amount
+    #i = materialIndex
+    def getMonth(self, i):
+        dayNum = self.getDayNum()
+        days = []
+        lastThirty= ((dayNum - 29, dayNum) if dayNum > 29 else (0, 29))
 
-    def update(self):
-        self.sales.append(self.unit.sales)
-        self.price.append(self.unit.price)
-        self.crafted.append(self.unit.crafted)
+        for key in ( "price", "crafted", "sales", "failSales", "transports", "failTransports", "stock", "output"):
+            today = []
+            
+            for j in range(*lastThirty):
+                try:
+                    product = getattr(self, key)[j][i]
+                except (KeyError, IndexError):
+                    product = 0
+                
+                today.append(product)
+            days.append(today)
 
-    def getData(self):
-        return (self.sales, self.prices, self.crafted)
+        return days
+    
+    def getDayNum(self):
+        return self.locality.getDayNum()
 
-# # test
-# testData = bigdata(None)
-# testData.sales.append([1,2,3])
-# testData.sales.append([1,2,4])
-# print(testData.sales)
+    def getRecentSales(self, days):
+        return self.sales[-days:]
 
-# print(testData.sales, testData.avgPrices)
-# testData.addSale(3,15, 5)
-# print(testData.sales, testData.avgPrices)
-# testData.addSale(3,10, 3)
-# print(testData.sales, testData.avgPrices)
-# testData.addSale(3,1,0)
-# print(testData.sales, testData.avgPrices)
-# print(testData.getData())
+    def getRecentFailSales(self, days):
+        return self.failSales[-days:]
+
+    def updateSales(self, sales):
+        self.sales.append(copy.copy(sales))
+
+    def updateFailSales(self, failSales):
+        self.failSales.append(copy.copy(failSales))
+
+    def updatePrice(self, price):
+        self.price.append(copy.copy(price))
+
+    def updateOptimalPrice(self, oPrice):
+        self.oPrice.append(copy.copy(oPrice))
+
+    def updateCrafted(self, crafted):
+        self.crafted.append(copy.copy(crafted))
+
+    def updateCustomers(self, customers):
+        self.customers.append(copy.copy(customers))
+
+    def updatePlanted(self, planted):
+        self.planted.append(copy.copy(planted))
+
+    def updateHarvested(self, harvested):
+        self.harvested.append(copy.copy(harvested))
+
+    def updateDMC(self, DMC):
+        self.DMC.append(copy.copy(DMC))
+
+    def updateStock(self, stock):
+        self.stock.append(copy.copy(stock))
+
+    def updateOutput(self, output):
+        self.output.append(copy.copy(output))
+
+    def updateTransports(self, transports):
+        self.transports.append(copy.copy(transports))
+
+    def updateFailTransports(self, failTransports):
+        self.failTransports.append(copy.copy(failTransports))

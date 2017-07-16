@@ -5,31 +5,26 @@ import bigData as big
 import staff
 
 import copy
+import math
 
 #Not all units, but all units you can create (no house, church)
 def all_units():
     unit_list = [Farm, Mill, Brewery, Bakery, Lumberyard, Joinery]
     return unit_list
 
+#units use Business's money
 class Unit(object):
     unitType = "genericUnit"
     character = "X"
     locality = None     #should be a locality
     location = ()       #(x,y), being indices on the localMap.
     business = None
-    # lists generated in __init__
-    # [grain, flour, bread, beer]
     stock = None
-    # [millstone]
-    equipment = None
-    # [grain, flour, bread, beer]
     output = None
-    # money = 0
-    #Boolean is clunky, but allows each unit to have multiple purposes- work from home, etc.
-    isMarket = False
 
     def __init__ (self, unitName, unitLocality, unitLocationTuple, business):
         self.name       = unitName
+        self.bigdata    = big.bigdata(self)
         stockLength     = range(len(d.getMaterials()))
         missionsLength  = range(len(d.getUnitMissions()))
         self.locality   = unitLocality
@@ -40,13 +35,15 @@ class Unit(object):
         self.bigdata    = big.bigdata(self)
         self.stock      = [0 for material in stockLength]
         self.output     = [0 for material in stockLength]
-        self.tech       = [0 for material in stockLength]
+        self.tech       = [1 for material in stockLength]
         #current prices
         self.price      = [0 for material in stockLength]
         self.purchases  = [0 for material in stockLength]
         #yesterday's number of sales for each item
         self.sales      = [0 for material in stockLength]
         self.failSales  = [0 for material in stockLength]
+        self.transports = [0 for material in stockLength]
+        self.failTransports = [0 for material in stockLength]
         #Direct Materials Cost of a SINGLE instance of each product
         self.DMC        = [0 for material in stockLength]
         # self.orders     = [0 for material in stockLength]
@@ -54,10 +51,8 @@ class Unit(object):
         self.missions   = [False for mission in missionsLength]
         self.can_make   = [False for material in stockLength]
         self.laborTotal = 0
-        self.rentTotal  = 0
-
-    # def __str__(self):
-    #     return self.character
+        # self.rentTotal  = 0
+        self.customers  = []
 
     def toString(self):
         print("------------------------------------------")
@@ -65,118 +60,114 @@ class Unit(object):
         print("\nCurrent stocks:")
         print("Stock:", self.stock)
         print("Output:", self.output)
+        print("\nCurrent crafted:")
+        print("Crafted: ", self.crafted)
         print("\nCurrent prices:")
         print("Direct material costs:", self.DMC)
-        print("Total labor costs:", self.laborTotal)
-        print("Total rent costs:", self.rentTotal)
+        print("Last week's labor costs:", self.laborTotal)
         print("Sales:", self.sales)
+        print("Failsales: ", self.failSales)
+        print("Demand: ", [self.sales[i] + self.failSales[i] for i in range(len(self.sales))])
         print("Prices:", self.price)
 
     def getPrice(self):
         return self.price
 
-    # def sell(self, who, amount, i_item):
-    #     if self.output[i_item] >= amount:
-    #         thisPrice = self.price[i_item]
+    def complain(self, who):
+        failSale = [0 for i in range(len(d.getMaterials()))]
+        cost = 0
 
-    #         who.addCapital(-thisPrice)
-    #         self.business.addCash(thisPrice)
-    #         who.addInventory(i_item, amount)
-    #         self.addOutput(i_item, -amount)
-            
-    #         sold = True
-    #     else:
-    #         sold = False
-        
-    #     if sold:
-    #         self.addSales(i_item, amount)
-    #     else:
-    #         self.addFailSales(i_item, amount)
-
-    #     return sold
+        self.customers.append((who, failSale, copy.copy(self.output), cost, who.capital, False))
 
     def sell(self, who, amounts):
-        sold = False
+        wishamounts = copy.copy(amounts)
+        wishcost = sum(self.price[i] * wishamounts[i] for i in range(len(self.output)))
+
+        for i in range(len(self.output)):
+            if amounts[i] > self.output[i]:
+                amounts[i] = math.floor(self.output[i])
+
         cost = sum(self.price[i] * amounts[i] for i in range(len(self.output)))
 
         #verify
         if who.canAfford(cost):
-            if (self.output[i] >= amounts[i] for i in range(len(self.output))):
+            #sale
+            who.addCapital(-cost)
+            self.business.addCash(cost)
+            
+            for i in range(len(self.output)):
+                self.addOutput(i, -amounts[i])
+                who.addInventory(i, amounts[i])
 
-                #sale
-                who.addCapital(-cost)
-                self.business.addCash(cost)
-                
-                for i in range(len(self.output)):
-                    self.addOutput(i, -amounts[i])
-                    who.addInventory(i, amounts[i])
+                self.addSales(i, amounts[i])
+                self.addFailSales(i, wishamounts[i] - amounts[i])
+        
+        if sum(amounts) > 0:
+            sold = True
+        else:
+            sold = False
 
-                    self.addSales(i, amounts[i])
+        #customers is for bigData- cleared during *PHASE*
+        self.customers.append((who, wishamounts, wishcost, copy.copy(amounts), cost, copy.copy(self.output), who.capital, sold))
 
-                    sold = True
+        return (amounts, cost, sold)
 
-        return sold
+    #calculate the price of a single material, without changing it in place- i = materialIndex
+    def priceCalc(self, i):
+        #natural rate of profit- 4% return on capital
+        nrp = 1.04
+        #K is a constant weight- adjust if needed. At .5 one period is the half life.
+        K = 1
+        
+        #natural price
+        if d.getMaterials()[i] in d.planted:
+            #2 days, tech same for planting and harvesting
+            ratio = self.incubator.ratios[d.getMaterials()[i]]
+            labor = 2 / (self.tech[i] * ratio)
+        else:
+            labor = 1 / self.tech[i]
 
-    #here be dragons
-    #call AFTER transferring but BEFORE transporting. For stores, after restocking and before selling.
+        naturalPrice = (self.DMC[i] + labor) * nrp
+
+        #if never sold before
+        if self.price[i] == 0:
+            price = round(naturalPrice, 2)
+            oPrice = price
+
+        #if sold before
+        else:
+            #optimal price, set price.
+            demand = self.sales[i] + self.failSales[i]
+            oPrice = (demand / self.output[i]) * naturalPrice
+            priceAdjustment = (K * (oPrice - self.price[i]))
+            price = round(self.price[i] + priceAdjustment, 2)
+
+        return (price, oPrice, naturalPrice)
+
+    #call AFTER transferring but BEFORE transporting. For stores, after restocking and before selling. (rest)
     #priceGen gives new prices every period for each item based on the earlier price and 
     #the "optimal price" that it should trend towards.
     def priceGen(self):
-        oPrice = [0 for i in self.output]
-        labor = [0 for i in self.output]
-        rent = [0 for i in self.output]
-        naturalPrice = [0 for i in self.output]
-        #natural rate of profit- 4% return on capital
-        nrp = 1.04
-        #paid weekly, divide by workdays
-        dailyLabor = (self.laborTotal / 5)
-        #K is a constant weight- adjust if needed. At .5 one period is the half life.
-        K = .5
-        #DMC = direct materials cost
-        totalDMC = 0
+        yDayNum = self.getDayNum() - 1
+        oPrice = [0 for i in d.getMaterials()]
+        naturalPrice = [0 for i in d.getMaterials()]
 
-        #calculate total DMC
-        for i in range(len(self.DMC)):
-            totalDMC += (self.DMC[i] * self.crafted[i])
+        for i in range(len(self.price)):
+            if self.output[i] != 0:
+                (self.price[i], oPrice[i], naturalPrice[i]) = self.priceCalc(i)
+        #debug
+        # if self.name in ("Bill's Farm", "Bill's Mill", "Bill's Bakery"):
+        #     print(self.name)
+        #     print("DMC:    ", self.DMC)
+        #     print("sales:  ", self.sales)
+        #     print("output: ", self.output)
+        #     print("nPrice: ", naturalPrice)
+        #     print("oPrice: ", oPrice)
+        #     print("price:  ", self.price)
+        #     print("")
 
-        if totalDMC != 0:
-
-            for i in range(len(self.price)):
-                if self.output[i] != 0:
-                    #natural price
-                    labor[i] =  dailyLabor * self.DMC[i] / totalDMC
-                    rent[i] = self.rentTotal * self.DMC[i] / totalDMC
-                    
-                    naturalPrice[i] = (self.DMC[i] + labor[i] + rent[i]) * nrp
-
-                    #if never sold before
-                    if self.price[i] == 0:
-                        self.price[i] = round(naturalPrice[i], 2)
-                    else:
-                        #optimal price, set price.
-                        demand = self.sales[i] + self.failSales[i]
-                        oPrice[i] = (demand / self.output[i]) * naturalPrice[i]
-                        priceAdjustment = (K * (oPrice[i] - self.price[i]))
-                        self.price[i] = round(self.price[i] + priceAdjustment, 2)
-
-        # #debug
-        # print("-----------------------")
-        # print(self.name,"priceGen:")
-        # print("\nSales:", self.sales)
-        # print("Crafted:", self.crafted)
-        # print("Stock:", self.stock)
-        # print("Output:", self.output)
-        # print("\nDMC:", self.DMC)
-        # print("Total DMC:", totalDMC)
-        # print("Daily labor", dailyLabor)
-        # print("Labor:", labor)
-        # print("Rent:", rent)
-        # print("\nNatural price:", naturalPrice)
-        # print("oPrice:", oPrice)
-        # print("Price:", self.price)
-        # print("")
-        # #endDebug
         self.resetSales()
+        self.resetCustomers()
 
     def growingPlants(self, materialIndex):
         return self.incubator.getGrowing(d.getMaterials()[materialIndex])
@@ -196,7 +187,6 @@ class Unit(object):
             amount = self.incubator.harvest(d.getMaterials()[materialIndex], amount)
             self.addCrafted(materialIndex, amount)
             self.addStock(materialIndex, amount)
-            #productDMC = 0 for now
 
     def getName(self):
         return self.name
@@ -232,8 +222,8 @@ class Unit(object):
     def getDMC(self):
         return self.DMC
 
-    def getIsMarket(self):
-        return self.isMarket
+    # def getIsMarket(self):
+    #     return self.isMarket
 
     #for now, skills don't matter. But they will.
     def getJobs(self, interviewee):
@@ -267,6 +257,7 @@ class Unit(object):
     def setBusiness(self, newBusiness):
         self.business = newBusiness
 
+    #addPurchase, addSales, addFailSales. This is stupid.
     def addPurchase(self, materialIndex, amount):
         self.purchases[materialIndex] += amount
 
@@ -276,11 +267,17 @@ class Unit(object):
     def addFailSales(self, materialIndex, amount):
         self.failSales[materialIndex] += amount
 
+    def addTransports(self, materialIndex, amount):
+        self.transports[materialIndex] += amount
+
+    def addFailTransports(self, materialIndex, amount):
+        self.failTransports[materialIndex] += amount
+
     def getTotalDemand(self):
         demand = []
 
         for i in range(len(self.sales)):
-            demand.append(self.sales[i] + self.failSales[i])
+            demand.append(self.sales[i] + self.failSales[i] + self.transports[i] + self.failTransports[i])
 
         return demand
 
@@ -299,9 +296,9 @@ class Unit(object):
     #used for displaying production in matplotlib
     def getProduction(self):
         return ([0,1,2,3,4,5,6,7,8], self.crafted)
-        
-    # def addCapital(self, amount):
-    #     self.money += amount
+
+    def getSales(self):
+        return ([0,1,2,3,4,5,6,7,8], self.sales)
 
     def addJob(self, job):
         self.jobList.append(job)
@@ -315,18 +312,22 @@ class Unit(object):
     def setLaborTotal(self, laborTotal):
         self.laborTotal = laborTotal
 
-    def resetLaborTotal(self):
-        self.laborTotal = 0
-
     def resetPurchases(self):
         self.purchases = [0 for i in self.purchases]
         
     def resetSales(self):
         self.sales      = [0 for i in self.sales]
         self.failSales  = [0 for i in self.failSales]
+        self.transports = [0 for i in self.transports]
+        self.failTransports = [0 for i in self.failTransports]
+
+    # def resetTransports(self):
 
     def resetCrafted(self):
         self.crafted = [0 for i in self.crafted]
+
+    def resetCustomers(self):
+        self.customers = []
 
     def getRevenue(self):
         revenue = []
@@ -414,9 +415,10 @@ class Farm(Manufactury):
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.GRAIN_INDEX] = True
-        self.tech[d.GRAIN_INDEX] = 16
+        self.tech[d.GRAIN_INDEX] = 4.5
         self.stock[d.GRAIN_INDEX] = 50
-        self.DMC[d.GRAIN_INDEX] = 1
+        # self.DMC[d.GRAIN_INDEX] = 1
+        self.failSales[d.GRAIN_INDEX] = 500
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -437,7 +439,8 @@ class Mill(Manufactury):
         self.tech[d.FLOUR_INDEX] = 40
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
-        self.DMC[d.GRAIN_INDEX] = 1
+        # self.DMC[d.GRAIN_INDEX] = 1
+        self.failSales[d.FLOUR_INDEX] = 500
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -458,7 +461,8 @@ class Brewery(Manufactury):
         self.tech[d.BEER_INDEX] = 60
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
-        self.DMC[d.GRAIN_INDEX] = 1
+        # self.DMC[d.GRAIN_INDEX] = 1
+        self.failSales[d.BEER_INDEX] = 500
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -472,16 +476,16 @@ class Brewery(Manufactury):
 class Bakery(Manufactury):
     unitType = "Bakery"
     character = "B"
-    # isMarket = True
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.BREAD_INDEX] = True
-        self.tech[d.BREAD_INDEX] = 10
+        self.tech[d.BREAD_INDEX] = 60
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
         self.stock[d.FLOUR_INDEX] = 50
-        self.DMC[d.FLOUR_INDEX] = 1
+        # self.DMC[d.FLOUR_INDEX] = 1
+        self.failSales[d.BREAD_INDEX] = 500
 
         d.addUnit(self)
         if self.business is not None:
@@ -500,7 +504,8 @@ class Lumberyard(Manufactury):
         self.tech[d.WOOD_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
         self.stock[d.WOOD_INDEX] = 50
-        self.DMC[d.WOOD_INDEX] = 1
+        # self.DMC[d.WOOD_INDEX] = 1
+        self.failSales[d.WOOD_INDEX] = 500
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -522,7 +527,9 @@ class Joinery(Manufactury):
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
         self.stock[d.WOOD_INDEX] = 50
-        self.DMC[d.WOOD_INDEX] = 1
+        # self.DMC[d.WOOD_INDEX] = 1
+        self.failSales[d.CHAIR_INDEX] = 500
+        self.failSales[d.TABLE_INDEX] = 500
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)

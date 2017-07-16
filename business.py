@@ -74,17 +74,13 @@ class Business(object):
 
             #they tell all their friends about their new venture.
             for friend in owner.getKnownPeople():
-                friend.person.unitManager(unit)
+                friend.person.unitManager(unit, owner)
 
-    def removeJob(self, job):
-        self.jobList.remove(job)
+    # def removeJob(self, job):
+    #     self.jobList.remove(job)
 
-    def removeOrder(self, order):
-        self.orders.remove(order)
-
-    def removeUnit(self, unit):
-        self.m_unitList.remove(unit)
-        #remove unit's pricing order here
+    # def removeOrder(self, order):
+    #     self.orders.remove(order)
 
     def pay(self, amount):
         self.cash -= amount 
@@ -98,6 +94,16 @@ class Business(object):
                 crafted[i] +=  thisCrafted[i]
 
         return ([0,1,2,3,4,5,6,7,8], crafted)
+
+    def getSales(self):
+        sales = [0 for i in d.getMaterials()]
+        for unit in self.m_unitList:
+            thisSales = unit.getSales()
+
+            for i in range(len(thisSales[1])):
+                sales[i] += thisSales[1][i]
+
+        return ([0,1,2,3,4,5,6,7,8], sales)
 
     def getAllStock(self):
         stock = [0,0,0,0,0,0,0,0,0]
@@ -124,7 +130,6 @@ class Business(object):
     def getEmployees(self):
         return self.m_employees
 
-    #was getEmployees
     def get_emp_dict(self):
         empDict = {}
 
@@ -188,36 +193,51 @@ class Business(object):
 
         return targetOrder
 
-    def transportOrderManager(self, job, startUnit, endUnit, productIndex):
+    def transportOrderManager(self, endUnit, productIndex):
         noOrder = True
+        targetOrder = None
 
         for thisOrder in self.transportOrders:
-            if (thisOrder.getJob() == job) and (thisOrder.getProductIndex() == productIndex):
-                if (thisOrder.getStartUnit() == startUnit) and (thisOrder.getEndUnit() == endUnit):
+            if (thisOrder.getProductIndex() == productIndex):
+                if (thisOrder.getEndUnit() == endUnit):
                     targetOrder = thisOrder
                     noOrder = False
                     break
 
         if noOrder:
-            targetOrder = o.transportOrder(self, job, startUnit, endUnit, productIndex)
-            self.transportOrders.append(targetOrder)
+            #pick a startUnit
+            startUnit = self.unitManager(productIndex)
+            if startUnit is not None:
+                targetOrder = o.transportOrder(self, endUnit.staff.carrier, startUnit, endUnit, productIndex)
+                self.transportOrders.append(targetOrder)
 
         return targetOrder
 
-    def transferOrderManager(self, job, unit, productIndex):
+    def transferOrderManager(self, unit, productIndex):
         noOrder = True
 
         for thisOrder in self.transferOrders:
-            if (thisOrder.getJob() == job) and (thisOrder.getProductIndex() == productIndex):
+            if (thisOrder.getProductIndex() == productIndex):
                 if (thisOrder.getUnit() == unit):
                     targetOrder = thisOrder
                     noOrder = False
                     break
         if noOrder:
-            targetOrder = o.transferOrder(self, job, unit, productIndex, 0)
+            targetOrder = o.transferOrder(self, unit.staff.manager, unit, productIndex, 0)
             self.transferOrders.append(targetOrder)
 
         return targetOrder
+
+    #does not create units if they don't exist
+    def unitManager(self, productIndex):
+        targetUnit = None
+
+        for unit in self.m_unitList:
+            if unit.tech[productIndex] > 1:
+                targetUnit = unit
+                break
+
+        return targetUnit
 
     def workHandler(self):
         self.resetHired()
@@ -235,11 +255,34 @@ class Business(object):
             order.execute()
 
     def restHandler(self):
+        # if self.model.week.state != "Sunday":
         for order in self.pricingOrders:
             order.execute()
 
     def shopHandler(self):
         for order in self.transportOrders:
             order.execute()
+
+    def sleepHandler(self):
+        if self.model.char in self.owners:
+            self.model.out(self.hiredOut())
+
+            for unit in self.m_unitList:
+                self.model.out(unit.dailyRevenue())
+                self.model.out(unit.dailyCrafted())
+                self.model.out("\n")
+
         for unit in self.m_unitList:
-            unit.bigdata.update()
+            if unit.missions[d.MANU_INDEX]:
+                unit.bigdata.updateCrafted(unit.crafted)
+                # unit.bigdata.updatePlanted(unit.planted)
+                # unit.bigdata.updateHarvested(unit.harvested)
+                unit.bigdata.updateTransports(unit.transports)
+                unit.bigdata.updateFailTransports(unit.failTransports)
+                unit.bigdata.updateStock(unit.stock)
+                unit.bigdata.updateOutput(unit.output)
+            if unit.missions[d.STORE_INDEX]:
+                unit.bigdata.updatePrice(unit.price)
+                unit.bigdata.updateSales(unit.sales)
+                unit.bigdata.updateFailSales(unit.failSales)
+                unit.bigdata.updateCustomers(unit.customers)

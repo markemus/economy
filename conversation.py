@@ -36,25 +36,39 @@ class Conversation(object):
     [1.0,1.0,0.25,0.00]
     ]
 
-    #a. different friend, b. new topic, c. end convo, d. family, e. job, f. skills
+    #a. different friend, b. new topic, c. end convo, d. family, e. job, /f. skills
     friendMatrix = [
-    [0.00,0.00,0.15,0.1,0.1,0.1],
-    [0.00,0.00,0.15,0.2,0.2,0.2],
-    [0.00,0.00,0.15,0.5,0.5,0.5],
-    [0.34,0.34,0.15,0.0,0.1,0.1],
-    [0.33,0.33,0.15,0.1,0.0,0.1],
-    [0.33,0.33,0.25,0.1,0.1,0.0]
+    [0.0,0.0,0.2,0.1,0.1],
+    [0.0,0.0,0.2,0.2,0.2],
+    [0.0,0.0,0.2,0.5,0.5],
+    [0.5,0.5,0.2,0.0,0.2],
+    [0.5,0.5,0.2,0.2,0.0]
     ]
+    # friendMatrix = [
+    # [0.00,0.00,0.15,0.1,0.1,0.1],
+    # [0.00,0.00,0.15,0.2,0.2,0.2],
+    # [0.00,0.00,0.15,0.5,0.5,0.5],
+    # [0.34,0.34,0.15,0.0,0.1,0.1],
+    # [0.33,0.33,0.15,0.1,0.0,0.1],
+    # [0.33,0.33,0.25,0.1,0.1,0.0]
+    # ]
 
-    #a. introduction, b. new topic, c. end convo, d. myfamily, e. myjob, f. myskills
+    #a. introduction, b. new topic, c. end convo, d. myfamily, e. myjob, /f. myskills
     myselfMatrix = [
-    [0.0,1,0.15,0.00,0.00,0.00],
-    [0.2,0,0.15,0.20,0.20,0.20],
-    [0.2,0,0.15,0.50,0.50,0.50],
-    [0.2,0,0.15,0.00,0.15,0.15],
-    [0.2,0,0.15,0.15,0.00,0.15],
-    [0.2,0,0.15,0.15,0.15,0.00]
+    [0.00,1,0.2,0.0,0.0],
+    [0.25,0,0.2,0.2,0.2],
+    [0.25,0,0.2,0.5,0.5],
+    [0.25,0,0.2,0.0,0.3],
+    [0.25,0,0.2,0.3,0.0]
     ]
+    # myselfMatrix = [
+    # [0.0,1,0.15,0.00,0.00,0.00],
+    # [0.2,0,0.15,0.20,0.20,0.20],
+    # [0.2,0,0.15,0.50,0.50,0.50],
+    # [0.2,0,0.15,0.00,0.15,0.15],
+    # [0.2,0,0.15,0.15,0.00,0.15],
+    # [0.2,0,0.15,0.15,0.15,0.00]
+    # ]
 
     states = ['topic','store','manu','friend', 'myself', 'exit']
 
@@ -77,8 +91,8 @@ class Conversation(object):
             'topic'  : [self.toStore, self.toManu, self.toFriend, self.toMyself, self.toExit],
             'store'  : [self.different, self.toTopic, self.toExit, self.prices],
             'manu'   : [self.different, self.toTopic, self.toExit, self.prices],
-            'friend' : [self.different, self.toTopic, self.toExit, self.family, self.job, self.skills],
-            'myself' : [self.introduction, self.toTopic, self.toExit, self.myfamily, self.myjob, self.myskills]
+            'friend' : [self.different, self.toTopic, self.toExit, self.family, self.job],
+            'myself' : [self.introduction, self.toTopic, self.toExit, self.myfamily, self.myjob]
             }
         self.machine.on_enter_topic('topicHandler')
         self.machine.on_enter_store('storeHandler')
@@ -128,8 +142,8 @@ class Conversation(object):
 
     def prices(self):
         if self.target is not None:
-            firstProfile  = self.firstPerson.unitManager(self.target)
-            secondProfile = self.secondPerson.unitManager(self.target)
+            firstProfile  = self.firstPerson.unitManager(self.target, self.secondPerson)
+            secondProfile = self.secondPerson.unitManager(self.target, self.firstPerson)
 
             firstPrices  = firstProfile.getPricesWithDayNum()
             secondPrices = secondProfile.getPricesWithDayNum()
@@ -222,35 +236,35 @@ class Conversation(object):
             self.firstPerson.think("I don't know what any of my friends do for a living!")
             self.secondPerson.think("I don't know what any of my friends do for a living!")
 
-    def skills(self):
-        #info: skills
-        if self.target is not None:
-            #profiles
-            firstProfile = self.firstPerson.peopleManager(self.target)
-            secondProfile = self.secondPerson.peopleManager(self.target)
+    # def skills(self):
+    #     #info: skills
+    #     if self.target is not None:
+    #         #profiles
+    #         firstProfile = self.firstPerson.peopleManager(self.target)
+    #         secondProfile = self.secondPerson.peopleManager(self.target)
 
-            #variables
-            firstSkills = firstProfile.getSkills()
-            secondSkills = secondProfile.getSkills()
+    #         #variables
+    #         firstSkills = firstProfile.getSkills()
+    #         secondSkills = secondProfile.getSkills()
 
-            #update profiles
-            if firstSkills[1] > secondSkills[1]:
-                secondProfile.updateSkills(*firstSkills)
-                self.firstPerson.think("I told " + self.secondPerson.name + " about how good " + self.target.name + " is with their hands.")
-                self.secondPerson.think(self.firstPerson.name + " told me about how good " + self.target.name + " is with their hands.")
+    #         #update profiles
+    #         if firstSkills[1] > secondSkills[1]:
+    #             secondProfile.updateSkills(*firstSkills)
+    #             self.firstPerson.think("I told " + self.secondPerson.name + " about how good " + self.target.name + " is with their hands.")
+    #             self.secondPerson.think(self.firstPerson.name + " told me about how good " + self.target.name + " is with their hands.")
 
-            elif secondSkills[1] > firstSkills[1]:
-                firstProfile.updateSkills(*secondSkills)
-                self.firstPerson.think(self.secondPerson.name + " told me about how good " + self.target.name + " is with their hands.")
-                self.secondPerson.think("I told " + self.firstPerson.name + " about how good " + self.target.name + " is with their hands.")
+    #         elif secondSkills[1] > firstSkills[1]:
+    #             firstProfile.updateSkills(*secondSkills)
+    #             self.firstPerson.think(self.secondPerson.name + " told me about how good " + self.target.name + " is with their hands.")
+    #             self.secondPerson.think("I told " + self.firstPerson.name + " about how good " + self.target.name + " is with their hands.")
 
-            else:
-                self.firstPerson.think(self.secondPerson.name + " and I talked about how good " + self.target.name + " is with their hands.")
-                self.secondPerson.think(self.firstPerson.name + " and I talked about how good " + self.target.name + " is with their hands.")
+    #         else:
+    #             self.firstPerson.think(self.secondPerson.name + " and I talked about how good " + self.target.name + " is with their hands.")
+    #             self.secondPerson.think(self.firstPerson.name + " and I talked about how good " + self.target.name + " is with their hands.")
 
-        else:
-            self.firstPerson.think("I should spend more time doing things with my friends.")
-            self.secondPerson.think("I should spend more time doing things with my friends.")
+    #     else:
+    #         self.firstPerson.think("I should spend more time doing things with my friends.")
+    #         self.secondPerson.think("I should spend more time doing things with my friends.")
 
     def myfamily(self):
         #info: family, people
@@ -315,34 +329,34 @@ class Conversation(object):
             secondProfile.updateSalary(firstSalary, dayNum)
 
         if firstJobUnit is not None:
-            self.secondPerson.unitManager(firstJobUnit)
+            self.secondPerson.unitManager(firstJobUnit, self.firstPerson)
         if secondJobUnit is not None:
-            self.firstPerson.unitManager(secondJobUnit)       
+            self.firstPerson.unitManager(secondJobUnit, self.secondPerson)
 
         #thoughts
         self.firstPerson.think(self.secondPerson.name + " told me about their job as a " + secondJobType + " at " + secondJobLoc + ".")
         self.secondPerson.think(self.firstPerson.name + " told me about their job as a " + firstJobType + " at " + firstJobLoc + ".")
 
-    def myskills(self):
-        #info skills
-        #profiles
-        firstProfile = self.secondPerson.peopleManager(self.firstPerson)
-        secondProfile = self.firstPerson.peopleManager(self.secondPerson)
+    # def myskills(self):
+    #     #info skills
+    #     #profiles
+    #     firstProfile = self.secondPerson.peopleManager(self.firstPerson)
+    #     secondProfile = self.firstPerson.peopleManager(self.secondPerson)
 
-        #variables
-        firstSkills = self.firstPerson.getSkills()
-        secondSkills = self.secondPerson.getSkills()
-        dayNum = self.firstPerson.model.getDayNum()
+    #     #variables
+    #     firstSkills = self.firstPerson.getSkills()
+    #     secondSkills = self.secondPerson.getSkills()
+    #     dayNum = self.firstPerson.model.getDayNum()
 
-        #update profiles
-        if dayNum > firstProfile.getSkills()[1]:
-            firstProfile.updateSkills(firstSkills, dayNum)
-        if dayNum > secondProfile.getSkills()[1]:
-            secondProfile.updateSkills(secondSkills, dayNum)
+    #     #update profiles
+    #     if dayNum > firstProfile.getSkills()[1]:
+    #         firstProfile.updateSkills(firstSkills, dayNum)
+    #     if dayNum > secondProfile.getSkills()[1]:
+    #         secondProfile.updateSkills(secondSkills, dayNum)
 
-        #thoughts
-        self.firstPerson.think(self.secondPerson.name + " and I talked shop for a while.")
-        self.secondPerson.think(self.firstPerson.name + " and I talked shop for a while.")
+    #     #thoughts
+    #     self.firstPerson.think(self.secondPerson.name + " and I talked shop for a while.")
+    #     self.secondPerson.think(self.firstPerson.name + " and I talked shop for a while.")
 
     #dialogues are chosen here, but the actual method call is in the handler (eg prices)
     def talk(self, matrix, stateVector):
@@ -409,7 +423,7 @@ class Conversation(object):
 
     def friendHandler(self):
         matrix = Conversation.friendMatrix
-        stateVector = [0,1,0,0,0,0]
+        stateVector = [0,1,0,0,0]
         # self.firstPerson.think("friendHandler")
         
         self.different()
@@ -423,7 +437,7 @@ class Conversation(object):
 
     def myselfHandler(self):
         matrix = Conversation.myselfMatrix
-        stateVector = [0,1,0,0,0,0]
+        stateVector = [0,1,0,0,0]
         # self.firstPerson.think("myselfHandler")
 
         while self.state == 'myself':

@@ -15,10 +15,11 @@ class PersonProfile(object):
         self.firstname = person.firstname
         self.lastname = person.lastname
         self.locality = person.locality
+        self.meton = person.locality.date()
         self.children = (dayNum)
         self.person = person
         self.muList = ([0 for i in d.getMaterials()], 0)
-        self.skills = ([0 for i in d.getSkills()], 0)
+        # self.skills = ([0 for i in d.getSkills()], 0)
         self.father = father
         self.mother = mother
         self.spouse = spouse
@@ -52,10 +53,6 @@ class PersonProfile(object):
 
     def updateSalary(self, salary, dayNum):
         self.salary = (salary, dayNum)
-
-    def updateSkills(self, skills, dayNum):
-        skills = copy.copy(skills)
-        self.skills = (skills, dayNum)
 
     def getFamily(self):
         return (self.father, self.mother, self.spouse, self.siblings, self.children)
@@ -95,8 +92,8 @@ class PersonProfile(object):
     def getSalary(self):
         return self.salary
 
-    def getSkills(self):
-        return self.skills
+    # def getSkills(self):
+    #     return self.skills
 
     def getFather(self):
         return self.father
@@ -145,13 +142,14 @@ class PersonProfile(object):
         values_dict["job"] = (str(self.job[0].jobType + " at " + self.job[0].unit.name) if self.job[0] is not None else empty)
         values_dict["father"] = (str(self.father[0].name) if self.father[0] is not None else empty)
         values_dict["mother"] = (str(self.mother[0].name) if self.mother[0] is not None else empty)
-        values_dict["siblings"] = str(self.siblings) 
-        values_dict["children"] = str(self.children)
+        # values_dict["siblings"] = str(self.siblings) 
+        # values_dict["children"] = str(self.children)
         values_dict["spouse"] = (str(self.spouse[0].name) if self.spouse[0] is not None else empty)
         values_dict["house"] = (str(self.house[0].location) if self.house[0] is not None else empty)
         values_dict["mu"] = str([round(x, 2) for x in self.muList[0]])
-        values_dict["skills"] = (str(self.skills) if self.skills[1] != 0 else empty)
+        # values_dict["skills"] = (str(self.skills) if self.skills[1] != 0 else empty)
         values_dict["opinion"] = (str(self.opinion))
+        values_dict["meton"] = (str(self.meton))
 
         return values_dict
 
@@ -164,13 +162,14 @@ class StoreProfile(object):
     experience = 1
     store = None
 
-    def __init__(self, store):
+    def __init__(self, store, heardabout=None):
         dayNum = store.getLocality().getDayNum()
         self.store = store
         self.location = store.getLocation()
         self.locality = store.getLocality()
         self.name = store.name
         self.avgPrices = ([0 for i in d.getMaterials()], dayNum)
+        self.heardabout = str(heardabout.name if heardabout is not None else "Discovered") + " on " + str(store.getLocality().date())
 
     def get_values_dict(self):
         values_dict = {}
@@ -180,6 +179,7 @@ class StoreProfile(object):
         values_dict["experience"] = str(self.experience)
         values_dict["locality"] = str(self.locality)
         values_dict["location"] = str(self.location)
+        values_dict["heardabout"] = str(self.heardabout)
 
         return values_dict
 
