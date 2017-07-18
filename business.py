@@ -157,9 +157,9 @@ class Business(object):
 
     def hiredOut(self):
         toString =  (
-            "\n" + self.name + 
-            " hired " + str(self.dailyHired) +  
-            " new employees today. Total salaries: $" + str(self.newTotalSalaries) + 
+            "\n" + self.name +
+            " hired " + str(self.dailyHired) +
+            " new employees today. Total salaries: $" + str(self.newTotalSalaries) +
             ".")
         return toString
 
@@ -205,9 +205,9 @@ class Business(object):
                     break
 
         if noOrder:
-            #pick a startUnit
+            # pick a startUnit
             startUnit = self.unitManager(productIndex)
-            if startUnit is not None:
+            if startUnit is not None and startUnit is not endUnit:
                 targetOrder = o.transportOrder(self, endUnit.staff.carrier, startUnit, endUnit, productIndex)
                 self.transportOrders.append(targetOrder)
 
@@ -242,8 +242,13 @@ class Business(object):
     def workHandler(self):
         self.resetHired()
 
+        for job in self.jobList:
+            job.resetIdlers()
+
         for unit in self.m_unitList:
             unit.resetCrafted()
+            unit.resetPlanted()
+            unit.resetHarvested()
             unit.resetPurchases()
             unit.incubator.next_day()
 
@@ -260,10 +265,12 @@ class Business(object):
             order.execute()
 
     def shopHandler(self):
+        # if self.model.week.state != "Sunday":
         for order in self.transportOrders:
             order.execute()
 
     def sleepHandler(self):
+        # if self.model.week.state != "Sunday":
         if self.model.char in self.owners:
             self.model.out(self.hiredOut())
 

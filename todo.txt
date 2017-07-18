@@ -1,14 +1,20 @@
 TODO:
 
--productionAI should manage planting and harvesting orders. (currently bugged, see dev.txt)
+-jobPoster should account for all orders, and run ONCE for each job. (not be called by prodAI)
+
+-bigdata should be gathered daily (all 0s for Sunday).
 
 -People should know about fewer stores.
 
--more products
+-store permanent data on harddrive, not in RAM.
+
+-add scrolling for profile keyboards (see online descriptions for how)
 
 -set R to .1 for price trending.
 
-UNIT TESTNG
+-more products
+
+FINAL TESTNG
 
 -prices
 -crafting
@@ -58,3 +64,7 @@ DONE:
 -Add "met on" entry to people profiles. date.
 -Add "heard about" entry to store profiles. person, date.
 -bug in bigdata output "wrapping around" if less than 30 days in storage- see bigdata graph.
+-Make sure bigdata is actually gathering all the data it needs. We don't care how many days it has to avg- we don't need a year or anything, just SOME.
+-Get bigdata avg working right. 
+-People should not be able to both plant and harvest on the same day. (no overtime!)
+-productionAI should manage planting and harvesting orders.

@@ -48,6 +48,8 @@ class Unit(object):
         self.DMC        = [0 for material in stockLength]
         # self.orders     = [0 for material in stockLength]
         self.crafted    = [0 for material in stockLength]
+        self.planted    = [0 for material in stockLength]
+        self.harvested  = [0 for material in stockLength]
         self.missions   = [False for mission in missionsLength]
         self.can_make   = [False for material in stockLength]
         self.laborTotal = 0
@@ -62,6 +64,7 @@ class Unit(object):
         print("Output:", self.output)
         print("\nCurrent crafted:")
         print("Crafted: ", self.crafted)
+        print("Planted: ", self.planted)
         print("\nCurrent prices:")
         print("Direct material costs:", self.DMC)
         print("Last week's labor costs:", self.laborTotal)
@@ -176,10 +179,10 @@ class Unit(object):
         return self.incubator.getRipe(d.getMaterials()[materialIndex])
 
     def plantSeeds(self, materialIndex, amount):
-        if self.stock[materialIndex] <= amount:
-            amount = self.stock[materialIndex]
+        # if self.stock[materialIndex] <= amount:
+        #     amount = self.stock[materialIndex]
 
-        self.stock[materialIndex] -= amount
+        # self.stock[materialIndex] -= amount
         self.incubator.plant(d.getMaterials()[materialIndex], amount)
 
     def harvest(self, materialIndex, amount):
@@ -290,6 +293,12 @@ class Unit(object):
     def addCrafted(self, materialIndex, amount):
         self.crafted[materialIndex] += amount
 
+    def addPlanted(self, materialIndex, amount):
+        self.planted[materialIndex] += amount
+
+    def addHarvested(self, materialIndex, amount):
+        self.harvested[materialIndex] += amount
+
     def getCrafted(self):
         return self.crafted
 
@@ -316,15 +325,19 @@ class Unit(object):
         self.purchases = [0 for i in self.purchases]
         
     def resetSales(self):
-        self.sales      = [0 for i in self.sales]
-        self.failSales  = [0 for i in self.failSales]
-        self.transports = [0 for i in self.transports]
+        self.sales          = [0 for i in self.sales]
+        self.failSales      = [0 for i in self.failSales]
+        self.transports     = [0 for i in self.transports]
         self.failTransports = [0 for i in self.failTransports]
-
-    # def resetTransports(self):
 
     def resetCrafted(self):
         self.crafted = [0 for i in self.crafted]
+
+    def resetPlanted(self):
+        self.planted = [0 for i in self.planted]
+
+    def resetHarvested(self):
+        self.harvested = [0 for i in self.harvested]
 
     def resetCustomers(self):
         self.customers = []
@@ -425,10 +438,7 @@ class Farm(Manufactury):
 
 
 
-
-
-
-
+#20-30 kg flour per hour- ~440 lb per 8 hours
 class Mill(Manufactury):
     unitType = "Mill"
     character = "M"
@@ -436,7 +446,7 @@ class Mill(Manufactury):
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.FLOUR_INDEX] = True
-        self.tech[d.FLOUR_INDEX] = 40
+        self.tech[d.FLOUR_INDEX] = 440
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
         # self.DMC[d.GRAIN_INDEX] = 1
@@ -448,9 +458,6 @@ class Mill(Manufactury):
 
 
 
-
-
-
 class Brewery(Manufactury):
     unitType = "Brewery"
     character = "b"
@@ -458,7 +465,7 @@ class Brewery(Manufactury):
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.can_make[d.BEER_INDEX] = True
-        self.tech[d.BEER_INDEX] = 60
+        self.tech[d.BEER_INDEX] = 40
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
         # self.DMC[d.GRAIN_INDEX] = 1
@@ -466,9 +473,6 @@ class Brewery(Manufactury):
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
-
-
-
 
 
 
@@ -513,7 +517,6 @@ class Lumberyard(Manufactury):
 
 
 
-
 class Joinery(Manufactury):
     unitType = "Joinery"
     character = "J"
@@ -533,10 +536,6 @@ class Joinery(Manufactury):
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
-
-
-
-
 
 
 
@@ -562,11 +561,7 @@ class House(Unit):
 
 
 
-
-
-
-
-
+#the ai don't need warehouses, players probably do.
 class Warehouse(Unit):
     unitType = "Warehouse"
     character = "W"
@@ -577,8 +572,6 @@ class Warehouse(Unit):
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
-
-
 
 
 

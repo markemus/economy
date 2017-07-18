@@ -29,11 +29,11 @@ class productOrder(Order):
 
 class harvestOrder(productOrder):
 
-    def __init__(self, business, job, materialIndex, amount=1):
-        productOrder.__init__(self, business, job, materialIndex, amount)
+    def __init__(self, business, job, materialIndex):
+        productOrder.__init__(self, business, job, materialIndex, 1)
 
     def execute(self):
-        self.job.harvest(self.materialIndex, self.amount)
+        self.job.harvest(self.materialIndex)
 
 class craftOrder(productOrder):
 
@@ -42,10 +42,7 @@ class craftOrder(productOrder):
 
     def execute(self):
         if d.is_planted(self.materialIndex):
-            if self.job.unit.incubator.getRipe(d.getMaterials()[self.materialIndex]) > 0:
-                self.job.harvest(self.materialIndex, self.amount)
-            else:
-                self.job.plant(self.materialIndex, self.amount)
+            self.job.plant(self.materialIndex, self.amount)
         elif d.is_crafted(self.materialIndex):
             self.job.craft(self.materialIndex, self.amount)
 

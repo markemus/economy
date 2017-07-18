@@ -42,20 +42,100 @@ testFarmer = j.Farmer(10, testBus, testFarm, 6)
 testMiller = j.Miller(10, testBus, testMill, 6)
 testBaker = j.Baker(10, testBus, testBakery, 6)
 
-# testBakery.failSales[d.BREAD_INDEX] = 500
 
-print("craftOrders: ", testBus.craftOrders)
-print(model.getDayNum())
+
+
+# for x in range(10):
+#     employee = p.People(model, str(x), str(x), 1, Jonestown, you.home, d.getReligions()[0])
+#     testFarmer.employees.append(employee)
+
+# testBaker.resetIdlers()
+# testBakery.addStock(d.FLOUR_INDEX, 5000)
+# testBaker.craft(d.BREAD_INDEX, 540)
+
+# testFarm.incubator.ripe["grain"].append(1000)
+# testFarm.incubator.rot_timers["grain"].append(10)
+
+# testFarmer.resetIdlers()
+# print(testFarm.toString())
+# print(testFarm.incubator.toString())
+
+testFarm.addStock(d.GRAIN_INDEX, 1000000)
+
+# testFarmer.plant(d.GRAIN_INDEX, 5)
+# testFarmer.plant(d.GRAIN_INDEX, 7)
+# testFarmer.harvest(d.GRAIN_INDEX)
+
+# print(testFarm.toString())
+# print(testFarm.incubator.toString())
+
+# for employee in testFarmer.employees:
+#     employee.printThoughts()
+# harvestOrder = testBus.harvestOrderManager(testFarmer, d.GRAIN_INDEX)
+
+# testFarm.bigdata.updateSales([8 for i in d.getMaterials()])
+# testFarm.bigdata.updateSales([4 for i in d.getMaterials()])
+# testFarm.bigdata.updateSales([0 for i in d.getMaterials()])
+
+# testFarm.bigdata.updateFailSales([2 for i in d.getMaterials()])
+# testFarm.bigdata.updateFailSales([2 for i in d.getMaterials()])
+# testFarm.bigdata.updateFailSales([2 for i in d.getMaterials()])
+
+# testFarm.bigdata.updateTransports([2 for i in d.getMaterials()])
+# testFarm.bigdata.updateTransports([2 for i in d.getMaterials()])
+# testFarm.bigdata.updateTransports([2 for i in d.getMaterials()])
+
+# testFarm.bigdata.updateFailTransports([2 for i in d.getMaterials()])
+# testFarm.bigdata.updateFailTransports([2 for i in d.getMaterials()])
+# testFarm.bigdata.updateFailTransports([2 for i in d.getMaterials()])
+
+# print("testFarm avg demand:", testFarm.bigdata.getAvgDemand(d.GRAIN_INDEX))
 
 d.addBoss(you)
-testFarm.addStock(d.GRAIN_INDEX, 1000000)
+
+model.clock.runDay()
+model.clock.runDay()
+model.clock.runDay()
+model.clock.runDay()
+model.clock.runDay()
+
+# model.gui.mainloop()
+# testFarm.toString()
+# print(testFarm.incubator.toString())
+# model.clock.runDay()
+# model.clock.runDay()
+# print(testFarm.bigdata.getAvgDemand(d.GRAIN_INDEX))
+# print(testBakery.bigdata.getAvgSales(d.BREAD_INDEX))
+# model.clock.runDay()
+# harvestOrder.setAmount(50000)
+# testFarmer.harvest(d.GRAIN_INDEX)
+# harvestOrder.execute()
+
+print(testFarm.toString())
+print(testFarm.incubator.toString())
+
+# testBakery.failSales[d.BREAD_INDEX] = 500
+
+# print("craftOrders: ", testBus.craftOrders)
+# for order in testBus.craftOrders:
+#     print("Product: ", order.materialIndex)
+#     print("Amount: ", order.amount)
+
+# for employee in testFarmer.employees:
+#     employee.printThoughts()
+# print(model.getDayNum())
+print(testFarmer.idlers)
+
+
+
+# testFarm.addFailSales(d.GRAIN_INDEX, 100)
 # testBakery.addStock(d.FLOUR_INDEX,1000000)
-for day in range(15):
-    model.clock.runDay()
+# for day in range(5):
+#     model.clock.runDay()
 
 # print(testBakery.bigdata.getMonth(d.BREAD_INDEX))
+# print(testFarm.incubator.toString())
 
-model.gui.mainloop()
 
 # print("units: ")
 # print(testBus.m_unitList)

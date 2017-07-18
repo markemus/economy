@@ -17,10 +17,11 @@ STORE_INDEX = 1
 HOME_INDEX = 2
 CHURCH_INDEX = 3
 
-#required stock
+#required stock- empty list if none
 #each tuple contains indexes of required inputs and the ratio of input to output. eg 1 flour needs only 2 grain.
 #harvest inputs are currently placeholders
-grain   = [(GRAIN_INDEX, .04)]
+grain   = []
+# grain   = [(GRAIN_INDEX, .04)]
 flour   = [(GRAIN_INDEX, 2)]
 beer    = [(GRAIN_INDEX, 0)]
 bread   = [(FLOUR_INDEX, 4)]
@@ -171,3 +172,9 @@ def is_crafted(materialIndex):
         is_crafted = True
 
     return is_crafted
+
+def isInSeason(materialIndex, season):
+    if (seasons[materialIndex] == "all") or (seasons[materialIndex] == season):
+        return True
+    else:
+        return False

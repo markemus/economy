@@ -249,15 +249,10 @@ class ProductionAI(object):
         self.model = model
 
     def setProduction(self, business):
-        # print("\nBusiness: ", business.name)
 
         for job in business.getCraftingJobs():
             jobUnit = job.getUnit()
             demand  = jobUnit.getTotalDemand()
-
-            # print("Unit: ", jobUnit.name)
-            # print("Job: ", job.name)
-            # print("Demand: ", demand)
 
             for i in range(len(demand)):
 
@@ -270,7 +265,7 @@ class ProductionAI(object):
                     #planted
                     elif d.is_planted(i):
                         self.setPlantOrder(business, job, i)
-                        
+                        self.setHarvestOrder(business, job, i)
 
     def setCraftOrder(self, business, job, demand, i):
         jobUnit = job.getUnit()
@@ -285,19 +280,15 @@ class ProductionAI(object):
             if transport is not None:
                 needed = component[1] * demand
                 transport.setAmount(needed)
-                # print("Transport: ", d.getMaterials()[component[0]], needed)
             else:
                 #build unit?
                 pass
 
+        #they just flood the market if demand drops, which should raise demand. Nice and simple.
         if order.getAmount() < demand:
             self.model.jobPoster.managePositions(job, order)
-
-        # print("Old CraftOrder: ", order.amount)
-        order.setAmount(demand)
-        transfer.setAmount(sellDemand)
-        # print("CraftOrder: ", d.getMaterials()[i], demand)
-        # print("TransferOrder: ", d.getMaterials()[i], demand)
+            order.setAmount(demand)
+            transfer.setAmount(sellDemand)
 
     def setPlantOrder(self, business, job, i):
         jobUnit = job.getUnit()
@@ -305,26 +296,27 @@ class ProductionAI(object):
         transfer = business.transferOrderManager(jobUnit, i)
 
         grow_days = jobUnit.incubator.getGrowDays(i)
-        sales = jobUnit.bigdata.getRecentSales(grow_days)
-        failSales = jobUnit.bigdata.getRecentFailSales(grow_days)
+        avgDemand = jobUnit.bigdata.getAvgDemand(i)
 
-        realDemand = sum(sold[i] for sold in sales) + sum(sold[i] for sold in failSales)
-
+        #get components- does nothing if none.
         for component in d.getComponents(i):
             transport = business.transportOrderManager(jobUnit, component[0])
 
             if transport is not None:
-                needed = component[1] * realDemand
+                needed = component[1] * avgDemand
                 transport.setAmount(needed)
             else:
                 #build unit?
                 pass
 
-        if order.getAmount() < realDemand:
+        if order.getAmount() < avgDemand:
             self.model.jobPoster.managePositions(job, order)
+            order.setAmount(avgDemand * grow_days)
+            transfer.setAmount(avgDemand)
 
-        order.setAmount(realDemand)
-        transfer.setAmount(realDemand)
+    def setHarvestOrder(self, business, job, i):
+        order = business.harvestOrderManager(job, i)
+
 
 
 
@@ -401,7 +393,7 @@ class Hirer(object):
 
 
 
-
+#never used- no one is ever fired.
 class Firer(object):
 
     def __init__(self, model):

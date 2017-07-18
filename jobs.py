@@ -1,6 +1,8 @@
-import database as d
-import random
 import copy
+import math
+import random
+
+import database as d
 from conversation import Convo
 
 #not all jobs, but all jobs you can create (not manager, priest)
@@ -26,6 +28,7 @@ class Job(object):
         self.business.addJob(self)
         self.unit.addJob(self)
         self.locality = self.unit.getLocality()
+        self.idlers = []
 
     @property
     def name(self):
@@ -67,6 +70,18 @@ class Job(object):
             
         return empDict
 
+    def takeIdlers(self, amount):
+        if amount != 0:
+            workers = self.idlers[-amount:]
+            self.idlers = self.idlers[:-amount]
+        else:
+            workers = []
+
+        return workers
+
+    def resetIdlers(self):
+        self.idlers = copy.copy(self.employees)
+
     def craft(self, productIndex, amount):
         components =  d.getComponents(productIndex)
         tech = self.unit.getTech(productIndex)
@@ -87,10 +102,14 @@ class Job(object):
             componentDMC = DMClist[materialIndex]
             productDMC += componentDMC * ratio
 
-        #reduce to employees
-        capability = (len(self.employees) * tech)
+        #reduce to available employees
+        capability = (len(self.idlers) * tech)
         if amount > capability:
             amount = capability
+
+        #take employees from idlers (so they can't do anything else today)
+        working = math.ceil(amount / tech)
+        workers = self.takeIdlers(working)
 
         #take components
         for component in components:
@@ -106,70 +125,99 @@ class Job(object):
         #set product DMC
         self.unit.setDMC(productIndex, productDMC)
 
-        for craftsman in self.getEmployees():
-            craftsman.think("I crafted " + str(amount) + " " + d.getMaterials()[productIndex] + " today.")
-
-    #UNDER CONSTRUCTION
-    #simple, for now
-    def plant(self, materialIndex, amount):
+        for craftsman in workers:
+            craftsman.think("We crafted " + str(amount) + " " + d.getMaterials()[productIndex] + " today.")
+    
+    def plant(self, productIndex, amount):
         
-        if any([d.seasons[materialIndex] == "all", d.seasons[materialIndex] == self.business.model.calendar.state]):
+        product = d.getMaterials()[productIndex]
 
-            #seeds are pounds of seeds- ~14500 seeds per pound, for the record
-            seeds = self.unit.getStock(materialIndex)
-            growing = self.unit.growingPlants(materialIndex)
-            farmers = len(self.getEmployees())
+        if d.isInSeason(productIndex, self.business.model.calendar.state):
+            components =  d.getComponents(productIndex)
+            tech = self.unit.getTech(productIndex)
+            growing = self.unit.growingPlants(productIndex)
+            DMClist = self.unit.getDMC()
             isEnough = True
-            isAllPlanted = False
-            material = d.getMaterials()[materialIndex]
-
-            #reduce to number of seeds we have
-            if amount > seeds:
-                amount = seeds
+            productDMC = 0
 
             #subtract already growing
             if amount > growing:
                 amount = amount - growing
+                isAllPlanted = False
             else:
                 amount = 0
+                isAllPlanted = True
 
-            #limit by farmer ability
-            maxPlanting = farmers * self.unit.tech[materialIndex]
-            if amount > maxPlanting:
-                amount = maxPlanting
+            #plant
+            if not isAllPlanted:
+                #reduce to components
+                for component in components:
+                    materialIndex = component[0]
+                    inStock = self.unit.getStock(materialIndex)
+                    ratio = component[1]
+                    enoughFor = inStock / ratio
 
-            #planting
-            self.unit.plantSeeds(materialIndex, amount)
+                    if amount > (enoughFor):
+                        amount = enoughFor
+                        isEnough = False
 
-            #thoughts
-            for farmer in self.getEmployees():
-                if not isEnough:
-                    farmer.think("I ran out of " + material + " seeds at work today.")
-                if isAllPlanted:
-                    farmer.think("I finished planting "+ material + " today.")
-                farmer.think("I planted " + str(amount) + " " + material + " seeds today.")
+                    #DMC
+                    componentDMC = DMClist[materialIndex]
+                    productDMC += componentDMC * ratio
+
+                #reduce to employees
+                capability = (len(self.idlers) * tech)
+                if amount > capability:
+                    amount = capability
+
+                #take employees from idlers (so they can't do anything else today)
+                working = math.ceil(amount / tech)
+                workers = self.takeIdlers(working)
+
+                #take components
+                for component in components:
+                    materialIndex = component[0]
+                    ratio = component[1]
+                    used = amount * ratio
+                    self.unit.addStock(materialIndex, -used)
+
+                #add product- goes to stock for assembly lines. Crafted is for natural price calculation.
+                self.unit.plantSeeds(productIndex, amount)
+                self.unit.addPlanted(productIndex, amount)
+
+                #set product DMC
+                self.unit.setDMC(productIndex, productDMC)
+
+                for farmer in workers:
+                    if not isEnough:
+                        farmer.think("We ran out of materials for " + product + " at work today.")
+                    farmer.think("We planted " + str(amount) + " " + product + " today.")
+            else:
+                for farmer in self.getEmployees():
+                    farmer.think("We've already planted enough " + product + " for the season.")
         else:
-            material = d.getMaterials()[materialIndex]
             for farmer in self.getEmployees():
-                farmer.think("It's not the planting season for " + material + ".")
+                farmer.think("It's not the planting season for " + product + ".")
 
-    def harvest(self, materialIndex, amount):
-        tech = self.unit.getTech(materialIndex)
-        material = d.getMaterials()[materialIndex]
+    def harvest(self, productIndex):
+        tech = self.unit.getTech(productIndex)
+        product = d.getMaterials()[productIndex]
         
-        capability = (len(self.employees) * tech)
-        ripe = self.unit.ripePlants(materialIndex)
-
-        if amount > capability:
-            amount = capability
+        amount = (len(self.idlers) * tech)        
+        ripe = self.unit.ripePlants(productIndex)
 
         if amount > ripe:
             amount = ripe
 
-        self.unit.harvest(materialIndex, amount)
+        #take employees from idlers (so they can't do anything else today)
+        working = math.ceil(amount / tech)
+        workers = self.takeIdlers(working)
 
-        for farmer in self.getEmployees():
-            farmer.think("I harvested " + str(amount) + " " + material + " today.")
+        self.unit.harvest(productIndex, amount)
+        self.unit.addHarvested(productIndex, amount)
+
+        for farmer in workers:
+            farmer.think("We harvested " + str(amount) + " " + product + " today.")
 
 
 

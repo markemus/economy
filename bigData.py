@@ -1,4 +1,5 @@
 import copy
+import numpy as np
 
 import database as d
 
@@ -62,6 +63,34 @@ class bigdata(object):
 
     def getRecentFailSales(self, days):
         return self.failSales[-days:]
+
+    def getAvgSales(self, i):
+        if len(self.sales) > 0:
+            return sum([self.sales[day][i] for day in range(len(self.sales))]) / len(self.sales)
+        else:
+            return 0
+
+    def getAvgFailSales(self, i):
+        if len(self.failSales) > 0:
+            return sum([self.failSales[day][i] for day in range(len(self.failSales))]) / len(self.failSales)
+        else:
+            return 0
+
+    def getAvgTransports(self, i):
+        if len(self.transports) > 0:
+            return sum([self.transports[day][i] for day in range(len(self.transports))]) / len(self.transports)
+        else:
+            return 0
+
+    def getAvgFailTransports(self, i):
+        if len(self.failTransports) > 0:
+            return sum([self.failTransports[day][i] for day in range(len(self.failTransports))]) / len(self.failTransports)
+        else:
+            return 0
+
+    #works as long as all 4 arrays are the same length. Otherwise need weighted avg
+    def getAvgDemand(self, i):
+        return (self.getAvgSales(i) + self.getAvgFailSales(i) + self.getAvgTransports(i) + self.getAvgFailTransports(i))
 
     def updateSales(self, sales):
         self.sales.append(copy.copy(sales))
