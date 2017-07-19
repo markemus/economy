@@ -36,6 +36,7 @@ testBus.cash = 1000000
 
 d.addBoss(you)
 model.gui.mainloop()
+
 # testFarm = u.Farm("Bill's Farm", Jonestown, (23,23), testBus)
 # testMill = u.Mill("Bill's Mill", Jonestown, (23,25), testBus)
 # testBakery = u.Bakery("Bill's Bakery", Jonestown, (25,25), testBus)
