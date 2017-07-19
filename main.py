@@ -33,14 +33,17 @@ ProtestantChurch  = d.getChurches()[1]
 #testbus
 testBus = you.startBusiness("Williamson Shipping LTD")
 testBus.cash = 1000000
-testFarm = u.Farm("Bill's Farm", Jonestown, (23,23), testBus)
-testMill = u.Mill("Bill's Mill", Jonestown, (23,25), testBus)
-testBakery = u.Bakery("Bill's Bakery", Jonestown, (25,25), testBus)
 
-#jobs
-testFarmer = j.Farmer(10, testBus, testFarm, 6)
-testMiller = j.Miller(10, testBus, testMill, 6)
-testBaker = j.Baker(10, testBus, testBakery, 6)
+d.addBoss(you)
+model.gui.mainloop()
+# testFarm = u.Farm("Bill's Farm", Jonestown, (23,23), testBus)
+# testMill = u.Mill("Bill's Mill", Jonestown, (23,25), testBus)
+# testBakery = u.Bakery("Bill's Bakery", Jonestown, (25,25), testBus)
+
+# #jobs
+# testFarmer = j.Farmer(10, testBus, testFarm, 6)
+# testMiller = j.Miller(10, testBus, testMill, 6)
+# testBaker = j.Baker(10, testBus, testBakery, 6)
 
 # for x in range(10):
 #     employee = p.People(model, str(x), str(x), 1, Jonestown, you.home, d.getReligions()[0])
@@ -57,7 +60,7 @@ testBaker = j.Baker(10, testBus, testBakery, 6)
 # print(testFarm.toString())
 # print(testFarm.incubator.toString())
 
-testFarm.addStock(d.GRAIN_INDEX, 1000000)
+# testFarm.addStock(d.GRAIN_INDEX, 1000000)
 
 # testFarmer.plant(d.GRAIN_INDEX, 5)
 # testFarmer.plant(d.GRAIN_INDEX, 7)
@@ -88,7 +91,6 @@ testFarm.addStock(d.GRAIN_INDEX, 1000000)
 
 # print("testFarm avg demand:", testFarm.bigdata.getAvgDemand(d.GRAIN_INDEX))
 
-d.addBoss(you)
 
 # for day in range(5):
 #     model.clock.runDay()
@@ -115,7 +117,7 @@ d.addBoss(you)
 # model.clock.runDay()
 # model.clock.runDay()
 # model.clock.runDay()
-# model.gui.mainloop()
+
 # testFarm.toString()
 # print(testFarm.incubator.toString())
 # print("testFarm avgDemand: ", testFarm.bigdata.getAvgDemand(d.GRAIN_INDEX))

@@ -148,7 +148,6 @@ class Builder(object):
             amount = 10
             craftOrder = business.craftOrderManager(job, i)
             craftOrder.setAmount(10)
-            # self.model.jobPoster.managePositions(job, craftOrder)
 
             transferOrder = business.transferOrderManager(unit, i)
             transferOrder.setAmount(10)
@@ -170,6 +169,11 @@ class Builder(object):
             self.initial_demand(newUnit)
             new_job = self.jobMaker(newUnit)
             self.craftOrderMaker(new_job)
+            if newUnit.unitType == "Farm":
+                self.giveGrain(newUnit)
+
+    def giveGrain(self, unit):
+        unit.addStock(d.GRAIN_INDEX, 100000)
 
     #for now, there is no startup cost
     def buildChain(self, business, toBuild):
