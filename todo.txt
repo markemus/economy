@@ -1,18 +1,12 @@
 TODO:
 
--jobPoster should account for all orders, and run ONCE for each job. (not be called by prodAI)
-
--bigdata should be gathered daily (all 0s for Sunday).
-
 -People should know about fewer stores.
 
+OPTIONAL
+
 -store permanent data on harddrive, not in RAM.
-
--add scrolling for profile keyboards (see online descriptions for how)
-
--set R to .1 for price trending.
-
 -more products
+-add scrolling for profile keyboards (see online descriptions for how)
 
 FINAL TESTNG
 
@@ -68,3 +62,5 @@ DONE:
 -Get bigdata avg working right. 
 -People should not be able to both plant and harvest on the same day. (no overtime!)
 -productionAI should manage planting and harvesting orders.
+-jobPoster should account for all orders, and run ONCE for each job. (not be called by prodAI)
+-set K to .5 for price trending.

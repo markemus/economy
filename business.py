@@ -282,8 +282,8 @@ class Business(object):
         for unit in self.m_unitList:
             if unit.missions[d.MANU_INDEX]:
                 unit.bigdata.updateCrafted(unit.crafted)
-                # unit.bigdata.updatePlanted(unit.planted)
-                # unit.bigdata.updateHarvested(unit.harvested)
+                unit.bigdata.updatePlanted(unit.planted)
+                unit.bigdata.updateHarvested(unit.harvested)
                 unit.bigdata.updateTransports(unit.transports)
                 unit.bigdata.updateFailTransports(unit.failTransports)
                 unit.bigdata.updateStock(unit.stock)

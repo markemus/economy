@@ -154,15 +154,15 @@ class Conversation(object):
                 prices = firstPrices[0]
                 secondProfile.updatePrices(prices, firstDayNum)
                 #thoughts
-                self.firstPerson.think("I told " + self.secondPerson.name + " about the prices at " + self.target.name)
-                self.secondPerson.think(self.firstPerson.name + " told me about the prices at " + self.target.name)
+                self.firstPerson.think("I told " + self.secondPerson.name + " about the prices at " + self.target.name + ".")
+                self.secondPerson.think(self.firstPerson.name + " told me about the prices at " + self.target.name + ".")
 
             elif secondDayNum > firstDayNum:
                 prices = secondPrices[0]
                 firstProfile.updatePrices(prices, secondDayNum)
                 #thoughts
-                self.firstPerson.think(self.secondPerson.name + " told me about the prices at " + self.target.name)
-                self.secondPerson.think("I told " + self.firstPerson.name + " about the prices at " + self.target.name)
+                self.firstPerson.think(self.secondPerson.name + " told me about the prices at " + self.target.name + ".")
+                self.secondPerson.think("I told " + self.firstPerson.name + " about the prices at " + self.target.name + ".")
 
             else:
                 self.firstPerson.think(self.secondPerson.name + " and I talked about " + self.target.name + "'s prices.")

@@ -120,7 +120,7 @@ class Unit(object):
         #natural rate of profit- 4% return on capital
         nrp = 1.04
         #K is a constant weight- adjust if needed. At .5 one period is the half life.
-        K = 1
+        K = .5
         
         #natural price
         if d.getMaterials()[i] in d.planted:

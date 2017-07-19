@@ -1,8 +1,11 @@
-import database as d
+import math
+
 import business as bu
-import unit as u
-import people as p
+import database as d
 import jobs
+import people as p
+import unit as u
+
 
 #singleton
 class StartupAI(object):
@@ -145,7 +148,7 @@ class Builder(object):
             amount = 10
             craftOrder = business.craftOrderManager(job, i)
             craftOrder.setAmount(10)
-            self.model.jobPoster.managePositions(job, craftOrder)
+            # self.model.jobPoster.managePositions(job, craftOrder)
 
             transferOrder = business.transferOrderManager(unit, i)
             transferOrder.setAmount(10)
@@ -286,7 +289,6 @@ class ProductionAI(object):
 
         #they just flood the market if demand drops, which should raise demand. Nice and simple.
         if order.getAmount() < demand:
-            self.model.jobPoster.managePositions(job, order)
             order.setAmount(demand)
             transfer.setAmount(sellDemand)
 
@@ -297,35 +299,26 @@ class ProductionAI(object):
 
         grow_days = jobUnit.incubator.getGrowDays(i)
         avgDemand = jobUnit.bigdata.getAvgDemand(i)
+        ratio = jobUnit.incubator.getRatio(i)
+        amount = avgDemand / ratio
 
         #get components- does nothing if none.
         for component in d.getComponents(i):
             transport = business.transportOrderManager(jobUnit, component[0])
 
             if transport is not None:
-                needed = component[1] * avgDemand
+                needed = component[1] * amount
                 transport.setAmount(needed)
             else:
                 #build unit?
                 pass
 
-        if order.getAmount() < avgDemand:
-            self.model.jobPoster.managePositions(job, order)
-            order.setAmount(avgDemand * grow_days)
+        if order.getAmount() < (amount * grow_days):
+            order.setAmount(amount * grow_days)
             transfer.setAmount(avgDemand)
 
     def setHarvestOrder(self, business, job, i):
         order = business.harvestOrderManager(job, i)
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -335,22 +328,30 @@ class JobPoster(object):
     def __init__(self, model):
         self.model = model
 
-    #don't fire anyone for now, just go bankrupt- that's fine. AI is loyal.
-    def managePositions(self, job, order):
-        slots           = job.getSlots()
-        employees       = job.getEmployees()
-        amount          = order.getAmount()
-        materialIndex   = order.getProductIndex()
-        unit            = job.getUnit()
-        tech            = unit.getTech(materialIndex)
-        totalSlots      = slots + len(employees)
+    # don't fire anyone for now, just go bankrupt- that's fine. AI is loyal. (Otherwise they may not get them back.)
+    def managePositions(self, job):
+        slots           = job.slots
+        employees       = job.employees
+        totalWorkers    = 0
 
-        if (amount / tech) > (totalSlots):
-            newSlots = round(amount / tech) - len(employees)
-            job.setSlots(newSlots)
+        for order in (x for x in job.business.craftOrders if x.job == job):
 
+            amount          = order.amount
+            materialIndex   = order.materialIndex
+            tech            = job.unit.getTech(materialIndex)
 
+            if d.is_planted(materialIndex):
+                #divide by length of planting season, not grow_days- how?
+                grow_days = job.unit.incubator.getGrowDays(materialIndex)
+                workers = math.ceil(amount / (tech * grow_days))
 
+            elif d.is_crafted(materialIndex):
+                workers = math.ceil(amount / tech)
+            
+            totalWorkers += workers
+
+        newSlots = totalWorkers - len(job.employees)
+        job.setSlots(newSlots if newSlots > 0 else 0)
 
 
 
@@ -393,7 +394,7 @@ class Hirer(object):
 
 
 
-#never used- no one is ever fired.
+#never used- no one is ever fired and that's okay.
 class Firer(object):
 
     def __init__(self, model):
@@ -425,11 +426,6 @@ class Firer(object):
             firee.think("I got fired from my job today.")
 
         return isFired
-
-
-
-
-
 
 
 

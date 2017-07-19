@@ -16,7 +16,7 @@ from operator import attrgetter
 import database as d
 import tutorials
 #tkscrollframe is a custom package that extends tkframes with a scrollbar. Standard solution from web.
-import tkscrollframe as tsf
+from tkscrollframe import tkscrollframe as tsf
 
 #WARNING: throws error if run from here. Import to economy directory and run from there. Necessary because image files are stored there.
 

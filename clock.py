@@ -63,6 +63,8 @@ class Clock(object):
             for boss in bossList:
                 for business in boss.getBusinesses():
                     self.model.productionAI.setProduction(business)
+                    for job in business.craftingJobs:
+                        self.model.jobPoster.managePositions(job)
             for business in businessList:
                 business.restHandler()
         

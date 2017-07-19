@@ -102,6 +102,10 @@ class incubator(object):
         mat = d.getMaterials()[materialIndex]
         return self.grow_days[mat]
 
+    def getRatio(self, materialIndex):
+        mat = d.getMaterials()[materialIndex]
+        return self.ratios[mat]
+
 # #test
 
 # inc = incubator(None)
