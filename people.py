@@ -116,12 +116,11 @@ class People:
         profile.updateFamily(spouse = (self.spouse, dayNum))
         profile.updateHouse(self.home, dayNum)
         profile.updateMuList(self.muList, dayNum)
-        # profile.updateSkills(self.skills, dayNum)
 
     #only bosses can create businesses
     def bossmaker(self):
         if not self.isboss:
-            if self.capital >= 5000 and self.model.char is not self:
+            if self.capital >= 1000000 and self.model.char is not self:
                 d.addBoss(self)
                 self.model.builder.newBusiness(self)
                 self.isboss = True

@@ -49,6 +49,7 @@ seasons = ["September", "all", "all", "all", "all", "all", "all", "all", "all"]
 maleNameList = open("boynames", "r").read().splitlines()
 femaleNameList = open("girlnames", "r").read().splitlines()
 lastNameList = open("lastnames", "r").read().splitlines()
+busiNameList = open("businessnames", "r").read().splitlines()
 
 #these are identified by these same indices throughout the program.
 equipmentList = ["millstone"]
@@ -83,6 +84,9 @@ def addPeople(person):
 
 def addBoss(boss):
     bossList.append(boss)
+
+def removeBoss(boss):
+    bossList.remove(boss)
 
 def addUnit(unit):
     unitList.append(unit)

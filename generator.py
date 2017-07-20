@@ -144,8 +144,8 @@ class generator(object):
         peopleList = d.getPeople()
         for i in range(100):
             boss = random.choice(peopleList)
-            if boss.capital < 10000:
-                boss.capital += 10000
+            if boss.capital < 1000000:
+                boss.capital += 1000000
 
     def makeChurches(self, locality):
         peopleList = d.getPeople()

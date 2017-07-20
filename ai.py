@@ -1,4 +1,5 @@
 import math
+import random
 
 import business as bu
 import database as d
@@ -164,7 +165,8 @@ class Builder(object):
                 nonesuch = False
 
         if nonesuch:
-            newUnit = toBuild(toBuild.unitType, locality, unitLocation, business)
+            unitName = business.owners[0].lastname + " " + toBuild.unitType
+            newUnit = toBuild(unitName, locality, unitLocation, business)
             locality.claim_node(unitLocation, newUnit)
             self.initial_demand(newUnit)
             new_job = self.jobMaker(newUnit)
@@ -195,12 +197,12 @@ class Builder(object):
             for target in chains[toBuild]:
                 self.buildIt(business, locality, target)
 
-    def newBusiness(self, boss, busiName=None, capital=3000):
+    def newBusiness(self, boss, busiName=None, capital=1000000):
 
         newBus = None
 
         if busiName is None:
-            busiName = boss.getName() + " Trading Company"
+            busiName = boss.lastname + " " + random.choice(d.busiNameList)
 
         if boss.capital >= capital:
             boss.capital -= capital

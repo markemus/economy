@@ -92,7 +92,7 @@ class Clock(object):
             for business in businessList:
                 business.sleepHandler()
         
-        self.model.out("The day ends. \n")
+        self.model.out("\nThe day ends.\n")
 
     def toString(self):
         return("Today is " 

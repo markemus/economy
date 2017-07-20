@@ -2122,9 +2122,12 @@ class quitBar(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = root
 
-        exit = tk.Button(self,      text="Quit",     font=BUTTON_FONT, command=self.quit)
+        aiButton = tk.Button(self,  text="Toggle AI Control", font=BUTTON_FONT, command=self.setAI)
         next_turn = tk.Button(self, text="[f1] Next Day", font=BUTTON_FONT, command=self.next_day)
+        exit = tk.Button(self,      text="Quit",     font=BUTTON_FONT, command=self.quit)
+        
         self.root.bind("<F1>", self.next_day)
+        aiButton.pack(fill=tk.X)
         next_turn.pack(fill=tk.X)
         exit.pack(fill=tk.X)
 
@@ -2133,6 +2136,16 @@ class quitBar(tk.Frame):
         self.root.text_cont.clear()
         char.run_day()
         self.root.event_generate("<<refresh>>", when="tail")
+
+    def setAI(self, event=None):
+        char = self.root.getChar()
+
+        if char in d.bossList:
+            d.removeBoss(char)
+            self.root.out("\nYou have taken control of your business.\n")
+        else:
+            d.addBoss(char)
+            self.root.out("\nYou have turned over your business to an underling.\n")
 
     def quit(self):
         self.root.quit()
