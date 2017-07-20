@@ -19,4 +19,8 @@ transitions (written by tyarkoni)
 
 python3 main.py
 
-To disable AI management of player business, comment out "d.addBoss(you)" in main.py
+The AI controls your business by default. I recommend you leave it that way unless you know what you're doing (I don't). 
+
+The AI will build units for you during the first day, so run a day when the game begins before doing anything.
+
+Each unit has a ledger- this is the best place to see what's going on.
