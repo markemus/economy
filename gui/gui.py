@@ -45,10 +45,12 @@ class gui(tk.Tk):
         self.dynamic_hotkeys = []
 
         self.wm_title("Jonestown")
-        self.resizable(0,0)
-        self.geometry('1414x940')
-        
-        
+        # TODO fix screen sizing issue
+        # self.resizable(0,0)
+        self.resizable(1,1)
+        # self.geometry('1414x940')
+        self.geometry('1366x768')
+        # self.geometry('680x240')
 
         #megaFrames
         leftSide    = tk.Frame(self)
@@ -61,6 +63,7 @@ class gui(tk.Tk):
 
         self.display_cont   = display_controller(   leftSide,  self)
         self.text_cont      = text_output(          leftSide,  self, height=150, width=900)
+        # self.text_cont      = text_output(          leftSide,  self, height=150, width=700)
         charDisplay         = static_data(          rightSide, self, height=100, width=300)
         busDisplay          = bus_static_data(      rightSide, self, height=100, width=300)
         keyboard            = key_controller(       rightSide, self, height=474, width=300)
@@ -73,16 +76,18 @@ class gui(tk.Tk):
         #charData
         self.display_cont.pack_propagate(False)
 
+        # TODO-DONE set stickiness so window is the same no matter what size. Make sure this works after screen changes!
         #root grid
-        leftSide.grid( row=0, column=0, sticky=tk.NSEW)
+        leftSide.grid(row=0, column=0, sticky=tk.NSEW)
         rightSide.grid(row=0, column=1, sticky=tk.NSEW)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
+        # Setting weight=0 makes the buttons be visible on smaller screens. I have no idea why this works.
+        self.grid_columnconfigure(1, weight=0)
 
         #leftSide grid
         titleBar.grid(row=0, column=0)
-        self.display_cont.grid( row=1, column=0)
+        self.display_cont.grid(row=1, column=0)
         self.text_cont.grid(row=2, column=0, sticky='nsew')
         leftSide.grid_rowconfigure(0, weight=1)
         leftSide.grid_rowconfigure(1, weight=1)
@@ -91,7 +96,7 @@ class gui(tk.Tk):
 
         #rightSide grid
         charDisplay.grid(row=0, column=0, sticky='nsew')
-        busDisplay.grid(row=1, column=0, sticky='nsew')
+        busDisplay.grid( row=1, column=0, sticky='nsew')
         keyboard.grid(   row=2, column=0, sticky="nsew")
         rightSide.grid_rowconfigure(0, weight=0)
         rightSide.grid_rowconfigure(1, weight=0)
@@ -252,7 +257,9 @@ class matplotlib_display(tk.Frame):
 
         self.fig = Figure(figsize=(8,5), dpi=100)
         self.canvas = FigureCanvasTkAgg(self.fig, self)
-        self.canvas.show()
+        # TODO-DONE test whether .draw() works in place of .show(), which threw an error with this version of the lib
+        # self.canvas.show()
+        self.canvas.draw()
         graphScreen = self.canvas.get_tk_widget()
         graphScreen.config(borderwidth=5, relief=tk.RIDGE)
 
@@ -265,7 +272,6 @@ class matplotlib_display(tk.Frame):
 
     # x, y are arrays
     def bar_chart(self, x, y, xlabel, ylabel, title):
-
         self.fig.clf()
         graph = self.fig.add_subplot(1,1,1)
         x_fill = [i for i in range(len(x))]
@@ -280,7 +286,6 @@ class matplotlib_display(tk.Frame):
         # graph.grid()
 
     def line_chart(self, x, y, xlabel, ylabel, title):
-        
         self.fig.clf()
         graph = self.fig.add_subplot(111)
         
@@ -293,7 +298,8 @@ class matplotlib_display(tk.Frame):
         graph.grid()
 
     def raise_frame(self):
-        self.canvas.show()
+        # self.canvas.show()
+        self.canvas.draw()
         self.tkraise()
 
 
@@ -717,10 +723,12 @@ class key_controller(tk.Frame):
         display_cont = self.root.get_display_cont()
         x = d.getMaterials()
         y = entity.getAllStock()
-        display_cont.bar_chart(x, y, "Materials", "Amount", entity.name +" Stock")
+        display_cont.bar_chart(x, y, "Materials", "Amount", entity.name + " Stock")
 
     def show_ledger(self, unit, i, which):
         display_cont = self.root.get_display_cont()
+        # TODO line chart should not show zeroes for future days. This occurs in the early game on the ledger.
+        # TODO ledger should show consistent colors for each checkbox.
         x = list(range(1,30))
         fakey = unit.bigdata.getMonth(i)
         y = []
@@ -1263,7 +1271,6 @@ class ledger(tk.Frame):
         stock_button.pack(anchor="w")
         output_button.pack(anchor="w")
         
-
         header.grid(row=0, column=0, columnspan=2, sticky="new")
         self.left.grid(row=1, column=0, sticky="n")
         self.right.grid(row=1, column=1, sticky="n")

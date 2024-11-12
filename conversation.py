@@ -174,9 +174,9 @@ class Conversation(object):
             elif self.state == 'manu':
                 self.firstPerson.think("I mentioned to " + self.secondPerson.name + " that I don't know anything about the local industry.")
                 self.secondPerson.think(self.firstPerson.name + " told me that they don't know much about the local industry.")
-            else:
-                self.firstPerson.think("There is a bug in conversation.prices. (not manu or store)")
-                self.secondPerson.think("There is a bug in conversation.prices. (not manu or store)")
+            # else:
+            #     self.firstPerson.think("There is a bug in conversation.prices. (not manu or store)")
+            #     self.secondPerson.think("There is a bug in conversation.prices. (not manu or store)")
 
     def family(self):
         if self.target is not None:
@@ -201,8 +201,8 @@ class Conversation(object):
             p2.updateFamily(*ff)
 
             #thoughts
-            self.firstPerson.think(self.secondPerson.name + " and I gossipped about " + self.target.name + "'s family.")
-            self.secondPerson.think(self.firstPerson.name + " and I gossipped about " + self.target.name + "'s family.")            
+            self.firstPerson.think(self.secondPerson.name + " and I gossiped about " + self.target.name + "'s family.")
+            self.secondPerson.think(self.firstPerson.name + " and I gossiped about " + self.target.name + "'s family.")
 
         else:
             self.firstPerson.think("I don't really know anything about my friends' families.")

@@ -12,7 +12,7 @@ I think it's neat, but fair warning, it isn't very fun. Mostly you just decide w
 You'll need Python 3, with the following packages:  
 matplotlib  
 numpy  
-tkinter  
+tkinter  (`sudo apt-get install python3-tk` and `sudo apt-get install python3-pil.imagetk`)
 transitions (written by tyarkoni)  
 
 # TO RUN
