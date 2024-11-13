@@ -71,6 +71,7 @@ class generator(object):
             gennedPerson.addCapital(100)
             gennedPerson.home.addTenant(gennedPerson)
 
+    # TODO add holidays.
     def generateReligions(self, locality):
         Catholic = rel.Catholicism()
         Protestant = rel.Protestantism()
@@ -83,6 +84,9 @@ class generator(object):
 
         religionList = [Catholic, Protestant]
         return religionList
+
+    # TODO more chaotic map generation. How to organize houses and store locations? Churches should
+    #  be scattered around. Stores should be near owner's house? Start with neighbors, not friends.
 
     #people must be even int because marriages
     #we only generate a single locality- don't ask
