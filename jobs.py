@@ -83,7 +83,7 @@ class Job(object):
         self.idlers = copy.copy(self.employees)
 
     def craft(self, productIndex, amount):
-        components =  d.getComponents(productIndex)
+        components = d.getComponents(productIndex)
         tech = self.unit.getTech(productIndex)
         DMClist = self.unit.getDMC()
         productDMC = 0

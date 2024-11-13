@@ -288,7 +288,7 @@ class matplotlib_display(tk.Frame):
         graph = self.fig.add_subplot(111)
         
         for z in y:
-            graph.plot(x, z)
+            graph.plot(x, z, "o-")
 
         graph.set_title(title)
         graph.set_xlabel(xlabel)
@@ -1247,11 +1247,12 @@ class ledger(tk.Frame):
         self.mat = tk.IntVar()
         self.left = tk.Frame(self)
         self.right = tk.Frame(self)
-        enter = tk.Button(self, text="[enter] Go!", font=BUTTON_FONT, command=lambda: controller.show_ledger(self.controller.get_unit(), self.mat.get(), (self.price.get(), self.crafted.get(),self.sales.get(), self.failSales.get(), self.transports.get(), self.failTransports.get(), self.stock.get(), self.output.get())))
+        enter = tk.Button(self, text="[enter] Go!", font=BUTTON_FONT, command=lambda: controller.show_ledger(self.controller.get_unit(), self.mat.get(), (self.price.get(), self.DMC.get(), self.crafted.get(), self.sales.get(), self.failSales.get(), self.transports.get(), self.failTransports.get(), self.stock.get(), self.output.get())))
         esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
 
         #right
         self.price = tk.IntVar(value=1)
+        self.DMC = tk.IntVar(value=1)
         self.crafted = tk.IntVar(value=1)
         self.sales = tk.IntVar(value=1)        
         self.failSales = tk.IntVar(value=1)
@@ -1261,6 +1262,7 @@ class ledger(tk.Frame):
         self.output = tk.IntVar(value=1)
 
         p_button = tk.Checkbutton(self.right, text="Price", font=BUTTON_FONT, variable=self.price)
+        d_button = tk.Checkbutton(self.right, text="Direct Material Cost", font=BUTTON_FONT, variable=self.DMC)
         c_button = tk.Checkbutton(self.right, text="Crafted", font=BUTTON_FONT, variable=self.crafted)
         s_button = tk.Checkbutton(self.right, text="Sales", font=BUTTON_FONT, variable=self.sales)
         fs_button = tk.Checkbutton(self.right, text="Failed Sales", font=BUTTON_FONT, variable=self.failSales)
@@ -1270,6 +1272,7 @@ class ledger(tk.Frame):
         output_button = tk.Checkbutton(self.right, text="Output", font=BUTTON_FONT, variable=self.output)
 
         p_button.pack(anchor="w")
+        d_button.pack(anchor="w")
         c_button.pack(anchor="w")
         s_button.pack(anchor="w")
         fs_button.pack(anchor="w")
@@ -1311,7 +1314,7 @@ class ledger(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        self.root.bind("<Return>", lambda x: self.controller.show_ledger(self.controller.get_unit(), self.mat.get(), (self.price.get(), self.crafted.get(),self.sales.get(), self.failSales.get(), self.transports.get(), self.failTransports.get(), self.stock.get(), self.output.get())))
+        self.root.bind("<Return>", lambda x: self.controller.show_ledger(self.controller.get_unit(), self.mat.get(), (self.price.get(), self.DMC.get(), self.crafted.get(), self.sales.get(), self.failSales.get(), self.transports.get(), self.failTransports.get(), self.stock.get(), self.output.get())))
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
 
 

@@ -239,6 +239,7 @@ class Business(object):
 
         return targetUnit
 
+    # TODO prices are way too low for bread. .03 ducats after 1 week.
     def workHandler(self):
         self.resetHired()
 

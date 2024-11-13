@@ -178,6 +178,7 @@ class Conversation(object):
             #     self.firstPerson.think("There is a bug in conversation.prices. (not manu or store)")
             #     self.secondPerson.think("There is a bug in conversation.prices. (not manu or store)")
 
+    # TODO-DECIDE if self.target is None, what does that mean? Maybe there should just be no thought?
     def family(self):
         if self.target is not None:
             #info: family, people

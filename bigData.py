@@ -41,7 +41,7 @@ class bigdata(object):
         days = []
         lastThirty= ((dayNum - 29, dayNum) if dayNum > 29 else (0, 29))
 
-        for key in ( "price", "crafted", "sales", "failSales", "transports", "failTransports", "stock", "output"):
+        for key in ("price", "DMC", "crafted", "sales", "failSales", "transports", "failTransports", "stock", "output"):
             today = []
             
             for j in range(*lastThirty):
