@@ -1,5 +1,6 @@
 from random import shuffle
 
+# TODO change wood to lumber
 #indices
 GRAIN_INDEX = 0
 FLOUR_INDEX = 1
@@ -7,7 +8,7 @@ BEER_INDEX  = 2
 BREAD_INDEX = 3
 MEAT_INDEX  = 4
 FRUIT_INDEX = 5
-WOOD_INDEX  = 6
+LUMBER_INDEX  = 6
 CHAIR_INDEX = 7
 TABLE_INDEX = 8 
 
@@ -27,11 +28,11 @@ beer    = [(GRAIN_INDEX, 0)]
 bread   = [(FLOUR_INDEX, 4)]
 meat    = []
 fruit   = [(FRUIT_INDEX, .04)]
-wood    = [(WOOD_INDEX, .04)]
-chair   = [(WOOD_INDEX, 35)]
-table   = [(WOOD_INDEX, 100)]
+lumber    = [(LUMBER_INDEX, .04)]
+chair   = [(LUMBER_INDEX, 35)]
+table   = [(LUMBER_INDEX, 100)]
 
-components = [grain, flour, beer, bread, meat, fruit, wood, chair, table]
+components = [grain, flour, beer, bread, meat, fruit, lumber, chair, table]
 
 #growth ratios
 #plant 1 grain, harvest 20 grain
@@ -39,7 +40,7 @@ components = [grain, flour, beer, bread, meat, fruit, wood, chair, table]
 growratios = []
 
 #production types
-planted = ["grain", "beer", "meat", "fruit", "wood"]
+planted = ["grain", "beer", "meat", "fruit", "lumber"]
 crafted = ["flour", "bread", "chair", "table"]
 
 #planting seasons- only grain for now (which is winter wheat)
@@ -54,7 +55,7 @@ busiNameList = open("businessnames", "r").read().splitlines()
 #these are identified by these same indices throughout the program.
 equipmentList = ["millstone"]
 skillsList = [0,0,0,0,0,0,0,0,0]
-materialsList = ["grain", "flour", "beer", "bread", "meat", "fruit", "wood", "chair", "table"]
+materialsList = ["grain", "flour", "beer", "bread", "meat", "fruit", "lumber", "chair", "table"]
 unitMissions = ["manu", "store", "house", "church"]
 
 #game objects

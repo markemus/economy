@@ -139,7 +139,7 @@ class Builder(object):
                           "Miller" : (d.FLOUR_INDEX,),
                           "Baker"  : (d.BREAD_INDEX,),
                           "Brewer" : (d.BEER_INDEX,),
-                          "Lumberjack" : (d.WOOD_INDEX,),
+                          "Lumberjack" : (d.LUMBER_INDEX,),
                           "Carpenter" : (d.CHAIR_INDEX, d.TABLE_INDEX)}
         business = job.getBusiness()
         unit = job.getUnit()

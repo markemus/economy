@@ -45,6 +45,8 @@ class People:
         self.knownUnitLists = [self.knownManus, self.knownStores, self.knownHomes, self.knownChurches]
         self.myProfile = self.peopleManager(self)
         self.myProfile.updateOpinion(100)
+        self.myProfile.updateHouse(self.home, self.model.getDayNum())
+        self.myProfile.updateBirthday(self.birthday)
         self.businesses = []
         #initial values
         self.allMu()
@@ -113,7 +115,7 @@ class People:
 
         profile.updateBirthday(self.birthday)
         profile.updateJob(self.job, dayNum)
-        profile.updateFamily(spouse = (self.spouse, dayNum))
+        profile.updateFamily(spouse=(self.spouse, dayNum))
         profile.updateHouse(self.home, dayNum)
         profile.updateMuList(self.muList, dayNum)
 
@@ -406,11 +408,11 @@ class People:
 
             if sold:
                 if (amounts == buy):
-                    self.think("I bought " + self.listtostr(amounts) + " for " + str(cost) + " today at " + store.name + ".")
+                    self.think("I bought " + self.listtostr(amounts) + " for " + str(cost) + " ducats today at " + store.name + ".")
                 else:
                     self.think("I went to buy " + self.listtostr(buy) + " at " + store.name + " but they only had " + self.listtostr(amounts) + ".")
             else:
-                self.think("I went to " + store.name + " to buy " + self.listtostr(buy) + " but they ran out. I hate that place!")
+                self.think("I went to " + store.name + " to buy " + self.listtostr(buy) + " but they ran out. Very annoying!")
         else:
             sold = False
             self.think("I don't really need anything from " + store.name + ". What a waste of time.")

@@ -45,7 +45,8 @@ class gui(tk.Tk):
         self.dynamic_hotkeys = []
 
         self.wm_title("Jonestown")
-        # TODO fix screen sizing issue
+        # TODO fix screen sizing issue.
+        # TODO currently text gets cut off on the main display when not full sized.
         # self.resizable(0,0)
         self.resizable(1,1)
         # self.geometry('1414x940')
@@ -120,9 +121,6 @@ class gui(tk.Tk):
 
     def out(self, text):
         self.text_cont.out(text)
-
-
-
 
 
 
@@ -964,7 +962,8 @@ class businessData(tsf.tkscrollframe):
         production = tk.Button(self.frame, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
         sales = tk.Button(self.frame, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.business))
         employees = tk.Button(self.frame, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
-        # prices = tk.Button(self, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.business))
+        # TODO add business prices screen
+        # prices = tk.Button(self.frame, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.business))
         new_unit = tk.Button(self.frame, text="[n] New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
         self.esc = tk.Button(self.frame, text="[esc] Return to Office",font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
@@ -1125,7 +1124,7 @@ class new_unit(tk.Frame):
 
 
 
-
+# TODO figure out why buttons are pushed to the left side, except in business frame?
 # class unitData(tk.Frame):
 class unitData(tsf.tkscrollframe):
 
@@ -1840,7 +1839,7 @@ class house(tk.Frame):
 
 
 
-
+# TODO-DECIDE why is there a spot for a profile pic? It's wasted space and a bad idea. Too much memory.
 class people_profiles(tsf.tkscrollframe):
 
     def __init__(self, parent, controller, root):
@@ -1873,11 +1872,12 @@ class people_profiles(tsf.tkscrollframe):
 
         char = self.root.getChar()
         raw_profiles = char.getKnownPeople()
-        profiles = sorted(raw_profiles, key=attrgetter('lastname', 'firstname'))
+        # profiles = sorted(raw_profiles, key=attrgetter('lastname', 'firstname'))
+        profiles = sorted(raw_profiles, key=attrgetter("opinion"), reverse=True)
 
         for profile in profiles:
             callback = self.callbackFactory(profile)
-            newButton = tk.Button(self.frame, text= profile.name, font=BUTTON_FONT, command=callback)
+            newButton = tk.Button(self.frame, text=f"{profile.name} ({profile.opinion})", font=BUTTON_FONT, command=callback)
             newButton.callback = callback
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)

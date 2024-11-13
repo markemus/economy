@@ -504,12 +504,12 @@ class Lumberyard(Manufactury):
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
-        self.can_make[d.WOOD_INDEX] = True
-        self.tech[d.WOOD_INDEX] = 50
+        self.can_make[d.LUMBER_INDEX] = True
+        self.tech[d.LUMBER_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
-        self.stock[d.WOOD_INDEX] = 50
+        self.stock[d.LUMBER_INDEX] = 50
         # self.DMC[d.WOOD_INDEX] = 1
-        self.failSales[d.WOOD_INDEX] = 500
+        self.failSales[d.LUMBER_INDEX] = 500
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
@@ -529,7 +529,7 @@ class Joinery(Manufactury):
         self.tech[d.TABLE_INDEX] = 1
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
-        self.stock[d.WOOD_INDEX] = 50
+        self.stock[d.LUMBER_INDEX] = 50
         # self.DMC[d.WOOD_INDEX] = 1
         self.failSales[d.CHAIR_INDEX] = 500
         self.failSales[d.TABLE_INDEX] = 500

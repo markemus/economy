@@ -9,7 +9,7 @@ class PersonProfile(object):
     person = None
     salary = (0, 0)
 
-    def __init__(self, person, father=(None, 0), mother=(None, 0), spouse=(None, 0), siblings = (None, 0), children = (None, 0)):
+    def __init__(self, person, father=(None, -2), mother=(None, -2), spouse=(None, -2), siblings=(None, -2), children=(None, -2)):
         dayNum = person.getLocality().model.getDayNum()
         # self.name = person.name
         self.firstname = person.firstname
@@ -65,10 +65,11 @@ class PersonProfile(object):
         family = [mem for mem in family if mem is not None]
         return family
 
+    # TODO-DECIDE does this require a Profile or a People object?
     #daynums in params
     #this method is a sin
-    def updateFamily(self, father=(None, 0), mother=(None, 0), spouse=(None, 0), siblings=(None, 0), children=(None, 0)):
-        family = {"father" : father, "mother" : mother, "spouse": spouse, "siblings" : siblings, "children" : children}
+    def updateFamily(self, father=(None, -2), mother=(None, -2), spouse=(None, -2), siblings=(None, -2), children=(None, -2)):
+        family = {"father": father, "mother": mother, "spouse": spouse, "siblings": siblings, "children": children}
         for title, relative in family.items():
             #compare daynum
             if relative[-1] > getattr(self, title)[-1]:

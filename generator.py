@@ -36,7 +36,6 @@ class generator(object):
         return gennedLocality
 
     def generatePeople(self, p_quantity, locality, houseList, religionList):
-
         lastNameList = d.getLastNameList()
 
         for count in range(p_quantity):
@@ -56,6 +55,7 @@ class generator(object):
             j = random.randrange(len(lastNameList))
             lastname = lastNameList[j]
 
+            # TODO unmarried people should start in their parents' home (need parents)
             #home            
             k = (count // 2)
             home = houseList[k]
@@ -111,6 +111,7 @@ class generator(object):
 
     #makes are called by model after worldgen completes
 
+    # TODO-DONE Spouses should have 10 opinion of one another.
     def makeSpouses(self):
         peopleList = d.getPeople()
         
@@ -122,22 +123,44 @@ class generator(object):
             wife.setSpouse(husband)
             husband.setSpouse(wife)
 
+            # Create profiles and update opinion
+            husband.peopleManager(wife).updateOpinion(10)
+            wife.peopleManager(husband).updateOpinion(10)
+
+            # Share home
             wife.home.removeTenant(wife)
             wife.setHome(husband.getHome())
             wife.home.addTenant(wife)
 
+            # Update basic info
+            husband.peopleManager(wife).updateBirthday(wife.birthday)
+            husband.peopleManager(wife).updateHouse(wife.getHome(), self.model.getDayNum())
+            husband.peopleManager(husband).updateFamily(spouse=(husband.peopleManager(wife), self.model.getDayNum()))
+            husband.peopleManager(wife).updateFamily(spouse=(husband.peopleManager(husband), self.model.getDayNum()))
+            husband.peopleManager(wife).updateMuList(wife.getMuList(), wife.locality.getDayNum())
+
+            wife.peopleManager(husband).updateBirthday(husband.birthday)
+            wife.peopleManager(husband).updateFamily(spouse=(wife.peopleManager(wife), self.model.getDayNum()))
+            wife.peopleManager(wife).updateFamily(spouse=(wife.peopleManager(husband), self.model.getDayNum()))
+            wife.peopleManager(husband).updateHouse(husband.getHome(), self.model.getDayNum())
+            wife.peopleManager(husband).updateMuList(husband.getMuList(), husband.locality.getDayNum())
+
             i += 2
 
+    # TODO-DONE friends should start out with 5 opinion of each other.
     def makeFriends(self):
         peopleList = d.getPeople()
         for person in peopleList:
-            for count in range(20):
+            for count in range(3):
                 i = random.randrange(len(peopleList))
                 friend = peopleList[i]
                 friendProfile = person.peopleManager(friend)
                 friendProfile.updateMuList(friend.getMuList(), person.locality.getDayNum())
+                friend.peopleManager(person).updateOpinion(5)
+
                 personProfile = friend.peopleManager(person)
                 personProfile.updateMuList(person.getMuList(), person.locality.getDayNum())
+                person.peopleManager(friend).updateOpinion(5)
 
     #just gives money- actual boss stuff handled in clock and people
     def makeBosses(self):
