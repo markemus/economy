@@ -798,17 +798,20 @@ class welcome(tk.Frame):
 
 
 
-class main_keyboard(tk.Frame):
+# class main_keyboard(tk.Frame):
+class main_keyboard(tsf.tkscrollframe):
 
     def __init__(self, parent, controller, root):
-        tk.Frame.__init__(self, parent)
+        # tk.Frame.__init__(self, parent)
+        tsf.tkscrollframe.__init__(self, parent)
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
         self.hotkeys = ["h", "t"] # "n"
-        header = tk.Label(self,      text="Office",     font=TITLE_FONT)
-        house = tk.Button(self,      text="[h] House",      font=BUTTON_FONT, command=lambda: controller.show_frame("house"))
-        town = tk.Button(self,       text="[t] Town",       font=BUTTON_FONT, command=lambda: controller.show_frame("town"))
+        header = tk.Label(self.frame,      text="Office",     font=TITLE_FONT)
+        house = tk.Button(self.frame,      text="[h] House",      font=BUTTON_FONT, command=lambda: controller.show_frame("house"))
+        town = tk.Button(self.frame,       text="[t] Town",       font=BUTTON_FONT, command=lambda: controller.show_frame("town"))
+        # TODO-DECIDE enable multiple businesses? Currently indicated in tutorials that is possible (but is not)
         # new_bus = tk.Button(self,    text="[n] New Business", font=BUTTON_FONT, command=lambda: controller.show_frame("new_business"))
 
         header.pack(fill=tk.X)
@@ -839,7 +842,7 @@ class main_keyboard(tk.Frame):
         for business in businesses:
             busi_name = business.getName()
             callback = self.callbackFactory(business)
-            newButton = tk.Button(self, text= "[" + str(key) + "] " + busi_name, font=BUTTON_FONT, command=callback)
+            newButton = tk.Button(self.frame, text= "[" + str(key) + "] " + busi_name, font=BUTTON_FONT, command=callback)
             newButton.callback = callback
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
@@ -941,10 +944,12 @@ class new_business(tk.Frame):
 
 
 
-class businessData(tk.Frame):
+# class businessData(tk.Frame):
+class businessData(tsf.tkscrollframe):
 
     def __init__(self, parent, controller, root):
-        tk.Frame.__init__(self, parent)
+        # tk.Frame.__init__(self, parent)
+        tsf.tkscrollframe.__init__(self, parent)
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
@@ -953,14 +958,15 @@ class businessData(tk.Frame):
         self.busiName = tk.StringVar()
         self.busiName.set("busiName")
 
-        header = tk.Label(self, textvariable=self.busiName,     font=TITLE_FONT)
-        stock = tk.Button(self, text= "[s] Stock", font = BUTTON_FONT, command=lambda: controller.show_stock(self.business))
-        production = tk.Button(self, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
-        sales = tk.Button(self, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.business))
-        employees = tk.Button(self, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
+        # TODO-DONE using self.frame instead of self, to enable scrollbar?
+        header = tk.Label(self.frame, textvariable=self.busiName,     font=TITLE_FONT)
+        stock = tk.Button(self.frame, text= "[s] Stock", font = BUTTON_FONT, command=lambda: controller.show_stock(self.business))
+        production = tk.Button(self.frame, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
+        sales = tk.Button(self.frame, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.business))
+        employees = tk.Button(self.frame, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
         # prices = tk.Button(self, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.business))
-        new_unit = tk.Button(self,text="[n] New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
-        self.esc = tk.Button(self,text="[esc] Return to Office",font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        new_unit = tk.Button(self.frame, text="[n] New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
+        self.esc = tk.Button(self.frame, text="[esc] Return to Office",font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
         stock.pack(fill=tk.X)
@@ -1000,7 +1006,7 @@ class businessData(tk.Frame):
         for unit in units:
             unit_name = unit.getName()
             callback = self.callbackFactory(unit)
-            newButton = tk.Button(self, text="[" + str(key) + "] " + unit_name, font=BUTTON_FONT, command=callback)
+            newButton = tk.Button(self.frame, text="[" + str(key) + "] " + unit_name, font=BUTTON_FONT, command=callback)
             newButton.callback = callback
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
@@ -1120,10 +1126,12 @@ class new_unit(tk.Frame):
 
 
 
-class unitData(tk.Frame):
+# class unitData(tk.Frame):
+class unitData(tsf.tkscrollframe):
 
     def __init__(self, parent, controller, root):
-        tk.Frame.__init__(self, parent)
+        # tk.Frame.__init__(self, parent)
+        tsf.tkscrollframe.__init__(self, parent)
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
@@ -1132,16 +1140,16 @@ class unitData(tk.Frame):
         self.unitName = tk.StringVar()
         self.unitName.set("unitName")
 
-        header = tk.Label(self, textvariable=self.unitName, font=TITLE_FONT)
-        stock = tk.Button(self, text="[s] Stock", font=BUTTON_FONT, command=lambda: controller.show_stock(self.unit))
-        production = tk.Button(self, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.unit))
-        sales = tk.Button(self, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.unit))
-        employees = tk.Button(self, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.unit))
-        prices = tk.Button(self, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.unit))
-        ledger = tk.Button(self, text="[l] Ledger", font=BUTTON_FONT, command=lambda: controller.show_frame("ledger"))
-        market = tk.Button(self, text="[m] Market", font=BUTTON_FONT, command=lambda: controller.show_frame("market"))
-        new_job = tk.Button(self, text="[n] New Job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job"))
-        self.esc = tk.Button(self, text="[esc] Return to Business", font=BUTTON_FONT, command=lambda: controller.show_frame("businessData"))
+        header = tk.Label(self.frame, textvariable=self.unitName, font=TITLE_FONT)
+        stock = tk.Button(self.frame, text="[s] Stock", font=BUTTON_FONT, command=lambda: controller.show_stock(self.unit))
+        production = tk.Button(self.frame, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.unit))
+        sales = tk.Button(self.frame, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.unit))
+        employees = tk.Button(self.frame, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.unit))
+        prices = tk.Button(self.frame, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.unit))
+        ledger = tk.Button(self.frame, text="[l] Ledger", font=BUTTON_FONT, command=lambda: controller.show_frame("ledger"))
+        market = tk.Button(self.frame, text="[m] Market", font=BUTTON_FONT, command=lambda: controller.show_frame("market"))
+        new_job = tk.Button(self.frame, text="[n] New Job", font=BUTTON_FONT, command=lambda: controller.show_frame("new_job"))
+        self.esc = tk.Button(self.frame, text="[esc] Return to Business", font=BUTTON_FONT, command=lambda: controller.show_frame("businessData"))
 
         header.pack(fill=tk.X)
         stock.pack(fill=tk.X)
@@ -1184,7 +1192,7 @@ class unitData(tk.Frame):
         for job in jobs:
             job_name = job.jobType
             callback = self.callbackFactory(job)
-            newButton = tk.Button(self, text="[" + str(key) + "] " + job_name, font=BUTTON_FONT, command=callback)
+            newButton = tk.Button(self.frame, text="[" + str(key) + "] " + job_name, font=BUTTON_FONT, command=callback)
             newButton.callback = callback
             newButton.pack(fill=tk.X)
             self.dynamic_buttons.append(newButton)
