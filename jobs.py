@@ -133,7 +133,7 @@ class Job(object):
         product = d.getMaterials()[productIndex]
 
         if d.isInSeason(productIndex, self.business.model.calendar.state):
-            components =  d.getComponents(productIndex)
+            components = d.getComponents(productIndex)
             tech = self.unit.getTech(productIndex)
             growing = self.unit.growingPlants(productIndex)
             DMClist = self.unit.getDMC()

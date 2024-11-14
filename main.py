@@ -35,7 +35,19 @@ testBus = you.startBusiness("Williamson Shipping LTD")
 testBus.cash = 1000000
 
 d.addBoss(you)
-model.gui.mainloop()
+
+DEBUG = False
+if not DEBUG:
+    model.gui.mainloop()
+else:
+    you.run_day()
+    farm = testBus.getUnits()[0]
+    mill = testBus.getUnits()[1]
+    bakery = testBus.getUnits()[2]
+# print(testBus.cash)
+
+
+
 
 # testFarm = u.Farm("Bill's Farm", Jonestown, (23,23), testBus)
 # testMill = u.Mill("Bill's Mill", Jonestown, (23,25), testBus)

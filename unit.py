@@ -476,9 +476,7 @@ class Brewery(Manufactury):
 
 
 
-# TODO-DECIDE DMC is zero for bread. Why? Is it because inputs are considered free if we own the mill? Is it because
-#  labor is not calculated into DMC? Whatever it is it seems to be making bread far too cheap (0.03 ducats per loaf)
-#  and business is losing money as a result.
+# TODO-DONE fixed DMC collection in bigdata.
 class Bakery(Manufactury):
     unitType = "Bakery"
     character = "B"

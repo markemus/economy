@@ -1,6 +1,7 @@
 from random import shuffle
 
-# TODO change wood to lumber
+# TODO-DONE change wood to lumber
+# TODO remove meat and fruit
 #indices
 GRAIN_INDEX = 0
 FLOUR_INDEX = 1
