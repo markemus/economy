@@ -35,9 +35,14 @@ testBus = you.startBusiness("Williamson Shipping LTD")
 testBus.cash = 1000000
 
 
-# TODO debug pricing. Should never fall below cost to produce.
+# TODO-DECIDE add public domain music?
+# TODO-DONE debug pricing. Should never fall below cost to produce.
 # TODO debug hiring. Should be slow to add new hires (and buyers should be more forgiving for low stocks)
 d.addBoss(you)
+
+# for day in range(40):
+#     model.clock.runDay()
+
 # TODO-NOTE run with -i flag and hit "quit" once to access terminal.
 model.gui.mainloop()
 # print(testBus.cash)

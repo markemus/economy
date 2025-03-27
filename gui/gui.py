@@ -729,7 +729,7 @@ class key_controller(tk.Frame):
 
     def show_ledger(self, unit, i, which):
         display_cont = self.root.get_display_cont()
-        ledger_legend = ["Price", "DMC", "Crafted", "Sales", "Failed Sales", "Transports", "Failed Transports", "Stock", "Output"]
+        ledger_legend = ["Price", "Direct Material Cost", "Crafted", "Sales", "Failed Sales", "Transports", "Failed Transports", "Stock", "Output"]
         # TODO-DONE line chart should not show zeroes for future days. This occurs in the early game on the ledger.
         # TODO-DONE ledger should show consistent colors for each checkbox, and/or a legend.
         dayCount = unit.getDayNum() + 1
@@ -745,7 +745,8 @@ class key_controller(tk.Frame):
                 y.append(fakey[j])
                 legend.append(ledger_legend[j])
 
-        display_cont.line_chart(x, y, d.getMaterials()[i], "Amount", unit.name + " " + d.getMaterials()[i], legend)
+        # display_cont.line_chart(x, y, d.getMaterials()[i], "Amount", unit.name + " " + d.getMaterials()[i], legend)
+        display_cont.line_chart(x, y, "Days", "Amount", unit.name + " " + d.getMaterials()[i], legend)
 
     def show_p_profile(self, profile):
         display_cont = self.root.get_display_cont()

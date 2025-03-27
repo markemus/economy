@@ -144,7 +144,11 @@ class Unit(object):
         else:
             #optimal price, set price.
             demand = self.sales[i] + self.failSales[i]
-            oPrice = (demand / self.output[i]) * naturalPrice
+            price_ratio = (demand / self.output[i])
+            # Price should never fall beneath costs. Better to hoard.
+            if price_ratio < 1:
+                price_ratio = 1
+            oPrice = price_ratio * naturalPrice
             priceAdjustment = (K * (oPrice - self.price[i]))
             price = round(self.price[i] + priceAdjustment, 2)
 
