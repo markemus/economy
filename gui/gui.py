@@ -159,8 +159,8 @@ class display_controller(tk.Frame):
         self.frames["matplotlib_display"].bar_chart(x, y, xlabel, ylabel, title)
         self.show_frame("matplotlib_display")
 
-    def line_chart(self, x, y, xlabel, ylabel, title):
-        self.frames["matplotlib_display"].line_chart(x, y, xlabel, ylabel, title)
+    def line_chart(self, x, y, xlabel, ylabel, title, legend=None):
+        self.frames["matplotlib_display"].line_chart(x, y, xlabel, ylabel, title, legend=legend)
         self.show_frame("matplotlib_display")
 
     def display_list(self, values_dict):
@@ -283,12 +283,16 @@ class matplotlib_display(tk.Frame):
         graph.set_xticklabels(x)
         # graph.grid()
 
-    def line_chart(self, x, y, xlabel, ylabel, title):
+    def line_chart(self, x, y, xlabel, ylabel, title, legend=None):
+        """legend = optional list of strings that name the xvals."""
         self.fig.clf()
         graph = self.fig.add_subplot(111)
         
         for z in y:
             graph.plot(x, z, "o-")
+
+        if legend:
+            graph.legend(legend)
 
         graph.set_title(title)
         graph.set_xlabel(xlabel)
@@ -725,17 +729,23 @@ class key_controller(tk.Frame):
 
     def show_ledger(self, unit, i, which):
         display_cont = self.root.get_display_cont()
-        # TODO line chart should not show zeroes for future days. This occurs in the early game on the ledger.
-        # TODO ledger should show consistent colors for each checkbox.
-        x = list(range(1,30))
+        ledger_legend = ["Price", "DMC", "Crafted", "Sales", "Failed Sales", "Transports", "Failed Transports", "Stock", "Output"]
+        # TODO-DONE line chart should not show zeroes for future days. This occurs in the early game on the ledger.
+        # TODO-DONE ledger should show consistent colors for each checkbox, and/or a legend.
+        dayCount = unit.getDayNum() + 1
+        if dayCount >= 30:
+            dayCount = 30
+        x = list(range(1, dayCount))
         fakey = unit.bigdata.getMonth(i)
         y = []
+        legend = []
 
         for j in range(len(which)):
             if which[j] == 1:
                 y.append(fakey[j])
+                legend.append(ledger_legend[j])
 
-        display_cont.line_chart(x, y, d.getMaterials()[i], "Amount", unit.name + " " + d.getMaterials()[i])
+        display_cont.line_chart(x, y, d.getMaterials()[i], "Amount", unit.name + " " + d.getMaterials()[i], legend)
 
     def show_p_profile(self, profile):
         display_cont = self.root.get_display_cont()

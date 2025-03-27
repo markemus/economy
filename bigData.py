@@ -37,7 +37,8 @@ class bigdata(object):
     def getMonth(self, i):
         dayNum = self.getDayNum()
         days = []
-        lastThirty= ((dayNum - 29, dayNum) if dayNum > 29 else (0, 29))
+        # TODO-DONE no fake days for first thirty
+        lastThirty= ((dayNum - 29, dayNum) if dayNum > 29 else (0, dayNum))
 
         for key in ("price", "DMC", "crafted", "sales", "failSales", "transports", "failTransports", "stock", "output"):
             today = []

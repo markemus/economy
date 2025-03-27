@@ -7,6 +7,9 @@ import staff
 import copy
 import math
 
+# TODO add units- gym, pub, bank.
+# TODO add advertising with % chance to see for visitors.
+
 #Not all units, but all units you can create (no house, church)
 def all_units():
     unit_list = [Farm, Mill, Brewery, Bakery, Lumberyard, Joinery]
