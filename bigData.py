@@ -3,7 +3,8 @@ import numpy as np
 
 import database as d
 
-#bigdata makes SHALLOW COPIES of all lists passed to it.
+
+# bigdata makes SHALLOW COPIES of all lists passed to it.
 class bigdata(object):
     def __init__(self, unit):
         self.unit       = unit

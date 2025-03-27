@@ -5,13 +5,14 @@ import random
 import database as d
 from conversation import Convo
 
-#not all jobs, but all jobs you can create (not manager, priest)
+
+# not all jobs, but all jobs you can create (not manager, priest)
 def all_jobs():
     job_list = [Baker, Brewer, Carrier, Farmer, Miller, Lumberjack, Carpenter]
     return job_list
 
-class Job(object):
 
+class Job(object):
     jobType = "Generic_job"
     jobVerb = "Genericking"
     naturalWage = 0
@@ -88,7 +89,7 @@ class Job(object):
         DMClist = self.unit.getDMC()
         productDMC = 0
 
-        #reduce to components
+        # reduce to components
         for component in components:
             materialIndex = component[0]
             inStock = self.unit.getStock(materialIndex)
@@ -98,38 +99,37 @@ class Job(object):
             if amount > (enoughFor):
                 amount = enoughFor
 
-            #DMC
+            # DMC
             componentDMC = DMClist[materialIndex]
             productDMC += componentDMC * ratio
 
-        #reduce to available employees
+        # reduce to available employees
         capability = (len(self.idlers) * tech)
         if amount > capability:
             amount = capability
 
-        #take employees from idlers (so they can't do anything else today)
+        # take employees from idlers (so they can't do anything else today)
         working = math.ceil(amount / tech)
         workers = self.takeIdlers(working)
 
-        #take components
+        # take components
         for component in components:
             materialIndex = component[0]
             ratio = component[1]
             used = amount * ratio
             self.unit.addStock(materialIndex, -used)
 
-        #add product- goes to stock for assembly lines. Crafted is for natural price calculation.
+        # add product- goes to stock for assembly lines. Crafted is for natural price calculation.
         self.unit.addCrafted(productIndex, amount)
         self.unit.addStock(productIndex, amount)
 
-        #set product DMC
+        # set product DMC
         self.unit.setDMC(productIndex, productDMC)
 
         for craftsman in workers:
             craftsman.think("We crafted " + str(amount) + " " + d.getMaterials()[productIndex] + " today.")
     
     def plant(self, productIndex, amount):
-        
         product = d.getMaterials()[productIndex]
 
         if d.isInSeason(productIndex, self.business.model.calendar.state):
@@ -140,7 +140,7 @@ class Job(object):
             isEnough = True
             productDMC = 0
 
-            #subtract already growing
+            # subtract already growing
             if amount > growing:
                 amount = amount - growing
                 isAllPlanted = False
@@ -148,9 +148,9 @@ class Job(object):
                 amount = 0
                 isAllPlanted = True
 
-            #plant
+            # plant
             if not isAllPlanted:
-                #reduce to components
+                # reduce to components
                 for component in components:
                     materialIndex = component[0]
                     inStock = self.unit.getStock(materialIndex)
@@ -161,31 +161,31 @@ class Job(object):
                         amount = enoughFor
                         isEnough = False
 
-                    #DMC
+                    # DMC
                     componentDMC = DMClist[materialIndex]
                     productDMC += componentDMC * ratio
 
-                #reduce to employees
+                # reduce to employees
                 capability = (len(self.idlers) * tech)
                 if amount > capability:
                     amount = capability
 
-                #take employees from idlers (so they can't do anything else today)
+                # take employees from idlers (so they can't do anything else today)
                 working = math.ceil(amount / tech)
                 workers = self.takeIdlers(working)
 
-                #take components
+                # take components
                 for component in components:
                     materialIndex = component[0]
                     ratio = component[1]
                     used = amount * ratio
                     self.unit.addStock(materialIndex, -used)
 
-                #add product- goes to stock for assembly lines. Crafted is for natural price calculation.
+                # add product- goes to stock for assembly lines. Crafted is for natural price calculation.
                 self.unit.plantSeeds(productIndex, amount)
                 self.unit.addPlanted(productIndex, amount)
 
-                #set product DMC
+                # set product DMC
                 self.unit.setDMC(productIndex, productDMC)
 
                 for farmer in workers:
@@ -209,7 +209,7 @@ class Job(object):
         if amount > ripe:
             amount = ripe
 
-        #take employees from idlers (so they can't do anything else today)
+        # take employees from idlers (so they can't do anything else today)
         working = math.ceil(amount / tech)
         workers = self.takeIdlers(working)
 
@@ -250,7 +250,7 @@ class Carrier(Job):
         amountInStock = unit1.getStock(materialIndex)
         isTransport = False
 
-        #transport
+        # transport
         if (business1 == self.business):
             if (business2 == self.business):
                 if (amount > amountInStock):
@@ -258,21 +258,21 @@ class Carrier(Job):
                     amount = amountInStock
 
                 if amount > 0:
-                    #DMC is the FULL natural price of the material, not just its DMC- it's the DMC of products MADE FROM this material.
-                    #we want natural price because we don't care about supply and demand within businesses.
+                    # DMC is the FULL natural price of the material, not just its DMC- it's the DMC of products MADE FROM this material.
+                    # we want natural price because we don't care about supply and demand within businesses.
                     DMC = unit1.priceCalc(materialIndex)[2]
                     unit2.setDMC(materialIndex, DMC)
                     
                     unit1.addTransports(materialIndex, amount)
                     unit2.addPurchase(materialIndex, amount)
 
-                    #transport
+                    # transport
                     unit1.addStock(materialIndex, -amount)
                     unit2.addStock(materialIndex, amount)
                     
                     isTransport = True
 
-        #thoughts
+        # thoughts
         for employee in self.getEmployees():
             if isTransport == True:
                 employee.think("I carried " + str(amount) + " things today.")
@@ -282,10 +282,7 @@ class Carrier(Job):
         return isTransport
 
 
-
-
 class Farmer(Job):
-
     jobType = "Farmer"
 
     def __init__(self, slots, business, unit, salary):
@@ -294,20 +291,14 @@ class Farmer(Job):
         # self.business.addHarvestJob(self)
 
 
-
-
 class Owner(Job):
-
     jobType = "Job Creator"
 
     def __init__(self, business, unit):
         Job.__init__(self, 1, business, unit, salary=6)
 
 
-
-
 class Manager(Job):
-
     jobType = "Manager"
 
     def __init__(self, business, unit, salary):
@@ -322,7 +313,7 @@ class Manager(Job):
         if len(self.employees) > 0:
             manager = self.employees[0]
 
-            if (amount > theUnit.getStock(materialIndex)):
+            if amount > theUnit.getStock(materialIndex):
                 amount = theUnit.getStock(materialIndex)
             if amount > theUnit.getOutput(materialIndex):
                 amount -= theUnit.getOutput(materialIndex)
@@ -333,7 +324,7 @@ class Manager(Job):
             theUnit.addOutput(materialIndex, amount)
             isTransfer = True
 
-            #thoughts
+            # thoughts
             if isTransfer:
                 if amount != 0:
                     manager.think("I transfered " + str(amount) + " " + d.materialsList[materialIndex] + " to " + theUnit.name + "'s output.")
@@ -352,12 +343,7 @@ class Manager(Job):
             jobUnit.priceGen()
 
 
-
-
-
-
 class Miller(Job):
-
     jobType = "Miller"
     jobVerb = "Milling"
 
@@ -366,11 +352,7 @@ class Miller(Job):
         self.business.addCraftingJob(self)
 
 
-
-
-
 class Lumberjack(Job):
-
     jobType = "Lumberjack"
 
     def __init__(self, slots, business, unit, salary):
@@ -378,12 +360,7 @@ class Lumberjack(Job):
         self.business.addHarvestJob(self)
 
 
-
-
-
-
 class Carpenter(Job):
-
     jobType = "Carpenter"
 
     def __init__(self, slots, business, unit, salary):
@@ -391,14 +368,9 @@ class Carpenter(Job):
         self.business.addCraftingJob(self)
 
 
-
-
-
-
-#religious jobs
+# religious jobs
 class Priest(Job):
-
-    jobType = 'Priest'
+    jobType = "Priest"
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
@@ -409,13 +381,15 @@ class Priest(Job):
         approvedSongs = self.unit.getReligion().getSongs()
         song = random.choice(approvedSongs)
 
-        #pray
+        # pray
+        # TODO thoughts should have MU effect- religious needs, workout needs, socialization needs.
+        #  Should have different messages depending how well it worked.
         for congregant in attendance:
             congregant.think("I love " + song + "!")
             congregant.think("The service at " + self.unit.name + " was beautiful.")
-        #talk
+        # talk
         self.mingle()
-        #go home
+        # go home
         self.unit.resetAttendance()
 
     def mingle(self):
