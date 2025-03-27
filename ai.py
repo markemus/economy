@@ -124,7 +124,7 @@ class Builder(object):
                         "Bakery"    : jobs.Baker,
                         "Lumberyard": jobs.Lumberjack,
                         "Joinery"   : jobs.Carpenter}
-
+        # TODO slots should be more dynamic- it looks like currently units will always hire to max?
         slots = 10
         salary = 6
 
@@ -182,15 +182,15 @@ class Builder(object):
         locality = business.getLocality()
 
         chains = [
-        [u.Farm],
-        [u.Mill, u.Farm],
-        [u.Brewery, u.Farm],
-        [u.Bakery, u.Mill, u.Farm],
-        [],
-        [],
-        [u.Lumberyard],
-        [u.Joinery, u.Lumberyard],
-        [u.Joinery, u.Lumberyard]
+            [u.Farm],
+            [u.Mill, u.Farm],
+            [u.Brewery, u.Farm],
+            [u.Bakery, u.Mill, u.Farm],
+            [],
+            [],
+            [u.Lumberyard],
+            [u.Joinery, u.Lumberyard],
+            [u.Joinery, u.Lumberyard]
         ]
         
         if toBuild is not None:

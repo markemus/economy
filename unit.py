@@ -9,6 +9,8 @@ import math
 
 # TODO add units- gym, pub, bank.
 # TODO add advertising with % chance to see for visitors.
+# TODO slots- maximum number of hires.
+# TODO startup costs.
 
 #Not all units, but all units you can create (no house, church)
 def all_units():

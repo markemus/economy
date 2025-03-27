@@ -220,16 +220,12 @@ class Job(object):
             farmer.think("We harvested " + str(amount) + " " + product + " today.")
 
 
-
-
 class Baker(Job):
     jobType = "Baker"
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
         self.business.addCraftingJob(self)
-
-
 
 
 class Brewer(Job):
@@ -241,15 +237,13 @@ class Brewer(Job):
         self.business.addCraftingJob(self)
 
 
-
-
 class Carrier(Job):
-
     jobType = "Porter"
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
 
+    # TODO allow transports from non-owned but known units. Currently no money is transferred.
     # takes from unit1 output[] and places in unit2 stock[] 
     def transportMats(self, unit1, unit2, materialIndex, amount):
         business1 = unit1.getBusiness()

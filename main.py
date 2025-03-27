@@ -38,9 +38,10 @@ testBus.cash = 1000000
 # TODO-DECIDE add public domain music?
 # TODO-DONE debug pricing. Should never fall below cost to produce.
 # TODO debug hiring. Should be slow to add new hires (and buyers should be more forgiving for low stocks)
+# TODO currently bakeries run out of raw supplies after 30ish days.
 d.addBoss(you)
 
-# for day in range(40):
+# for day in range(30):
 #     model.clock.runDay()
 
 # TODO-NOTE run with -i flag and hit "quit" once to access terminal.
