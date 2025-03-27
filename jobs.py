@@ -229,7 +229,6 @@ class Baker(Job):
 
 
 class Brewer(Job):
-
     jobType = "Brewer"
 
     def __init__(self, slots, business, unit, salary):

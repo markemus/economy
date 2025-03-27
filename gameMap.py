@@ -44,13 +44,8 @@ class World(object):
             y += 1
 
 
-
-
-
-
-#town map made up of nodes
+# town map made up of nodes
 class Locality(object):
-
     def __init__(self, model, location, width, height, name):
         self.model = model
         self.width = width
@@ -112,38 +107,29 @@ class Locality(object):
         return xy
 
     def printMap(self):
-
         print(self.name)
-
         mLocalMap = self.getMap()
 
         for row in mLocalMap:
-            
             rowAppearance = ""
             
             for i in row:
-
                 if (i == None):
                     rowAppearance = rowAppearance + "."
-
                 else:
                     rowAppearance = rowAppearance + i.character
             
             print(rowAppearance)
 
     def get_print_map(self):
-
         print_map = ""
 
         for row in self.local_map:
-            
             rowAppearance = ""
             
             for i in row:
-
                 if (i == None):
                     rowAppearance = rowAppearance + "X"
-
                 else:
                     rowAppearance = rowAppearance + i.character
             

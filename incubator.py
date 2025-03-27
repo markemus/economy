@@ -2,19 +2,20 @@ import math
 
 import database as d
 
-class incubator(object):
 
+class Incubator(object):
     def __init__(self, parent):
         self.parent = parent
-        self.grow_days = {"grain" : 270, "beer" : 10, "wood" : 5, "meat" : 1, "fruit" : 1}
-        self.rot_days = {"grain" : 65, "beer" : 10, "wood" : 5, "meat" : 1, "fruit" : 1}
-        self.growing = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
-        self.grow_timers = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
-        self.ripe = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
-        self.rot_timers = {"grain" : [], "beer" : [], "wood" : [], "meat" : [], "fruit" : []}
+        self.grow_days = {"grain": 270, "beer": 30, "wood": 5, "meat": 1, "fruit": 1}
+        self.rot_days = {"grain": 65, "beer": 180, "wood": 5, "meat": 1, "fruit": 1}
+        self.growing = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
+        self.grow_timers = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
+        self.ripe = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
+        self.rot_timers = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
         
-        #ratios including germination chance; wheat has an 80% germination chance and an avg yield of 110 grains per stalk.
-        self.ratios = {"grain" : 88, "beer" : 1, "wood" : 1, "meat" : 1, "fruit" : 1}
+        # ratios including germination chance; wheat has an 80% germination chance and an avg yield of 110 grains per stalk.
+        # beer is about 2000 grains per pint.
+        self.ratios = {"grain": 88, "beer": 1/2000, "wood": 1, "meat": 1, "fruit": 1}
 
     def itorzero(self, it):
         value = 0

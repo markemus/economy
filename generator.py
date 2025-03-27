@@ -105,6 +105,8 @@ class generator(object):
         l_location = (random.randrange(w_width), random.randrange(w_height))
         gennedLocality = self.generateLocality(l_location)
 
+        # TODO generate from center, not corner. Houses should cluster together with open areas for markets.
+        # TODO farms on the outskirts. Zoning?
         #houses, people, store
         h_quantity = p_quantity // 2
         houseList = self.generateHouses(h_quantity, gennedLocality)
@@ -114,7 +116,6 @@ class generator(object):
         return gennedWorld
 
     #makes are called by model after worldgen completes
-
     # TODO-DONE Spouses should have 10 opinion of one another.
     def makeSpouses(self):
         peopleList = d.getPeople()
@@ -132,6 +133,7 @@ class generator(object):
             wife.peopleManager(husband).updateOpinion(10)
 
             # Share home
+            # TODO people should start in their parents home and move in together to a new home when married.
             wife.home.removeTenant(wife)
             wife.setHome(husband.getHome())
             wife.home.addTenant(wife)
@@ -166,7 +168,8 @@ class generator(object):
                 personProfile.updateMuList(person.getMuList(), person.locality.getDayNum())
                 person.peopleManager(friend).updateOpinion(5)
 
-    #just gives money- actual boss stuff handled in clock and people
+    # TODO bosses should start with far less money (maybe just a loan from a bank instead)
+    # just gives money- actual boss stuff handled in clock and people
     def makeBosses(self):
         peopleList = d.getPeople()
         for i in range(100):
@@ -174,6 +177,7 @@ class generator(object):
             if boss.capital < 1000000:
                 boss.capital += 1000000
 
+    # TODO there are currently far too many churches. They should be spaced better too instead of clustering in NW.
     def makeChurches(self, locality):
         peopleList = d.getPeople()
         perChurch = 30

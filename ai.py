@@ -83,6 +83,7 @@ class StartupAI(object):
         return highestMU
 
     def bestPossible(self, possibilities, optimalList):
+        """Selects the best possible business to build, based on friends' marginal utility."""
         notDone = True
 
         while notDone:
@@ -101,22 +102,18 @@ class StartupAI(object):
         return bestOption
 
 
-
-
-
-
-
 #factory for supply chains. 
 class Builder(object):
-
     def __init__(self, model):
         self.model = model
 
+    # TODO can we get rid of this fake initial_demand and let them learn entirely from failedSales?
     def initial_demand(self, unit):
         for i in range(len(unit.can_make)):
             if unit.can_make[i]:
                 unit.failSales[i] = 500
 
+    # TODO jobs should be allowed per unit, you shouldn't be able to create any job in any unit.
     def jobMaker(self, unit):
         unitJobLink = { "Farm"      : jobs.Farmer,
                         "Brewery"   : jobs.Brewer,
@@ -174,10 +171,11 @@ class Builder(object):
             if newUnit.unitType == "Farm":
                 self.giveGrain(newUnit)
 
+    # TODO start with prebuilt farms with existing grain stocks, not giving grain to new farms.
     def giveGrain(self, unit):
         unit.addStock(d.GRAIN_INDEX, 100000)
 
-    #for now, there is no startup cost
+    # TODO for now, there is no startup cost
     def buildChain(self, business, toBuild):
         locality = business.getLocality()
 
@@ -197,6 +195,7 @@ class Builder(object):
             for target in chains[toBuild]:
                 self.buildIt(business, locality, target)
 
+    # TODO boss or bank should front capital (much less than 1 million, too).
     def newBusiness(self, boss, busiName=None, capital=1000000):
 
         newBus = None
@@ -222,12 +221,7 @@ class Builder(object):
         return newBus
 
 
-
-
-
-
 class Character(p.People):
-    
     def __init__(self, model, firstname, lastname, theirGender, theirHometown, theirHome,theirReligion):
         p.People.__init__(self, model, firstname, lastname, theirGender, theirHometown, theirHome, theirReligion)
 

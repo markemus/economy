@@ -3,8 +3,8 @@ import clock
 from transitions import Machine
 from transitions import State
 
-class Religion(object):
 
+class Religion(object):
     def __init__(self, reliName, months, daysPerMonth, firstMonth, year):
         self.name = reliName
         self.businesses = []
@@ -32,8 +32,10 @@ class Religion(object):
     def getSongs(self):
         return self.songs
 
+
+# TODO add more songs and church names.
 class Catholicism(Religion):
-    months = [State(name='January', on_enter=['yearChange']),'February','March','April','May','June','July','August','September','October','November','December']
+    months = [State(name='January', on_enter=['yearChange']), 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     year = 1000
 
@@ -68,3 +70,5 @@ class Protestantism(Religion):
         "Emmanuel House of Prayer",
         "Lloyd Street Church",
         "St Mark's Lutheran Church"]
+
+# TODO add Judaism. What about the calendar? Technically possible but massive overkill to implement the whole Jewish calendar.

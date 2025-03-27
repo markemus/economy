@@ -8,13 +8,19 @@ from profiles import PersonProfile
 from profiles import StoreProfile
 
 class People:
-    name = "John Doe"
-    gender = 0                          #0 are men, 1 are women
+    # name = "John Doe"
+    firstname = "John"
+    lastname = "Doe"
+    # 0 are men, 1 are women
+    gender = 0
     age = 0
-    locality = None                     #a localMap
-    home = None                         #a Unit in homeTown
-    # skills = [0 for i in d.getMaterials()]      #each index represents a particular skill- shoemaking, or lumberjacking, etc.
-    job = None                          #None is unemployed
+    # a localMap
+    locality = None
+    # a Unit in homeTown
+    home = None
+    # each index represents a particular skill- shoemaking, or lumberjacking, etc.
+    # skills = [0 for i in d.getMaterials()]
+    job = None
     salary = 0
     capital = 0
     spouse = None
@@ -35,9 +41,9 @@ class People:
         self.religion = theirReligion
         self.muList = [0 for i in range(len(d.materialsList))]
         self.inventory = [0 for i in range(len(d.materialsList))]
-        # TODO clear thoughts at the end of every week.
+        # TODO-TEST clear thoughts at the end of every week.
         self.thoughts = []
-        #profiles
+        # profiles
         self.knownPeople = {}
         self.knownManus = []
         self.knownStores = []
@@ -49,7 +55,7 @@ class People:
         self.myProfile.updateHouse(self.home, self.model.getDayNum())
         self.myProfile.updateBirthday(self.birthday)
         self.businesses = []
-        #initial values
+        # initial values
         self.allMu()
         self.maxSadness = sum(self.muList)
         self.isboss = False
@@ -104,7 +110,8 @@ class People:
 
             if bestChurch is not None:
                 self.newChurch(bestChurch)
-                self.think("I joined ", bestChurch.name, " today.")
+                self.think(f"I joined {bestChurch.name} today.")
+                self.church.attend(self)
             else:
                 self.think("I can't find a church in this neighborhood.")
         else:
@@ -120,13 +127,13 @@ class People:
         profile.updateHouse(self.home, dayNum)
         profile.updateMuList(self.muList, dayNum)
 
-    #only bosses can create businesses
+    # only bosses can create businesses
     def bossmaker(self):
         if not self.isboss:
             if self.capital >= 1000000 and self.model.char is not self:
                 d.addBoss(self)
-                self.model.builder.newBusiness(self)
                 self.isboss = True
+                self.model.builder.newBusiness(self)
 
     def toString(self):
         name = self.getName()
@@ -135,18 +142,17 @@ class People:
         town = self.getLocality().getName()
         personsJob = self.getJob()
 
-        if (gender == "man"):
+        if gender == "man":
             genderPronoun = "He"
         else:
             genderPronoun = "She"
 
-        if (self.job != None):
+        if self.job != None:
             jobDescription = personsJob.getJobType()
         else:
             jobDescription = "Beggar"
 
-        return(name + " is a " + gender + " who lives at " + homeAddress + " in " 
-            + town + ". " + genderPronoun + " works as a " + jobDescription + ".")
+        return f"{name} is a {gender} {jobDescription} who lives at {homeAddress} in {town}."
 
     def jobSearch(self):
         bestJob = None
@@ -208,15 +214,15 @@ class People:
             dayNum = workplace.getDayNum()
             workProfile.updatePrices(workPrices, dayNum)
 
-            #thoughts
+            # thoughts
             self.think("I should check today's prices once I'm already here at work.")
 
-    #sleep
+    # sleep
     def spouseConversations(self):
         if self.spouse is not None:
             Convo.beginConversation(self, self.spouse)
 
-    #work
+    # work
     def workConversations(self):
         if self.job is not None:
             coworkers = self.job.getEmployees()
@@ -227,14 +233,14 @@ class People:
             if numberOfConvos > totalCoworkers:
                 numberOfConvos = totalCoworkers
 
-            #conversations
+            # conversations
             for conversation in range(numberOfConvos):
                 conversee = coworkers[random.randrange(totalCoworkers)]
 
                 if conversee is not self:
                     Convo.beginConversation(self, conversee)
 
-    #don't use unless you add children
+    # don't use unless you add children
     def familyConversations(self):
         family = self.peopleManager(self).getFamilyList()
 
@@ -249,7 +255,7 @@ class People:
 
         if friend is not self:
             Convo.beginConversation(self, friend)
-            self.think(friend.name + " and I hung out this afternoon.")
+            self.think(f"{friend.name} and I hung out this afternoon.")
         else:
             self.think("I enjoyed spending some time alone this afternoon.")
 
@@ -262,9 +268,10 @@ class People:
         happiness = 100 * ((self.maxSadness - sadness) / self.maxSadness)
         return happiness
 
-    #updates muList- run at start and end of shop state. We want it to be persistent even after they eat, for example
-    #limit zeroes mu curve for each item
-    #scale scales mu curve for each item
+    # TODO display player's MU curves as a graph, with a dot at current MU.
+    # updates muList- run at start and end of shop state. We want it to be persistent even after they eat, for example
+    # limit zeroes mu curve for each item
+    # scale scales mu curve for each item
     def allMu(self):
         limitList = d.getUtilityLimit()
         scaleList = d.getUtilityScale()
@@ -306,41 +313,42 @@ class People:
             self.think("I don't know of any stores.")
 
     def pyth(self, unit):
+        """Distance metric."""
         locality = unit.getLocality()
         location = unit.getLocation()
         isLocal = False
 
-        #distance
+        # distance
         if (locality == self.locality) and (location is not None):
             distanceX = self.location[0] - location[0]
             distanceY = self.location[1] - location[1]
             distance = math.sqrt(distanceX ** 2 + distanceY ** 2)
             isLocal = True
         else:
-            #distance must be defined and != 0
+            # distance must be defined and != 0
             distance = 1000000
-        return (distance, isLocal)
+        return distance, isLocal
 
-    #returns (storeProfile, weight)
     def chooseStore(self):
-        #weights
+        """returns (storeProfile, weight)"""
+        # weights
         F = 1
         E = 2
         D = 1
         bestWeight = (None, 0)
 
-        #possible stores
+        # possible stores
 
         for store in self.possStores():
-            #vars
+            # vars
             familiarity = store.getFamiliarity()
             experience = store.getExperience()
             avgPrices = store.getPrices()
 
-            #distance
+            # distance
             distance, isLocal = self.pyth(store)
 
-            #desiredItemWeight
+            # desiredItemWeight
             muList = self.getMuList()
             maxMu = max(muList)
             price = avgPrices[muList.index(maxMu)]
@@ -350,17 +358,18 @@ class People:
             else:
                 desiredItemWeight = 0
 
-            #formula
+            # formula
             weight = (1 / distance) * (familiarity * F) * (experience * E) * (desiredItemWeight * D)
             
             if (weight > bestWeight[1]) or (bestWeight[0] is None):
                 if isLocal:
                     bestWeight = (store, weight)
-        #thoughts
+        # thoughts
         if bestWeight[0] is not None:
-            self.think(bestWeight[0].name + " seems like a good place to shop.")
+            self.think(f"{bestWeight[0].name} seems like a good place to shop.")
         else:
             self.think("I can't think of anywhere to go shopping.")
+
         return bestWeight
 
     def possStores(self):
@@ -368,7 +377,7 @@ class People:
 
         for store in self.knownStores:
             if store.familiarity == 1:
-                self.think("I want to check out that new place I heard about, " + store.name + ".")
+                self.think(f"I want to check out that new place I heard about, {store.name}.")
                 possStores = [store]
                 break
             else:
@@ -383,14 +392,13 @@ class People:
             return False
 
     def purchase(self, store):
-        
         buyMore = True
         price = store.getPrice()
         cash = self.capital
         muList = self.muList
         buy = [0 for i in d.getMaterials()]
         value = [self.muList[i] / price[i] if price[i] != 0 else 0 for i in range(len(self.muList))]
-        #we don't want them to spend all their money on overpriced stuff- they'll need it tomorrow! Utility of money is CONSTANT.
+        # we don't want them to spend all their money on overpriced stuff- they'll need it tomorrow! Utility of money is CONSTANT.
         MONEYUTIL = 1
 
         while True:
@@ -408,17 +416,17 @@ class People:
             (amounts, cost, sold) = store.sell(self, copy.copy(buy))
 
             if sold:
-                if (amounts == buy):
-                    self.think("I bought " + self.listtostr(amounts) + " for " + str(cost) + " ducats today at " + store.name + ".")
+                if amounts == buy:
+                    self.think(f"I bought {self.listtostr(amounts)} for {str(cost)} ducats today at {store.name}.")
                 else:
-                    self.think("I went to buy " + self.listtostr(buy) + " at " + store.name + " but they only had " + self.listtostr(amounts) + ".")
+                    self.think(f"I went to buy {self.listtostr(buy)} at {store.name} but they only had {self.listtostr(amounts)}.")
             else:
-                self.think("I went to " + store.name + " to buy " + self.listtostr(buy) + " but they ran out. Very annoying!")
+                self.think(f"I went to {store.name} to buy {self.listtostr(buy)} but they ran out. Very annoying!")
         else:
             sold = False
-            self.think("I don't really need anything from " + store.name + ". What a waste of time.")
+            self.think(f"I don't really need anything from {store.name}. What a waste of time.")
 
-        #update profile
+        # update profile
         self.updateStore(store, sold)        
 
     def listtostr(self, array):
@@ -436,10 +444,10 @@ class People:
         # familiarity = storeProfile.getFamiliarity()
         experience = storeProfile.getExperience()        
 
-        #familiarity should increase with each visit
+        # familiarity increases with each visit
         storeProfile.updateFamiliarity()
         
-        #experience should increase only if they had a good experience
+        # experience should increase only if they had a good experience
         if sold:
             experience = experience * 1.1
         else:
@@ -447,7 +455,7 @@ class People:
 
         storeProfile.updateExperience(experience)
 
-        #price
+        # price
         storeProfile.updatePrices(price, store.getLocality().getDayNum())
 
     def storeAtHome(self):
@@ -465,6 +473,7 @@ class People:
         else:
             self.think("I'm starving! I don't want to die!")
 
+    # TODO add pubs
     def drink(self):
         storage = self.home.output
         if storage[d.BEER_INDEX] >= 1:
@@ -473,6 +482,7 @@ class People:
         else:
             self.think("I could really use a beer right now.")
 
+    # TODO-DECIDE this function is weird and I don't know why. Just use random.choice?
     def randomManu(self, oldManu=None):
         length = len(self.knownManus)
         if length >= 2:
@@ -539,13 +549,12 @@ class People:
         return targetProfile
 
     def unitManager(self, target, heardabout=None):
-
         from profiles import StoreProfile
 
         notFound = True
         missions = target.getMissions()
 
-        #search
+        # search
         for i in range(len(missions)):
             if missions[i] and notFound:
 
@@ -555,7 +564,7 @@ class People:
                         targetProfile = testProfile
                         notFound = False
                         break
-        #create
+        # create
         if notFound:
             targetProfile = StoreProfile(target, heardabout)
             
@@ -564,7 +573,6 @@ class People:
                     unitList = self.knownUnitLists[i]
                     unitList.append(targetProfile)
 
-        #return
         return targetProfile
 
     def think(self, thought):
@@ -589,9 +597,6 @@ class People:
         
     def getGender(self):
         return self.gender
-
-    # def getAge(self):
-    #     return self.age
 
     def getLocality(self):
         return self.locality
@@ -626,12 +631,6 @@ class People:
     def getSalary(self):
         return self.salary
 
-    # def getSkill(self, skillIndex):
-    #     return self.skills[skillIndex]
-
-    # def getSkills(self):
-    #     return self.skills
-
     def setJob(self, job, salary):
         self.job = job
         self.salary = salary
@@ -646,9 +645,9 @@ class People:
 
     def genderCheck(self):
         if self.getGender() == 0:
-            return("man")
+            return "man"
         else:
-            return("woman")
+            return "woman"
 
     def setSpouse(self, spouse):
         self.spouse = spouse

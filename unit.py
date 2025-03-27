@@ -6,23 +6,24 @@ import staff
 
 import copy
 import math
-
 # TODO add units- gym, pub, bank.
 # TODO add advertising with % chance to see for visitors.
 # TODO slots- maximum number of hires.
 # TODO startup costs.
 
-#Not all units, but all units you can create (no house, church)
+
+# Not all units, but all units you can create (no house, church)
 def all_units():
     unit_list = [Farm, Mill, Brewery, Bakery, Lumberyard, Joinery]
     return unit_list
 
-#units use Business's money
+
+# units use Business's money
 class Unit(object):
     unitType = "genericUnit"
     character = "X"
-    locality = None     #should be a locality
-    location = ()       #(x,y), being indices on the localMap.
+    locality = None     # should be a locality
+    location = ()       # (x,y), being indices on the localMap.
     business = None
     stock = None
     output = None
@@ -36,7 +37,7 @@ class Unit(object):
         self.location   = unitLocationTuple
         self.business   = business
         self.jobList    = []
-        self.incubator  = inc.incubator(self)
+        self.incubator  = inc.Incubator(self)
         self.bigdata    = big.bigdata(self)
         self.stock      = [0 for material in stockLength]
         self.output     = [0 for material in stockLength]
@@ -115,21 +116,21 @@ class Unit(object):
         else:
             sold = False
 
-        #customers is for bigData- cleared during *PHASE*
+        # customers is for bigData- cleared during *PHASE*
         self.customers.append((who, wishamounts, wishcost, copy.copy(amounts), cost, copy.copy(self.output), who.capital, sold))
 
         return (amounts, cost, sold)
 
-    #calculate the price of a single material, without changing it in place- i = materialIndex
+    # calculate the price of a single material, without changing it in place- i = materialIndex
     def priceCalc(self, i):
-        #natural rate of profit- 4% return on capital
+        # natural rate of profit- 4% return on capital
         nrp = 1.04
-        #K is a constant weight- adjust if needed. At .5 one period is the half life.
+        # K is a constant weight- adjust if needed. At .5 one period is the half life.
         K = .5
         
         #natural price
         if d.getMaterials()[i] in d.planted:
-            #2 days, tech same for planting and harvesting
+            # 2 days, tech same for planting and harvesting
             ratio = self.incubator.ratios[d.getMaterials()[i]]
             labor = 2 / (self.tech[i] * ratio)
         else:
@@ -137,14 +138,13 @@ class Unit(object):
 
         naturalPrice = (self.DMC[i] + labor) * nrp
 
-        #if never sold before
+        # if never sold before
         if self.price[i] == 0:
             price = round(naturalPrice, 2)
             oPrice = price
-
-        #if sold before
+        # if sold before
         else:
-            #optimal price, set price.
+            # optimal price, set price.
             demand = self.sales[i] + self.failSales[i]
             price_ratio = (demand / self.output[i])
             # Price should never fall beneath costs. Better to hoard.
@@ -156,9 +156,9 @@ class Unit(object):
 
         return (price, oPrice, naturalPrice)
 
-    #call AFTER transferring but BEFORE transporting. For stores, after restocking and before selling. (rest)
-    #priceGen gives new prices every period for each item based on the earlier price and 
-    #the "optimal price" that it should trend towards.
+    # call AFTER transferring but BEFORE transporting. For stores, after restocking and before selling. (rest)
+    # priceGen gives new prices every period for each item based on the earlier price and
+    # the "optimal price" that it should trend towards.
     def priceGen(self):
         yDayNum = self.getDayNum() - 1
         oPrice = [0 for i in d.getMaterials()]
@@ -167,7 +167,7 @@ class Unit(object):
         for i in range(len(self.price)):
             if self.output[i] != 0:
                 (self.price[i], oPrice[i], naturalPrice[i]) = self.priceCalc(i)
-        #debug
+        # debug
         # if self.name in ("Bill's Farm", "Bill's Mill", "Bill's Bakery"):
         #     print(self.name)
         #     print("DMC:    ", self.DMC)
@@ -237,7 +237,7 @@ class Unit(object):
     # def getIsMarket(self):
     #     return self.isMarket
 
-    #for now, skills don't matter. But they will.
+    # for now, skills don't matter. But they will.
     def getJobs(self, interviewee):
         jobList = copy.copy(self.jobList)
         return jobList
@@ -269,7 +269,7 @@ class Unit(object):
     def setBusiness(self, newBusiness):
         self.business = newBusiness
 
-    #addPurchase, addSales, addFailSales. This is stupid.
+    # addPurchase, addSales, addFailSales. This is stupid.
     def addPurchase(self, materialIndex, amount):
         self.purchases[materialIndex] += amount
 
@@ -311,7 +311,7 @@ class Unit(object):
     def getCrafted(self):
         return self.crafted
 
-    #used for displaying production in matplotlib
+    # used for displaying production in matplotlib
     def getProduction(self):
         return ([0,1,2,3,4,5,6,7,8], self.crafted)
 
@@ -416,8 +416,6 @@ class Unit(object):
         pass
 
 
-
-
 class Manufactury(Unit):
     unitType = "Manufactury"
     character = "Manu"
@@ -426,8 +424,6 @@ class Manufactury(Unit):
         Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.missions[d.MANU_INDEX] = True
         self.staff = staff.manu_staff(self)
-
-
 
 
 class Farm(Manufactury):
@@ -446,8 +442,7 @@ class Farm(Manufactury):
             self.business.addUnit(self)
 
 
-
-#20-30 kg flour per hour- ~440 lb per 8 hours
+#  20-30 kg flour per hour- ~440 lb per 8 hours
 class Mill(Manufactury):
     unitType = "Mill"
     character = "M"
@@ -465,8 +460,6 @@ class Mill(Manufactury):
             self.business.addUnit(self)
 
 
-
-
 class Brewery(Manufactury):
     unitType = "Brewery"
     character = "b"
@@ -482,7 +475,6 @@ class Brewery(Manufactury):
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
-
 
 
 # TODO-DONE fixed DMC collection in bigdata.
@@ -505,8 +497,6 @@ class Bakery(Manufactury):
             self.business.addUnit(self)
 
 
-
-
 class Lumberyard(Manufactury):
     unitType = "Lumberyard"
     character = "L"
@@ -522,8 +512,6 @@ class Lumberyard(Manufactury):
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
-
-
 
 
 class Joinery(Manufactury):
@@ -547,8 +535,6 @@ class Joinery(Manufactury):
             self.business.addUnit(self)
 
 
-
-
 class House(Unit):
     unitType = "Home"
     character = "H"
@@ -568,9 +554,7 @@ class House(Unit):
         self.tenants.remove(tenant)
 
 
-
-
-#the ai don't need warehouses, players probably do.
+# the ai don't need warehouses, players probably do.
 class Warehouse(Unit):
     unitType = "Warehouse"
     character = "W"
@@ -581,8 +565,6 @@ class Warehouse(Unit):
         d.addUnit(self)
         if self.business is not None:
             self.business.addUnit(self)
-
-
 
 
 class Church(Unit):
