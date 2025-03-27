@@ -4,7 +4,7 @@ from transitions import State
 # from ai import startupAI, productionAI
 
 class Clock(object):
-    states = ['work','relax','shop','sleep']
+    states = ['work', 'relax', 'shop', 'sleep']
 
     def __init__(self, model):
         self.dayNumber = -1
@@ -22,8 +22,12 @@ class Clock(object):
         d.shufflePeople()
         self.dayNumber += 1
 
+        # Clear thoughts log once a week.
+        if self.model.week.state == 'Monday':
+            for person in d.getPeople():
+                person.thoughts = []
+
     def workHandler(self):
-        
         self.next_day()
 
         religionList    = d.getReligions()
@@ -118,16 +122,17 @@ class Clock(object):
     def getDayNum(self):
         return self.dayNumber
 
+
 class Week(object):
-    states = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+    states = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     def __init__(self, model):
         self.model = model
         self.machine = Machine(model=self, states=Week.states, initial='Thursday')
         self.machine.add_ordered_transitions()
 
-class Calendar(object):
 
+class Calendar(object):
     def __init__(self, months, daysPerMonth, firstMonth, year):
         # self.locality = locality
         self.machine = Machine(model=self, states=months, initial=firstMonth)
@@ -150,9 +155,10 @@ class Calendar(object):
         date = self.state + " " + str(self.dayOfMonth) + ", " + str(self.year)
         return date
 
-#example calendar. Also is the secular calendar- each religion has their own.
+
+# example calendar. Also is the secular calendar- each religion has their own.
 class SecularCalendar(Calendar):
-    months = [State(name='January', on_enter=['yearChange']),'February','March','April','May','June','July','August','September','October','November','December']
+    months = [State(name='January', on_enter=['yearChange']), 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     year = 1000
 

@@ -33,7 +33,7 @@ class bigdata(object):
 
         return values_dict
 
-    #i = materialIndex
+    # i = materialIndex
     def getMonth(self, i):
         dayNum = self.getDayNum()
         days = []

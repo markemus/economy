@@ -35,6 +35,7 @@ class People:
         self.religion = theirReligion
         self.muList = [0 for i in range(len(d.materialsList))]
         self.inventory = [0 for i in range(len(d.materialsList))]
+        # TODO clear thoughts at the end of every week.
         self.thoughts = []
         #profiles
         self.knownPeople = {}
