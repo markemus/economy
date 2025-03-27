@@ -1,7 +1,7 @@
 import database as d
 import clock
 
-#world map made up of ALL localities (for particular installation, or otherwise compartmentalize)
+# world map made up of ALL localities (for particular installation, or otherwise compartmentalize)
 class World(object):
 
     def __init__(self, width, height):
@@ -83,13 +83,13 @@ class Locality(object):
         
         return is_empty
 
-    #algorithm checks indices reflected around the diagonal, starting from upper left
-    #I feel like this algorithm is confusing, but it's the best I can do right now
+    # TODO better find_property algorithm. Implement zoning.
+    # algorithm checks indices reflected around the diagonal, starting from upper left
+    # I feel like this algorithm is confusing, but it's the best I can do right now
     def find_property(self):
         xy = None
 
         for i in range(len(self.local_map)):
-
             j = 0
             
             if xy is not None:
@@ -97,10 +97,10 @@ class Locality(object):
 
             while i >= j:
                 if self.check_node(self.local_map[i][j]):
-                    xy = (i,j)
+                    xy = (i, j)
                     break
                 if self.check_node(self.local_map[j][i]):
-                    xy = (j,i)
+                    xy = (j, i)
                     break
                 j += 1
 

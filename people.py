@@ -91,6 +91,8 @@ class People:
         self.think("My bed is so cozy.")
         self.update_my_profile()
         self.spouseConversations()
+        # TODO should eat 3x per day, 1 bread each time (or substitute good)
+        # TODO eating, drinking should give MU
         self.eat()
         self.drink()
 

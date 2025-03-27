@@ -304,8 +304,8 @@ class Manager(Job):
     def __init__(self, business, unit, salary):
         Job.__init__(self, 1, business, unit, salary)
 
-    # takes from theUnit stock[] and places in theUnit output[], filling outupt[] up to amount.
     def transferMats(self, theUnit, materialIndex, amount):
+        """Takes from theUnit stock[] and places in theUnit output[], filling output[] up to amount."""
         ourBusiness = self.getUnit().getBusiness()
         business = theUnit.getBusiness()
         isTransfer = False

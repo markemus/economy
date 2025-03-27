@@ -1,18 +1,18 @@
 import database as d
 import abc
 
-#Orders allow a Business to queue method calls from their Jobs in a particular order, to be performed daily.
-class Order(object):
 
+class Order(object):
+    """Orders allow a Business to queue method calls from their Jobs in a particular order, to be performed daily."""
     def __init__(self, business, job):
-        self.business   = business
-        self.job        = job
+        self.business = business
+        self.job = job
 
     def getJob(self):
         return self.job
 
-class productOrder(Order):
 
+class productOrder(Order):
     def __init__(self, business, job, materialIndex, amount):
         Order.__init__(self, business, job)
         self.materialIndex  = materialIndex
@@ -27,16 +27,16 @@ class productOrder(Order):
     def setAmount(self, amount):
         self.amount = amount
 
-class harvestOrder(productOrder):
 
+class harvestOrder(productOrder):
     def __init__(self, business, job, materialIndex):
         productOrder.__init__(self, business, job, materialIndex, 1)
 
     def execute(self):
         self.job.harvest(self.materialIndex)
 
-class craftOrder(productOrder):
 
+class craftOrder(productOrder):
     def __init__(self, business, job, materialIndex, amount=1):
         productOrder.__init__(self, business, job, materialIndex, amount)
 
@@ -46,12 +46,13 @@ class craftOrder(productOrder):
         elif d.is_crafted(self.materialIndex):
             self.job.craft(self.materialIndex, self.amount)
 
-class transportOrder(productOrder):
 
+class transportOrder(productOrder):
+    """Moves goods between Units."""
     def __init__(self, business, job, unit1, unit2, materialIndex, amount=1):
         productOrder.__init__(self, business, job, materialIndex, amount)
-        self.unit1          = unit1
-        self.unit2          = unit2
+        self.unit1 = unit1
+        self.unit2 = unit2
 
     def execute(self):
         self.job.transportMats(self.unit1, self.unit2, self.materialIndex, self.amount)
@@ -62,11 +63,12 @@ class transportOrder(productOrder):
     def getEndUnit(self):
         return self.unit2
 
-class transferOrder(productOrder):
 
+class transferOrder(productOrder):
+    """Moves goods within Unit, from stock to output."""
     def __init__(self, business, job, unit, materialIndex, amount):
         productOrder.__init__(self, business, job, materialIndex, amount)
-        self.unit           = unit
+        self.unit = unit
 
     def execute(self):
         self.job.transferMats(self.unit, self.materialIndex, self.amount)
@@ -74,8 +76,8 @@ class transferOrder(productOrder):
     def getUnit(self):
         return self.unit
 
-class pricingOrder(Order):
 
+class pricingOrder(Order):
     def __init__(self, business, job, unit):
         Order.__init__(self, business, job)
         self.unit = unit
