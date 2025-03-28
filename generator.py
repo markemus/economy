@@ -15,28 +15,11 @@ class generator(object):
     def __init__(self, model):
         self.model = model
 
-    # TODO-DONE houses should be generated in zoned areas only
-    def generateHouses(self, h_quantity, locality):
-        # get locations
-        houseList = []
-        zmap = locality.getZoningMap()
-        house_tiles = np.argwhere(zmap=="h")
-        np.random.shuffle(house_tiles)
-
-        for location in house_tiles[:h_quantity]:
-            gennedHouse = u.House(locality, location)
-            locality.claim_node(location, gennedHouse)
-            houseList.append(gennedHouse)
-
-        return houseList
-
     def generateLocality(self, l_location):
         # locality size, name static for now
-        # TODO-DONE 100x100
         gennedLocality = g.Locality(self.model, l_location, 100, 100, "Jonestown")
         return gennedLocality
 
-    # TODO-DONE not everyone should get their own house. Make 50% single living with parents (varying size families).
     def generatePeople(self, p_quantity, locality, religionList):
         lastNameList = d.getLastNameList()
         # house_list = []
@@ -70,7 +53,6 @@ class generator(object):
             father.setSpouse(mother)
 
             # Children
-            # TODO-DONE family profiles
             # TODO birthdays and ages
             child_list = []
             for i in range(n_children):
@@ -102,7 +84,7 @@ class generator(object):
             for child in child_list:
                 other_children = child_list.copy()
                 other_children.remove(child)
-                # TODO-DONE siblings and parents- needs refactoring. This process needs to be functionalized.
+
                 child.peopleManager(father).updateFamily(spouse=(child.peopleManager(mother), self.model.getDayNum()), children=(*[child.peopleManager(sibling) for sibling in other_children], self.model.getDayNum()))
                 child.peopleManager(mother).updateFamily(spouse=(child.peopleManager(father), self.model.getDayNum()), children=(*[child.peopleManager(sibling) for sibling in other_children], self.model.getDayNum()))
                 child.peopleManager(child).updateFamily(father=(child.peopleManager(father), self.model.getDayNum()), mother=(child.peopleManager(mother), self.model.getDayNum()), siblings=(*[child.peopleManager(sibling) for sibling in other_children], self.model.getDayNum()))
@@ -152,18 +134,13 @@ class generator(object):
         l_location = (random.randrange(w_width), random.randrange(w_height))
         gennedLocality = self.generateLocality(l_location)
 
-        # TODO-DONE generate from center, not corner. Houses should cluster together with open areas for markets.
-        # TODO farms on the outskirts. Zoning?
-        # houses, people, store
-        # h_quantity = p_quantity // 2
-        # houseList = self.generateHouses(h_quantity, gennedLocality)
+        # TODO-DONE farms on the outskirts. Zoning?
         religions = self.generateReligions(gennedLocality)
         self.generatePeople(p_quantity, gennedLocality, religions)
 
         return gennedWorld
 
     # makes are called by model after worldgen completes
-    # TODO-DONE Spouses should have 10 opinion of one another.
     # def makeSpouses(self):
     #     peopleList = d.getPeople()
     #
@@ -200,7 +177,7 @@ class generator(object):
     #
     #         i += 2
 
-    # TODO-DONE friends should start out with 5 opinion of each other.
+    # TODO replace friends with neighbors
     def makeFriends(self):
         peopleList = d.getPeople()
         for person in peopleList:
@@ -219,13 +196,11 @@ class generator(object):
     # just gives money- actual boss stuff handled in clock and people
     def makeBosses(self):
         peopleList = d.getPeople()
-        for i in range(100):
+        for i in range(10):
             boss = random.choice(peopleList)
             if boss.capital < 1000000:
                 boss.capital += 1000000
 
-    # TODO-DONE there are currently far too many churches. They should be spaced better too instead of clustering in NW.
-    # TODO-DONE churches should use business zones.
     def makeChurches(self, locality):
         peopleList = d.getPeople()
         perChurch = 90

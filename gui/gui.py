@@ -77,7 +77,6 @@ class gui(tk.Tk):
         #charData
         self.display_cont.pack_propagate(False)
 
-        # TODO-DONE set stickiness so window is the same no matter what size. Make sure this works after screen changes!
         #root grid
         leftSide.grid(row=0, column=0, sticky=tk.NSEW)
         rightSide.grid(row=0, column=1, sticky=tk.NSEW)
@@ -244,7 +243,6 @@ class matplotlib_display(tk.Frame):
 
         self.fig = Figure(figsize=(8,5), dpi=100)
         self.canvas = FigureCanvasTkAgg(self.fig, self)
-        # TODO-DONE test whether .draw() works in place of .show(), which threw an error with this version of the lib
         # self.canvas.show()
         self.canvas.draw()
         graphScreen = self.canvas.get_tk_widget()
@@ -380,7 +378,6 @@ class canvas_display(tk.Frame):
         self.display.coords("background", x, y)
 
     def raise_frame(self):
-        # TODO-DONE reset coords when display updates
         self.display.yview_moveto(0)
         x = self.display.canvasx(0)
         y = self.display.canvasy(0)
@@ -707,8 +704,6 @@ class key_controller(tk.Frame):
     def show_ledger(self, unit, i, which):
         display_cont = self.root.get_display_cont()
         ledger_legend = ["Price", "Direct Material Cost", "Crafted", "Sales", "Failed Sales", "Transports", "Failed Transports", "Stock", "Output"]
-        # TODO-DONE line chart should not show zeroes for future days. This occurs in the early game on the ledger.
-        # TODO-DONE ledger should show consistent colors for each checkbox, and/or a legend.
         dayCount = unit.getDayNum() + 1
         if dayCount >= 30:
             dayCount = 30
@@ -944,7 +939,6 @@ class businessData(tsf.tkscrollframe):
         self.busiName = tk.StringVar()
         self.busiName.set("busiName")
 
-        # TODO-DONE using self.frame instead of self, to enable scrollbar?
         header = tk.Label(self.frame, textvariable=self.busiName,     font=TITLE_FONT)
         stock = tk.Button(self.frame, text= "[s] Stock", font = BUTTON_FONT, command=lambda: controller.show_stock(self.business))
         production = tk.Button(self.frame, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
@@ -1818,7 +1812,6 @@ class house(tk.Frame):
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
-# TODO-DECIDE why is there a spot for a profile pic? It's wasted space and a bad idea. Too much memory.
 class people_profiles(tsf.tkscrollframe):
     def __init__(self, parent, controller, root):
         tsf.tkscrollframe.__init__(self, parent)

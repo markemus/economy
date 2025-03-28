@@ -481,7 +481,6 @@ class Brewery(Manufactury):
             self.business.addUnit(self)
 
 
-# TODO-DONE fixed DMC collection in bigdata.
 class Bakery(Manufactury):
     unitType = "Bakery"
     zoningType = "b"

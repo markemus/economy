@@ -37,7 +37,6 @@ class Model(object):
         self.char.addCapital(10000)
 
         # makes
-        # TODO-DONE profile generation from makeSpouses should be moved to generatePeople()
         # ourGen.makeSpouses()
         # TODO-DECIDE remove makeFriends and have it happen from interactions in-game?
         ourGen.makeFriends()

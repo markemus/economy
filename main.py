@@ -36,7 +36,6 @@ testBus.cash = 1000000
 
 
 # TODO-DECIDE add public domain music?
-# TODO-DONE debug pricing. Should never fall below cost to produce.
 # TODO debug hiring. Should be slow to add new hires (and buyers should be more forgiving for low stocks)
 # TODO currently bakeries run out of raw supplies after 30ish days.
 d.addBoss(you)

@@ -84,7 +84,6 @@ class Locality(object):
         outskirts = [[center[0]-center[0]//2, center[0]+center[0]//2], [center[1]-center[1]//2, center[1]+center[1]//2]]
         # Housing- surrounding city center.
         zmap[outskirts[0][0]: outskirts[0][1], outskirts[1][0]: outskirts[1][1]] = "h"
-        # TODO-DONE no business roads on edges
         # Businesses on roads through housing
         for r in range(outskirts[0][0], outskirts[0][1], 25)[1:]:
             zmap[outskirts[1][0]:outskirts[1][1], r] = "b"
@@ -115,7 +114,6 @@ class Locality(object):
         
         return is_empty
 
-    # TODO-DONE better find_property algorithm. Implement zoning.
     def find_property(self, zone):
         """Selects a random plot for use."""
         zone_map = self.getZoningMap()
