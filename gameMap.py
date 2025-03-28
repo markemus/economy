@@ -1,3 +1,5 @@
+import numpy as np
+
 import database as d
 import clock
 
@@ -52,7 +54,10 @@ class Locality(object):
         self.height = height
         self.name = name
         self.location = location
-        self.local_map = [[None for x in range(width)] for y in range(height)]
+        # Should be dtype object so we can store buildings. We'll use that for both.
+        self.local_map = np.array([[None for x in range(width)] for y in range(height)])
+        self.zoning_map = np.array([["x" for x in range(width)] for y in range(height)])
+        self.make_zoning()
         d.addLocality(self)
 
     def getName(self):
@@ -61,8 +66,35 @@ class Locality(object):
     def getWidth(self):
         return self.width
 
-    def getMap(self):
+    def getBuildingMap(self):
         return self.local_map
+
+    def getZoningMap(self):
+        """Determines which buildings can be built at each location on the map.
+        Lower case means unoccupied."""
+        return self.zoning_map
+
+    def make_zoning(self):
+        """Build the zoning_map."""
+        zmap = self.getZoningMap()
+        center = (zmap.shape[0] // 2, zmap.shape[1] // 2)
+        # Fields- surrounding city
+        zmap[:, :] = "f"
+        # city boundaries
+        outskirts = [[center[0]-center[0]//2, center[0]+center[0]//2], [center[1]-center[1]//2, center[1]+center[1]//2]]
+        # Housing- surrounding city center.
+        zmap[outskirts[0][0]: outskirts[0][1], outskirts[1][0]: outskirts[1][1]] = "h"
+        # TODO no business roads on edges
+        # Businesses on roads through housing
+        for r in range(outskirts[0][0], outskirts[0][1], 25):
+            zmap[outskirts[1][0]:outskirts[1][1], r] = "b"
+        for r in range(outskirts[1][0], outskirts[1][1], 25):
+            zmap[r, outskirts[0][0]:outskirts[0][1]] = "b"
+        # City center- businesses
+        zmap[center[0]-3: center[0]+3, center[1]-3: center[1]+3] = "b"
+        # City hall- central spot
+        zmap[center[0], center[1]] = "c"
+
 
     def claim_node(self, xy, entity):
         claimed = False
@@ -108,7 +140,7 @@ class Locality(object):
 
     def printMap(self):
         print(self.name)
-        mLocalMap = self.getMap()
+        mLocalMap = self.getBuildingMap()
 
         for row in mLocalMap:
             rowAppearance = ""
@@ -133,6 +165,20 @@ class Locality(object):
                 else:
                     rowAppearance = rowAppearance + i.character
             
+            print_map += rowAppearance + "\n"
+
+        return print_map
+
+    def get_zoning_print_map(self):
+        """Generates a printable map of the locality's zoning."""
+        print_map = ""
+
+        for row in self.zoning_map:
+            rowAppearance = ""
+
+            for x in row:
+                rowAppearance = rowAppearance + x
+
             print_map += rowAppearance + "\n"
 
         return print_map

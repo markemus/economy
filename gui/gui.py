@@ -29,7 +29,7 @@ TITLE_FONT = ("Black chancery", "18", "bold")
 # TITLE_FONT = tkinter.font.Font(root=None, family='Helvetica', size='18', weight='bold', underline=1)
 TEXT_FONT = ("Black chancery", "15")
 BUTTON_FONT = ("Black chancery", "13")
-MAP_FONT = ("Consolas", "5")
+MAP_FONT = ("Consolas", "9")
 
 
 class gui(tk.Tk):
@@ -123,11 +123,8 @@ class gui(tk.Tk):
         self.text_cont.out(text)
 
 
-
-
-#display
+#  display
 class display_controller(tk.Frame):
-
     def __init__(self, parent, root, *args, **kwargs):
         tk.Frame.__init__(self, master=parent, *args, **kwargs)
         self.root = root
@@ -143,7 +140,7 @@ class display_controller(tk.Frame):
             frame = display(parent=self, controller=self, root=root)
             self.frames[page_name] = frame
 
-            #stack frames
+            # stack frames
             frame.grid(row=0, column=0, sticky="nsew")
 
     def show_frame(self, page_name):
@@ -192,11 +189,7 @@ class display_controller(tk.Frame):
         self.show_frame("canvas_display")
 
 
-
-
-
 class main_display(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.root = root
@@ -209,7 +202,7 @@ class main_display(tk.Frame):
         leftBar.image = leftBarImage
 
         self.mainScreen_var = tk.StringVar()
-        mainScreen = tk.Label(self, image=parchment, textvar=self.mainScreen_var,font=TEXT_FONT, width=800, height=500, borderwidth=5, 
+        mainScreen = tk.Label(self, image=parchment, textvar=self.mainScreen_var, font=TEXT_FONT, width=800, height=500, borderwidth=5,
             relief=tk.RIDGE, compound=tk.CENTER)
         mainScreen.image = parchment
 
@@ -234,15 +227,11 @@ class main_display(tk.Frame):
                 if unitEmpDict[unit].index(employee) % 3 == 0:
                     text += "\n"
                 text += employee.name + " (" + employee.job.jobType +") "
-                
 
         self.mainScreen_var.set(text)
 
 
-
-
 class matplotlib_display(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.root = root
@@ -305,11 +294,7 @@ class matplotlib_display(tk.Frame):
         self.tkraise()
 
 
-
-
-
 class list_display(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.root = root 
@@ -321,7 +306,7 @@ class list_display(tk.Frame):
         leftBar.image = leftBarImage
 
         self.display_var = tk.StringVar()
-        self.display = tk.Label(self, image=parchment, textvar=self.display_var,font=TEXT_FONT, width=800, height=500, borderwidth=5, 
+        self.display = tk.Label(self, image=parchment, textvar=self.display_var, font=TEXT_FONT, width=800, height=500, borderwidth=5,
             relief=tk.RIDGE, compound=tk.CENTER, justify=tk.LEFT)
         self.display.image = parchment
 
@@ -361,11 +346,7 @@ class list_display(tk.Frame):
         self.display_var.set(string)
 
 
-
-
 class canvas_display(tk.Frame):
-    #tags: temp,
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.root = root 
@@ -373,25 +354,40 @@ class canvas_display(tk.Frame):
         rightBarImage = tk.PhotoImage(file="./images/nightWheat.gif")
         parchment = tk.PhotoImage(    file='./images/parchment.gif')
 
-        leftBar = tk.Label(self, image=leftBarImage, width= 150, height=510)
+        leftBar = tk.Label(self, image=leftBarImage, width=150, height=510)
         leftBar.image = leftBarImage
 
         self.display = tk.Canvas(self, width=800, height=500, borderwidth=5, relief=tk.RIDGE)
-        self.display.create_image(6,6, anchor="nw", image=parchment)
+        self.display.create_image(6, 6, anchor="nw", image=parchment, tag="background")
         self.display.image = parchment
+
+        self.scroller = tk.Scrollbar(self, orient="vertical", command=self.custom_yview)
+        self.display.configure(yscrollcommand=self.scroller.set)
 
         rightBar = tk.Label(self, image=rightBarImage, width=150, height=510)
         rightBar.image = rightBarImage
 
         leftBar.grid(row=0, column=0)
         self.display.grid(row=0, column=1)
-        rightBar.grid(row=0, column=2)
+        self.scroller.grid(row=0, column=2)
+        # self.grid_columnconfigure(2, minsize=100)  # Here
+        rightBar.grid(row=0, column=3)
+
+    def custom_yview(self, *args, **kwargs):
+        self.display.yview(*args, **kwargs)
+        x = self.display.canvasx(0)
+        y = self.display.canvasy(0)
+        self.display.coords("background", x, y)
 
     def raise_frame(self):
+        # TODO-DONE reset coords when display updates
+        self.display.yview_moveto(0)
+        x = self.display.canvasx(0)
+        y = self.display.canvasy(0)
+        self.display.coords("background", x, y)
         self.tkraise()
 
     def display_p_profile(self, values_dict):
-
         details = (
             "Name: " + values_dict["name"] + "\n" +
             "Opinion: " + values_dict["opinion"] + "\n" +
@@ -449,18 +445,11 @@ class canvas_display(tk.Frame):
 
     def display_map(self, localmap):
         self.display.delete("temp")
-        self.display.create_text(10,10, text=localmap, anchor="nw", font=MAP_FONT, tags="temp")
+        self.display.create_text(10, 10, text=localmap, anchor="nw", font=MAP_FONT, tags="temp")
 
 
-
-
-
-
-
-
-#printout
+# printout
 class text_output(tk.Frame):
-
     def __init__(self, parent, root, *args, **kwargs):
         tk.Frame.__init__(self, master=parent, *args, **kwargs)
         self.root = root
@@ -478,8 +467,7 @@ class text_output(tk.Frame):
         self.text.delete(1.0, tk.END)
 
 
-
-#hacky, but I don't care!
+# hacky, but I don't care!
 class static_controller(object):
     def __init__(self, root, static_data, bus_static_data):
         self.root = root
@@ -493,10 +481,7 @@ class static_controller(object):
         self.bus_static_data.update_frame()
 
 
-
-
-
-#static_data
+# static_data
 class static_data(tk.Frame):
 
     def __init__(self, parent, root, *args, **kwargs):
@@ -537,11 +522,7 @@ class static_data(tk.Frame):
         self.happiness.set("Satisfaction: " + str(char.getHappiness()))
 
 
-
-
-
 class bus_static_data(tk.Frame):
-
     def __init__(self, parent, root, *args, **kwargs):
         tk.Frame.__init__(self, master=parent, *args, **kwargs, borderwidth=5, relief=tk.RIDGE)
         self.root = root
@@ -567,14 +548,10 @@ class bus_static_data(tk.Frame):
         self.bus_cash.set("Capital: $" + str(round(bus.getCash(), 2)))
         self.units.set("Units: " + str(len(bus.getUnits())))
         self.employees.set("Employees: " + str(len(bus.getEmployees())))
-        
 
 
-
-
-#controller for which keyboard
+# controller for which keyboard
 class key_controller(tk.Frame):
-
     def __init__(self, parent, root, *args, **kwargs):
         tk.Frame.__init__(self, master=parent, *args, **kwargs)
         self.root = root
@@ -1651,10 +1628,7 @@ class market(tk.Frame):
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
 
 
-
-
 class new_transfer(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1704,7 +1678,6 @@ class new_transfer(tk.Frame):
 
 
 class new_transport(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1800,19 +1773,12 @@ class new_transport(tk.Frame):
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("market"))
 
 
-
-
-
-
-
-
 class house(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
-        self.hotkeys = ["s","p","f","c","<Escape>"]
+        self.hotkeys = ["s", "p", "f", "c", "<Escape>"]
         header = tk.Label(self, text="Home", font=TITLE_FONT)
         p_profiles = tk.Button(self, text="[p] People profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("people_profiles"))
         s_profiles = tk.Button(self, text="[s] Store profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("store_profiles"))
@@ -1852,10 +1818,8 @@ class house(tk.Frame):
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
-
 # TODO-DECIDE why is there a spot for a profile pic? It's wasted space and a bad idea. Too much memory.
 class people_profiles(tsf.tkscrollframe):
-
     def __init__(self, parent, controller, root):
         tsf.tkscrollframe.__init__(self, parent)
         self.controller = controller
@@ -1863,7 +1827,7 @@ class people_profiles(tsf.tkscrollframe):
         self.hotkeys = ["<Escape>"]
         self.dynamic_buttons  = []
 
-        #widgets go in self.frame, not self
+        # widgets go in self.frame, not self
         header = tk.Label(self.frame, text="People Profiles", font=TITLE_FONT)
         self.esc = tk.Button(self.frame, text="[esc] Return to House", font=BUTTON_FONT, command=lambda: self.controller.show_frame("house"))
         self.esc.callback = lambda event: self.controller.show_frame("house")
@@ -1915,10 +1879,7 @@ class people_profiles(tsf.tkscrollframe):
         self.root.bind("<Escape>", self.esc.callback)
 
 
-
-
 class store_profiles(tsf.tkscrollframe):
-
     def __init__(self, parent, controller, root):
         tsf.tkscrollframe.__init__(self, parent)
         self.controller = controller
@@ -1978,10 +1939,7 @@ class store_profiles(tsf.tkscrollframe):
         self.root.bind("<Escape>", self.esc.callback)
 
 
-
-
 class manu_profiles(tsf.tkscrollframe):
-
     def __init__(self, parent, controller, root):
         tsf.tkscrollframe.__init__(self, parent)
         self.controller = controller
@@ -2039,9 +1997,7 @@ class manu_profiles(tsf.tkscrollframe):
         self.root.bind("<Escape>", self.esc.callback)
 
 
-
 class church_profiles(tsf.tkscrollframe):
-
     def __init__(self, parent, controller, root):
         tsf.tkscrollframe.__init__(self, parent)
         self.controller = controller
@@ -2049,7 +2005,7 @@ class church_profiles(tsf.tkscrollframe):
         self.hotkeys = ["<Escape>"]
         self.dynamic_buttons = []
 
-        #widgets go in self.frame not self
+        # widgets go in self.frame not self
         header = tk.Label(self.frame, text="Church Profiles", font=TITLE_FONT)
         self.esc = tk.Button(self.frame, text="[esc] Return to House", font=BUTTON_FONT, command=lambda: self.controller.show_frame("house"))
         self.esc.callback = lambda event: self.controller.show_frame("house")
@@ -2099,25 +2055,33 @@ class church_profiles(tsf.tkscrollframe):
         self.root.bind("<Escape>", self.esc.callback)
 
 
-
-
-
 class town(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.root = root
-        self.hotkeys = ["<Escape>"]
+        self.hotkeys = ["<Escape>", "b", "z"]
         header = tk.Label(self, text="Town", font=TITLE_FONT)
+        city_map = tk.Button(self,  text="[b] City Map", font=BUTTON_FONT, command=self.show_city_map)
+        zoning_map = tk.Button(self,  text="[z] Zoning Map", font=BUTTON_FONT, command=self.show_zoning_map)
         main = tk.Button(self,  text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
+        city_map.pack(fill=tk.X)
+        zoning_map.pack(fill=tk.X)
         main.pack(fill=tk.X)
+
+    def show_city_map(self):
+        cont = self.controller.get_display_cont()
+        cont.display_map(self.get_city_map())
+
+    def show_zoning_map(self):
+        cont = self.controller.get_display_cont()
+        cont.display_map(self.get_zoning_map())
 
     def show_splash(self):
         cont = self.controller.get_display_cont()
-        cont.display_map(self.get_map())
+        cont.update_frame("main_display", tutorials.town)
 
     def raise_frame(self):
         self.set_hotkeys()
@@ -2134,19 +2098,25 @@ class town(tk.Frame):
         self.root.dynamic_hotkeys = []
         self.root.hotkeys = self.hotkeys
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
+        self.root.bind("b", lambda x: self.show_city_map())
+        self.root.bind("z", lambda x: self.show_zoning_map())
 
-    def get_map(self):
+    def get_city_map(self):
         char = self.root.char
         locality = char.getLocality()
         localmap = locality.get_print_map()
 
         return localmap
 
+    def get_zoning_map(self):
+        char = self.root.char
+        locality = char.getLocality()
+        localmap = locality.get_zoning_print_map()
 
+        return localmap
 
 
 class quitBar(tk.Frame):
-
     def __init__(self, parent, root, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = root

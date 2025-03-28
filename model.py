@@ -6,8 +6,8 @@ from gui import gui
 import people as p
 import unit as u
 
-class Model(object):
 
+class Model(object):
     def __init__(self):
         self.clock          = cl.Clock(self)
         self.week           = cl.Week(self)
@@ -20,25 +20,25 @@ class Model(object):
         self.builder        = ai.Builder(self)
         self.salaryPayer    = ai.SalaryPayer(self)
         ourGen              = generator.generator(self)
-        self.ourWorld       = ourGen.generateWorld(10000, 10, 10)
+        self.ourWorld       = ourGen.generateWorld(5000, 10, 10)
         Jonestown           = d.getLocality()[0]
-        #char
+        # char
         address             = Jonestown.find_property()
         yourHome            = u.House(Jonestown, address)
         Jonestown.claim_node(address, yourHome)
+        # TODO character creation.
         self.char           = ai.Character(self, "Markemus", "Williamson", 0, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(self.char)
         spouse              = p.People(self, "Susan", "Spinster", 1, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(spouse)
         self.char.addCapital(10000)
-        #makes
+        # makes
         ourGen.makeSpouses()
         ourGen.makeFriends()
         ourGen.makeBosses()
         ourGen.makeChurches(Jonestown)
         ourGen.assignChurches()
         self.gui            = gui.gui(self.char)
-        
 
     def out(self, text):
         self.gui.out(text)

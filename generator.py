@@ -4,17 +4,16 @@ import business as bu
 import religion as rel
 import unit as u
 import people as p
-import profiles as pr
 import random
 import math
 
-class generator(object):
 
+class generator(object):
     def __init__(self, model):
         self.model = model
 
     def generateHouses(self, h_quantity, locality):
-        #locations
+        # locations
         x = -2
         y = 0
         length = locality.getWidth()
@@ -31,22 +30,22 @@ class generator(object):
         return houseList
 
     def generateLocality(self, l_location):
-        #locality size, name static for now
-        gennedLocality = g.Locality(self.model, l_location, 150, 150, "Jonestown")
+        # locality size, name static for now
+        # TODO 100x100
+        gennedLocality = g.Locality(self.model, l_location, 100, 100, "Jonestown")
         return gennedLocality
 
     def generatePeople(self, p_quantity, locality, houseList, religionList):
         lastNameList = d.getLastNameList()
 
         for count in range(p_quantity):
-            
-            #gender
+            # gender
             if (count % 2 == 0):
                 gender = 0
             else:
                 gender = 1
 
-            #name
+            # name
             firstNameList = d.getFirstNameList(gender)
 
             i = random.randrange(len(firstNameList))
@@ -56,17 +55,17 @@ class generator(object):
             lastname = lastNameList[j]
 
             # TODO unmarried people should start in their parents' home (need parents)
-            #home            
+            # home
             k = (count // 2)
             home = houseList[k]
 
-            #religion
+            # religion
             if count < (p_quantity/2):
                 religion = religionList[0]
             else:
                 religion = religionList[1]
 
-            #gen
+            # gen
             gennedPerson = p.People(self.model, firstname, lastname, gender, locality, home, religion)
             gennedPerson.addCapital(100)
             gennedPerson.home.addTenant(gennedPerson)
@@ -88,26 +87,26 @@ class generator(object):
     # TODO more chaotic map generation. How to organize houses and store locations? Churches should
     #  be scattered around. Stores should be near owner's house? Start with neighbors, not friends.
 
-    #people must be even int because marriages
-    #we only generate a single locality- don't ask
+    # people must be even int because marriages
+    # we only generate a single locality- don't ask
     def generateWorld(self, p_quantity, w_width, w_height):
         peopleList = []
 
-        #need even number of people for marriages
+        # need even number of people for marriages
         if p_quantity % 2 != 0:
             print("Please choose an even number of people for your world.")
             return False
 
-        #world
+        # world
         gennedWorld = g.World(w_width, w_height)
 
-        #locality
+        # locality
         l_location = (random.randrange(w_width), random.randrange(w_height))
         gennedLocality = self.generateLocality(l_location)
 
         # TODO generate from center, not corner. Houses should cluster together with open areas for markets.
         # TODO farms on the outskirts. Zoning?
-        #houses, people, store
+        # houses, people, store
         h_quantity = p_quantity // 2
         houseList = self.generateHouses(h_quantity, gennedLocality)
         religions = self.generateReligions(gennedLocality)
@@ -115,7 +114,7 @@ class generator(object):
 
         return gennedWorld
 
-    #makes are called by model after worldgen completes
+    # makes are called by model after worldgen completes
     # TODO-DONE Spouses should have 10 opinion of one another.
     def makeSpouses(self):
         peopleList = d.getPeople()
