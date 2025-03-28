@@ -8,16 +8,15 @@ import people as p
 import unit as u
 
 
-#singleton
+# singleton
 class StartupAI(object):
-
     def __init__(self):
         None
 
-    #O(n^2). Not ideal, but n SHOULD be low. Can we make O(n)?
+    # O(n^2). Not ideal, but n SHOULD be low. Can we make O(n)?
     def whatToBuild(self, investor):
         # knownStock = self.knownStock(investor)
-        #current dumb ai will build full product lines, so all are equally possible.
+        # current dumb ai will build full product lines, so all are equally possible.
         # possibilities = self.possibilities(investor, knownStock)
         possibilities = self.tempPossibilities(investor)
         optimalList = self.optimalList(investor)
@@ -48,8 +47,8 @@ class StartupAI(object):
 
         return possibilities
 
-    #which products can the investor find stock for?
-    #O(n^2)- not exactly, but multivariate
+    # which products can the investor find stock for?
+    # O(n^2)- not exactly, but multivariate
     def possibilities(self, investor, knownStock):
         requiredStock = d.getAllComponents()
         possibilities = [False for i in requiredStock]
@@ -68,7 +67,7 @@ class StartupAI(object):
 
         return possibilities
 
-    #people shop for the thing they want the most. So they want to open businesses with that in mind- what will bring in the most customers?
+    # people shop for the thing they want the most. So they want to open businesses with that in mind- what will bring in the most customers?
     def optimalList(self, investor):
         peopleProfiles = investor.getKnownPeople()
         highestMU = [0 for i in d.getMaterials()]
@@ -102,7 +101,7 @@ class StartupAI(object):
         return bestOption
 
 
-#factory for supply chains. 
+# factory for supply chains.
 class Builder(object):
     def __init__(self, model):
         self.model = model
@@ -172,6 +171,7 @@ class Builder(object):
                 if newUnit.unitType == "Farm":
                     self.giveGrain(newUnit)
 
+    # TODO farms should be multiple contiguous plots, each plot is one acre.
     # TODO start with prebuilt farms with existing grain stocks, not giving grain to new farms.
     def giveGrain(self, unit):
         unit.addStock(d.GRAIN_INDEX, 100000)
@@ -198,7 +198,6 @@ class Builder(object):
 
     # TODO boss or bank should front capital (much less than 1 million, too).
     def newBusiness(self, boss, busiName=None, capital=1000000):
-
         newBus = None
 
         if busiName is None:
@@ -242,31 +241,23 @@ class Character(p.People):
         self.model.clock.runDay()
 
 
-
-
-
-
-
 class ProductionAI(object):
-
     def __init__(self, model):
         self.model = model
 
     def setProduction(self, business):
-
         for job in business.getCraftingJobs():
             jobUnit = job.getUnit()
             demand  = jobUnit.getTotalDemand()
 
             for i in range(len(demand)):
-
                 if (jobUnit.can_make[i] and demand[i] > 0):
                     
-                    #crafted
+                    # crafted
                     if d.is_crafted(i):
                         self.setCraftOrder(business, job, demand[i], i)
 
-                    #planted
+                    # planted
                     elif d.is_planted(i):
                         self.setPlantOrder(business, job, i)
                         self.setHarvestOrder(business, job, i)
@@ -285,10 +276,10 @@ class ProductionAI(object):
                 needed = component[1] * demand
                 transport.setAmount(needed)
             else:
-                #build unit?
+                # build unit?
                 pass
 
-        #they just flood the market if demand drops, which should raise demand. Nice and simple.
+        # they just flood the market if demand drops, which should raise demand. Nice and simple.
         if order.getAmount() < demand:
             order.setAmount(demand)
             transfer.setAmount(sellDemand)
@@ -303,7 +294,7 @@ class ProductionAI(object):
         ratio = jobUnit.incubator.getRatio(i)
         amount = avgDemand / ratio
 
-        #get components- does nothing if none.
+        # get components- does nothing if none.
         for component in d.getComponents(i):
             transport = business.transportOrderManager(jobUnit, component[0])
 
@@ -311,7 +302,7 @@ class ProductionAI(object):
                 needed = component[1] * amount
                 transport.setAmount(needed)
             else:
-                #build unit?
+                # build unit?
                 pass
 
         if order.getAmount() < (amount * grow_days):
@@ -322,10 +313,7 @@ class ProductionAI(object):
         order = business.harvestOrderManager(job, i)
 
 
-
-
 class JobPoster(object):
-
     def __init__(self, model):
         self.model = model
 
@@ -342,7 +330,7 @@ class JobPoster(object):
             tech            = job.unit.getTech(materialIndex)
 
             if d.is_planted(materialIndex):
-                #divide by length of planting season, not grow_days- how?
+                # divide by length of planting season, not grow_days- how?
                 grow_days = job.unit.incubator.getGrowDays(materialIndex)
                 workers = math.ceil(amount / (tech * grow_days))
 
@@ -355,14 +343,11 @@ class JobPoster(object):
         job.setSlots(newSlots if newSlots > 0 else 0)
 
 
-
-
 class Hirer(object):
-
     def __init__(self, model):
         self.model = model
 
-    #later, be more selective
+    # later, be more selective
     def jobApplication(self, nominee, job):
         isHired = self.hire(nominee, job)
         return isHired
@@ -382,7 +367,7 @@ class Hirer(object):
                 business.m_employees.append(hiree)
                 business.incrementHired(job.salary)
 
-        #thoughts
+        # thoughts
         if isHired:
             hiree.think("I got hired by " + business.name + " as a " + job.jobType + ". I'll be working at " + job.unit.name + ".")
         else:
@@ -391,13 +376,8 @@ class Hirer(object):
         return isHired
 
 
-
-
-
-
-#never used- no one is ever fired and that's okay.
+# never used- no one is ever fired and that's okay.
 class Firer(object):
-
     def __init__(self, model):
         self.model = model
 
@@ -429,15 +409,11 @@ class Firer(object):
         return isFired
 
 
-
-
 class SalaryPayer(object):
-
     def __init__(self, model):
         self.model = model
 
     def paySalaries(self):
-
         for unit in d.getUnit():
             laborCost = 0
 
@@ -446,7 +422,7 @@ class SalaryPayer(object):
                 totalEmployees = 0
                 allWell = True
 
-                #calculate
+                # calculate
                 for employee in job.employees:
                     # empBusiness = employee.getJob().getUnit().getBusiness()
                     salary = employee.getSalary()
@@ -457,7 +433,7 @@ class SalaryPayer(object):
                     # else:
                     #     allWell = False
 
-                #validate and pay
+                # validate and pay
                 if job.business.canAfford(totalSalary):
                     job.business.pay(totalSalary)
 
@@ -468,7 +444,7 @@ class SalaryPayer(object):
                 else:
                     allWell = False
 
-                #unit needs totalSalary to calculate labor costs- if not paid, no cost, right?
+                # unit needs totalSalary to calculate labor costs- if not paid, no cost, right?
                 if allWell == False:
                     totalSalary = 0
 
