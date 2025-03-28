@@ -42,15 +42,15 @@ class Unit(object):
         self.stock      = [0 for material in stockLength]
         self.output     = [0 for material in stockLength]
         self.tech       = [1 for material in stockLength]
-        #current prices
+        # current prices
         self.price      = [0 for material in stockLength]
         self.purchases  = [0 for material in stockLength]
-        #yesterday's number of sales for each item
+        # yesterday's number of sales for each item
         self.sales      = [0 for material in stockLength]
         self.failSales  = [0 for material in stockLength]
         self.transports = [0 for material in stockLength]
         self.failTransports = [0 for material in stockLength]
-        #Direct Materials Cost of a SINGLE instance of each product
+        # Direct Materials Cost of a SINGLE instance of each product
         self.DMC        = [0 for material in stockLength]
         # self.orders     = [0 for material in stockLength]
         self.crafted    = [0 for material in stockLength]
@@ -98,9 +98,9 @@ class Unit(object):
 
         cost = sum(self.price[i] * amounts[i] for i in range(len(self.output)))
 
-        #verify
+        # verify
         if who.canAfford(cost):
-            #sale
+            # sale
             who.addCapital(-cost)
             self.business.addCash(cost)
             
@@ -128,7 +128,7 @@ class Unit(object):
         # K is a constant weight- adjust if needed. At .5 one period is the half life.
         K = .5
         
-        #natural price
+        # natural price
         if d.getMaterials()[i] in d.planted:
             # 2 days, tech same for planting and harvesting
             ratio = self.incubator.ratios[d.getMaterials()[i]]
@@ -563,7 +563,7 @@ class House(Unit):
 # the ai don't need warehouses, players probably do.
 class Warehouse(Unit):
     unitType = "Warehouse"
-    zoningType = "b"
+    zoningType = "f"
     character = "W"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
