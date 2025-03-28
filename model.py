@@ -44,7 +44,7 @@ class Model(object):
         ourGen.makeChurches(Jonestown)
         # TODO people should be assigned to nearest church of their religion (pyth)
         ourGen.assignChurches()
-        self.gui            = gui.gui(self.char)
+        self.gui = gui.gui(self.char)
 
     def out(self, text):
         self.gui.out(text)

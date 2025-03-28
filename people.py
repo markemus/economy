@@ -32,7 +32,7 @@ class People:
         self.firstname = firstname
         self.lastname = lastname
         self.gender = theirGender
-        # self.age = theirAge
+        self.age = 0
         self.birthday = self.model.calendar.date()
         self.locality = theirHometown
         self.home = theirHome
@@ -90,7 +90,7 @@ class People:
     def sleepHandler(self):
         self.think("My bed is so cozy.")
         self.update_my_profile()
-        self.spouseConversations()
+        self.familyConversations()
         # TODO should eat 3x per day, 1 bread each time (or substitute good)
         # TODO eating, drinking should give MU
         self.eat()
@@ -143,11 +143,6 @@ class People:
         homeAddress = str(self.getHome().getLocation())
         town = self.getLocality().getName()
         personsJob = self.getJob()
-
-        if gender == "man":
-            genderPronoun = "He"
-        else:
-            genderPronoun = "She"
 
         if self.job != None:
             jobDescription = personsJob.getJobType()
@@ -247,7 +242,7 @@ class People:
         family = self.peopleManager(self).getFamilyList()
 
         if len(family) > 0:
-            conversee = family[random.randrange(len(family))]
+            conversee = random.choice(family)
             Convo.beginConversation(self, conversee)
         else:
             self.think("I'm all alone in the world.")

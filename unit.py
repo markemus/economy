@@ -1,12 +1,11 @@
 import database as d
-import jobs as j
 import incubator as inc
 import bigData as big
 import staff
 
 import copy
 import math
-# TODO add units- gym, pub, bank.
+# TODO add units- gym, pub, bank, store
 # TODO add advertising with % chance to see for visitors.
 # TODO slots- maximum number of hires.
 # TODO startup costs.
@@ -124,8 +123,8 @@ class Unit(object):
 
     # calculate the price of a single material, without changing it in place- i = materialIndex
     def priceCalc(self, i):
-        # natural rate of profit- 4% return on capital
-        nrp = 1.04
+        # natural rate of profit- 5% return on capital
+        nrp = 1.05
         # K is a constant weight- adjust if needed. At .5 one period is the half life.
         K = .5
         

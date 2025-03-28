@@ -153,6 +153,7 @@ class Calendar(object):
     def yearChange(self):
         self.year += 1
 
+    # TODO date should be machine readable.
     def date(self):
         date = self.state + " " + str(self.dayOfMonth) + ", " + str(self.year)
         return date

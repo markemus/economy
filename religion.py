@@ -1,6 +1,5 @@
 import database as d
 import clock
-from transitions import Machine
 from transitions import State
 
 
@@ -35,12 +34,12 @@ class Religion(object):
 
 # TODO add more songs and church names.
 class Catholicism(Religion):
-    months = [State(name='January', on_enter=['yearChange']), 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    months = [State(name="January", on_enter=["yearChange"]), "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     year = 1000
 
     def __init__(self):
-        Religion.__init__(self, "Catholic", Catholicism.months, Catholicism.daysPerMonth, 'January', Catholicism.year)
+        Religion.__init__(self, "Catholic", Catholicism.months, Catholicism.daysPerMonth, "January", Catholicism.year)
         self.songs = [
         "In Paradisum (Fauré)",
         "Crux Fidelis (Saint Venantius Fortunatus)",
@@ -54,21 +53,23 @@ class Catholicism(Religion):
 
 
 class Protestantism(Religion):
-    months = [State(name='January', on_enter=['yearChange']),'February','March','April','May','June','July','August','September','October','November','December']
+    months = [State(name="January", on_enter=["yearChange"]), "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     year = 1000
 
     def __init__(self):
-        Religion.__init__(self, "Catholic", Protestantism.months, Protestantism.daysPerMonth, 'January', Protestantism.year)
+        Religion.__init__(self, "Catholic", Protestantism.months, Protestantism.daysPerMonth, "January", Protestantism.year)
         self.songs = [
-        'Babylon is Fallen (Sacred Harp 117)',
-        'Antioch (Sacred Harp 277)',
-        'Idumea (Sacred Harp 47b)',
-        'Hallelujah (Sacred Harp 146)']
+        "Babylon is Fallen (Sacred Harp 117)",
+        "Antioch (Sacred Harp 277)",
+        "Idumea (Sacred Harp 47b)",
+        "Hallelujah (Sacred Harp 146)",
+        "Soar Away (Sacred Harp 455)",
+        "I'm Going Home (Sacred Harp 282)",
+        "Cleansing Fountain (Sacred Harp 505)",
+        "Nearer My God to Thee (Sacred Harp 488b)"]
         self.churchNames = [
         "Holy Spirit Ministry",
         "Emmanuel House of Prayer",
         "Lloyd Street Church",
         "St Mark's Lutheran Church"]
-
-# TODO add Judaism. What about the calendar? Technically possible but massive overkill to implement the whole Jewish calendar.

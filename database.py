@@ -13,6 +13,7 @@ LUMBER_INDEX  = 6
 CHAIR_INDEX = 7
 TABLE_INDEX = 8 
 
+# TODO-DECIDE reconcile with zoning?
 #profile indices
 MANU_INDEX = 0
 STORE_INDEX = 1
