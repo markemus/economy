@@ -1,28 +1,29 @@
+import random
+import math
+
+import numpy as np
+
 import database as d
 import gameMap as g
 import business as bu
 import religion as rel
 import unit as u
 import people as p
-import random
-import math
 
 
 class generator(object):
     def __init__(self, model):
         self.model = model
 
+    # TODO-DONE houses should be generated in zoned areas only
     def generateHouses(self, h_quantity, locality):
-        # locations
-        x = -2
-        y = 0
-        length = locality.getWidth()
+        # get locations
         houseList = []
+        zmap = locality.getZoningMap()
+        house_tiles = np.argwhere(zmap=="h")
+        np.random.shuffle(house_tiles)
 
-        for count in range(h_quantity):
-            x = (x + 2) % length
-            y = 2 * ((count*2) // length)
-            location = (x,y)
+        for location in house_tiles[:h_quantity]:
             gennedHouse = u.House(locality, location)
             locality.claim_node(location, gennedHouse)
             houseList.append(gennedHouse)
@@ -31,10 +32,11 @@ class generator(object):
 
     def generateLocality(self, l_location):
         # locality size, name static for now
-        # TODO 100x100
+        # TODO-DONE 100x100
         gennedLocality = g.Locality(self.model, l_location, 100, 100, "Jonestown")
         return gennedLocality
 
+    # TODO not everyone should get their own house. Make 50% single living with parents (varying size families).
     def generatePeople(self, p_quantity, locality, houseList, religionList):
         lastNameList = d.getLastNameList()
 
@@ -71,6 +73,7 @@ class generator(object):
             gennedPerson.home.addTenant(gennedPerson)
 
     # TODO add holidays.
+    # TODO protestant churches should not be a single business, catholic should.
     def generateReligions(self, locality):
         Catholic = rel.Catholicism()
         Protestant = rel.Protestantism()
@@ -86,7 +89,6 @@ class generator(object):
 
     # TODO more chaotic map generation. How to organize houses and store locations? Churches should
     #  be scattered around. Stores should be near owner's house? Start with neighbors, not friends.
-
     # people must be even int because marriages
     # we only generate a single locality- don't ask
     def generateWorld(self, p_quantity, w_width, w_height):
@@ -176,10 +178,11 @@ class generator(object):
             if boss.capital < 1000000:
                 boss.capital += 1000000
 
-    # TODO there are currently far too many churches. They should be spaced better too instead of clustering in NW.
+    # TODO-DONE there are currently far too many churches. They should be spaced better too instead of clustering in NW.
+    # TODO-DONE churches should use business zones.
     def makeChurches(self, locality):
         peopleList = d.getPeople()
-        perChurch = 30
+        perChurch = 90
         churchNum = math.floor(len(peopleList) / perChurch)
         religions = d.getReligions()
         religionNum = len(d.getReligions())
@@ -193,16 +196,19 @@ class generator(object):
             
             for i in range(churchPer):
                 churchName = random.choice(religion.churchNames)
-                location = locality.find_property()
+                location = locality.find_property(zone="b")
                 newChurch = u.Church(churchName, locality, location, business, religion)
                 locality.claim_node(location, newChurch)
 
+    # TODO people should shop around for churches just like businesses. But they should settle on one?
+    # TODO people should be assigned to nearby churches.
     def assignChurches(self):
         peopleList = d.getPeople()
 
         for person in peopleList:
             religion = person.getReligion()
             business = religion.getLocalBusiness(person.getLocality())
+            # Churches will have more or fewer members by chance.
             church = random.choice(business.getUnits())
             person.unitManager(church)
             person.newChurch(church)

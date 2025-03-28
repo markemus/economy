@@ -3,6 +3,7 @@ import numpy as np
 
 import database as d
 
+# TODO add aggregate data (surveys by businesses and city government)
 # TODO-DECIDE clear data older than 30 days?
 # bigdata makes SHALLOW COPIES of all lists passed to it.
 class bigdata(object):

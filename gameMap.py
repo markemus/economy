@@ -56,7 +56,7 @@ class Locality(object):
         self.location = location
         # Should be dtype object so we can store buildings. We'll use that for both.
         self.local_map = np.array([[None for x in range(width)] for y in range(height)])
-        self.zoning_map = np.array([["x" for x in range(width)] for y in range(height)])
+        self.zoning_map = np.array([["_" for x in range(width)] for y in range(height)])
         self.make_zoning()
         d.addLocality(self)
 
@@ -75,7 +75,7 @@ class Locality(object):
         return self.zoning_map
 
     def make_zoning(self):
-        """Build the zoning_map."""
+        """Build the zoning_map. Optimized for locality(100,100)."""
         zmap = self.getZoningMap()
         center = (zmap.shape[0] // 2, zmap.shape[1] // 2)
         # Fields- surrounding city
@@ -84,17 +84,16 @@ class Locality(object):
         outskirts = [[center[0]-center[0]//2, center[0]+center[0]//2], [center[1]-center[1]//2, center[1]+center[1]//2]]
         # Housing- surrounding city center.
         zmap[outskirts[0][0]: outskirts[0][1], outskirts[1][0]: outskirts[1][1]] = "h"
-        # TODO no business roads on edges
+        # TODO-DONE no business roads on edges
         # Businesses on roads through housing
-        for r in range(outskirts[0][0], outskirts[0][1], 25):
+        for r in range(outskirts[0][0], outskirts[0][1], 25)[1:]:
             zmap[outskirts[1][0]:outskirts[1][1], r] = "b"
-        for r in range(outskirts[1][0], outskirts[1][1], 25):
+        for r in range(outskirts[1][0], outskirts[1][1], 25)[1:]:
             zmap[r, outskirts[0][0]:outskirts[0][1]] = "b"
         # City center- businesses
         zmap[center[0]-3: center[0]+3, center[1]-3: center[1]+3] = "b"
         # City hall- central spot
         zmap[center[0], center[1]] = "c"
-
 
     def claim_node(self, xy, entity):
         claimed = False
@@ -103,6 +102,7 @@ class Locality(object):
 
         if self.local_map[x][y] is None:
             self.local_map[x][y] = entity
+            self.zoning_map[x, y] = self.zoning_map[x, y].upper()
             claimed = True
 
         return claimed
@@ -116,27 +116,35 @@ class Locality(object):
         return is_empty
 
     # TODO better find_property algorithm. Implement zoning.
+    def find_property(self, zone):
+        """Selects a random plot for use."""
+        zone_map = self.getZoningMap()
+        available_plots = np.argwhere(zone_map==zone)
+        np.random.shuffle(available_plots)
+        location = available_plots[0]
+
+        return location
     # algorithm checks indices reflected around the diagonal, starting from upper left
     # I feel like this algorithm is confusing, but it's the best I can do right now
-    def find_property(self):
-        xy = None
-
-        for i in range(len(self.local_map)):
-            j = 0
-            
-            if xy is not None:
-                break
-
-            while i >= j:
-                if self.check_node(self.local_map[i][j]):
-                    xy = (i, j)
-                    break
-                if self.check_node(self.local_map[j][i]):
-                    xy = (j, i)
-                    break
-                j += 1
-
-        return xy
+    # def find_property(self):
+    #     xy = None
+    #
+    #     for i in range(len(self.local_map)):
+    #         j = 0
+    #
+    #         if xy is not None:
+    #             break
+    #
+    #         while i >= j:
+    #             if self.check_node(self.local_map[i][j]):
+    #                 xy = (i, j)
+    #                 break
+    #             if self.check_node(self.local_map[j][i]):
+    #                 xy = (j, i)
+    #                 break
+    #             j += 1
+    #
+    #     return xy
 
     def printMap(self):
         print(self.name)
@@ -153,6 +161,7 @@ class Locality(object):
             
             print(rowAppearance)
 
+    # TODO-DECIDE player's properties should be bolded?
     def get_print_map(self):
         print_map = ""
 
@@ -161,7 +170,7 @@ class Locality(object):
             
             for i in row:
                 if (i == None):
-                    rowAppearance = rowAppearance + "X"
+                    rowAppearance = rowAppearance + "_"
                 else:
                     rowAppearance = rowAppearance + i.character
             

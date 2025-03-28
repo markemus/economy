@@ -40,6 +40,7 @@ class Clock(object):
         if self.model.week.state == 'Friday':
             self.model.salaryPayer.paySalaries()
 
+        # TODO going to church should make people happy
         if self.model.week.state == 'Sunday':
             for person in peopleList:
                 person.churchHandler()
@@ -47,7 +48,7 @@ class Clock(object):
                 for business in religion.getBusinesses():
                     for priest in business.getPriestJobs():
                         priest.service()
-        #workday
+        # workday
         if self.model.week.state != 'Sunday':
             for business in businessList:
                 business.workHandler()
