@@ -21,6 +21,7 @@ def all_units():
 # units use Business's money
 class Unit(object):
     unitType = "genericUnit"
+    zoningType = None
     character = "X"
     locality = None     # should be a locality
     location = ()       # (x,y), being indices on the localMap.
@@ -428,6 +429,7 @@ class Manufactury(Unit):
 
 class Farm(Manufactury):
     unitType = "Farm"
+    zoningType = "f"
     character = "F"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
@@ -445,6 +447,7 @@ class Farm(Manufactury):
 #  20-30 kg flour per hour- ~440 lb per 8 hours
 class Mill(Manufactury):
     unitType = "Mill"
+    zoningType = "b"
     character = "M"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
@@ -462,6 +465,7 @@ class Mill(Manufactury):
 
 class Brewery(Manufactury):
     unitType = "Brewery"
+    zoningType = "b"
     character = "b"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
@@ -480,6 +484,7 @@ class Brewery(Manufactury):
 # TODO-DONE fixed DMC collection in bigdata.
 class Bakery(Manufactury):
     unitType = "Bakery"
+    zoningType = "b"
     character = "B"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
@@ -499,6 +504,7 @@ class Bakery(Manufactury):
 
 class Lumberyard(Manufactury):
     unitType = "Lumberyard"
+    zoningType = "f"
     character = "L"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
@@ -516,6 +522,7 @@ class Lumberyard(Manufactury):
 
 class Joinery(Manufactury):
     unitType = "Joinery"
+    zoningType = "b"
     character = "J"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
@@ -537,6 +544,7 @@ class Joinery(Manufactury):
 
 class House(Unit):
     unitType = "Home"
+    zoningType = "h"
     character = "H"
 
     def __init__(self, unitLocality, unitLocationTuple, business=None, unitName="House"):
@@ -557,6 +565,7 @@ class House(Unit):
 # the ai don't need warehouses, players probably do.
 class Warehouse(Unit):
     unitType = "Warehouse"
+    zoningType = "b"
     character = "W"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
@@ -569,6 +578,7 @@ class Warehouse(Unit):
 
 class Church(Unit):
     unitType = "Church"
+    zoningType = "b"
     character = "C"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business, religion):

@@ -22,6 +22,7 @@ class Model(object):
         ourGen              = generator.generator(self)
         self.ourWorld       = ourGen.generateWorld(1000, 10, 10)
         Jonestown           = d.getLocality()[0]
+
         # char
         address             = Jonestown.find_property(zone="h")
         yourHome            = u.House(Jonestown, address)
@@ -31,12 +32,18 @@ class Model(object):
         yourHome.addTenant(self.char)
         spouse              = p.People(self, "Susan", "Spinster", 1, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(spouse)
+        self.char.setSpouse(spouse)
+        spouse.setSpouse(self.char)
         self.char.addCapital(10000)
+
         # makes
-        ourGen.makeSpouses()
+        # TODO-DONE profile generation from makeSpouses should be moved to generatePeople()
+        # ourGen.makeSpouses()
+        # TODO-DECIDE remove makeFriends and have it happen from interactions in-game?
         ourGen.makeFriends()
         ourGen.makeBosses()
         ourGen.makeChurches(Jonestown)
+        # TODO people should be assigned to nearest church of their religion (pyth)
         ourGen.assignChurches()
         self.gui            = gui.gui(self.char)
 

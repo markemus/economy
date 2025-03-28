@@ -59,8 +59,8 @@ class PersonProfile(object):
 
     #if you don't care how they're related
     def getFamilyList(self):
-        siblings = [sibling for sibling in self.siblings[:-1]]
-        children = [child for child in self.children[:-1]]
+        siblings = [sibling for sibling in self.siblings[:-1]] if self.siblings[0] is not None else []
+        children = [child for child in self.children[:-1]] if self.children[0] is not None else []
         family = [self.father[0], self.mother[0], self.spouse[0]] + siblings + children
         family = [mem for mem in family if mem is not None]
         return family

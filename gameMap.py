@@ -115,36 +115,18 @@ class Locality(object):
         
         return is_empty
 
-    # TODO better find_property algorithm. Implement zoning.
+    # TODO-DONE better find_property algorithm. Implement zoning.
     def find_property(self, zone):
         """Selects a random plot for use."""
         zone_map = self.getZoningMap()
         available_plots = np.argwhere(zone_map==zone)
         np.random.shuffle(available_plots)
-        location = available_plots[0]
+        if len(available_plots):
+            location = available_plots[0]
+        else:
+            location = None
 
         return location
-    # algorithm checks indices reflected around the diagonal, starting from upper left
-    # I feel like this algorithm is confusing, but it's the best I can do right now
-    # def find_property(self):
-    #     xy = None
-    #
-    #     for i in range(len(self.local_map)):
-    #         j = 0
-    #
-    #         if xy is not None:
-    #             break
-    #
-    #         while i >= j:
-    #             if self.check_node(self.local_map[i][j]):
-    #                 xy = (i, j)
-    #                 break
-    #             if self.check_node(self.local_map[j][i]):
-    #                 xy = (j, i)
-    #                 break
-    #             j += 1
-    #
-    #     return xy
 
     def printMap(self):
         print(self.name)

@@ -36,41 +36,87 @@ class generator(object):
         gennedLocality = g.Locality(self.model, l_location, 100, 100, "Jonestown")
         return gennedLocality
 
-    # TODO not everyone should get their own house. Make 50% single living with parents (varying size families).
-    def generatePeople(self, p_quantity, locality, houseList, religionList):
+    # TODO-DONE not everyone should get their own house. Make 50% single living with parents (varying size families).
+    def generatePeople(self, p_quantity, locality, religionList):
         lastNameList = d.getLastNameList()
+        # house_list = []
 
-        for count in range(p_quantity):
-            # gender
-            if (count % 2 == 0):
-                gender = 0
-            else:
-                gender = 1
+        # Create families
+        while p_quantity > len(d.peopleList):
+            family_name = random.choice(lastNameList)
+            family_religion = random.choice(religionList)
 
-            # name
-            firstNameList = d.getFirstNameList(gender)
+            n_children = round(np.random.default_rng().normal(loc=3, scale=3))
+            n_children = min(p_quantity - len(d.peopleList) - 2, n_children)
+            n_children = max(0, n_children)
 
-            i = random.randrange(len(firstNameList))
-            firstname = firstNameList[i]
+            home_location = locality.find_property(zone="h")
+            family_home = u.House(locality, home_location)
+            locality.claim_node(home_location, family_home)
+            # house_list.append(family_home)
 
-            j = random.randrange(len(lastNameList))
-            lastname = lastNameList[j]
+            # Parents
+            father_name = random.choice(d.getFirstNameList(gender=0))
+            father = p.People(self.model, father_name, family_name, 0, locality, family_home, family_religion)
+            family_home.addTenant(father)
+            father.addCapital(100)
 
-            # TODO unmarried people should start in their parents' home (need parents)
-            # home
-            k = (count // 2)
-            home = houseList[k]
+            mother_name = random.choice(d.getFirstNameList(gender=1))
+            mother = p.People(self.model, mother_name, family_name, 1, locality, family_home, family_religion)
+            family_home.addTenant(mother)
+            mother.addCapital(100)
 
-            # religion
-            if count < (p_quantity/2):
-                religion = religionList[0]
-            else:
-                religion = religionList[1]
+            mother.setSpouse(father)
+            father.setSpouse(mother)
 
-            # gen
-            gennedPerson = p.People(self.model, firstname, lastname, gender, locality, home, religion)
-            gennedPerson.addCapital(100)
-            gennedPerson.home.addTenant(gennedPerson)
+            # Children
+            # TODO-DONE family profiles
+            # TODO birthdays and ages
+            child_list = []
+            for i in range(n_children):
+                gender = random.choice([0, 1])
+                child_name = random.choice(d.getFirstNameList(gender=gender))
+                child = p.People(self.model, child_name, family_name, gender, locality, family_home, family_religion)
+                family_home.addTenant(child)
+                child.addCapital(100)
+                child_list.append(child)
+
+            # Profiles
+            # Create profiles and update opinion
+            father.peopleManager(mother).updateOpinion(10)
+            mother.peopleManager(father).updateOpinion(10)
+
+            # Update basic info
+            father.peopleManager(mother).updateBirthday(mother.birthday)
+            father.peopleManager(mother).updateHouse(mother.getHome(), self.model.getDayNum())
+            father.peopleManager(father).updateFamily(spouse=(father.peopleManager(mother), self.model.getDayNum()))
+            father.peopleManager(mother).updateFamily(spouse=(father.peopleManager(father), self.model.getDayNum()))
+            father.peopleManager(mother).updateMuList(mother.getMuList(), mother.locality.getDayNum())
+
+            mother.peopleManager(father).updateBirthday(father.birthday)
+            mother.peopleManager(father).updateFamily(spouse=(mother.peopleManager(mother), self.model.getDayNum()))
+            mother.peopleManager(mother).updateFamily(spouse=(mother.peopleManager(father), self.model.getDayNum()))
+            mother.peopleManager(father).updateHouse(father.getHome(), self.model.getDayNum())
+            mother.peopleManager(father).updateMuList(father.getMuList(), father.locality.getDayNum())
+
+            for child in child_list:
+                other_children = child_list.copy()
+                other_children.remove(child)
+                # TODO-DONE siblings and parents- needs refactoring. This process needs to be functionalized.
+                child.peopleManager(father).updateFamily(spouse=(child.peopleManager(mother), self.model.getDayNum()), children=(*[child.peopleManager(sibling) for sibling in other_children], self.model.getDayNum()))
+                child.peopleManager(mother).updateFamily(spouse=(child.peopleManager(father), self.model.getDayNum()), children=(*[child.peopleManager(sibling) for sibling in other_children], self.model.getDayNum()))
+                child.peopleManager(child).updateFamily(father=(child.peopleManager(father), self.model.getDayNum()), mother=(child.peopleManager(mother), self.model.getDayNum()), siblings=(*[child.peopleManager(sibling) for sibling in other_children], self.model.getDayNum()))
+
+                child.peopleManager(father).updateBirthday(father.birthday)
+                child.peopleManager(mother).updateBirthday(mother.birthday)
+                child.peopleManager(father).updateHouse(father.getHome(), self.model.getDayNum())
+                child.peopleManager(mother).updateHouse(mother.getHome(), self.model.getDayNum())
+
+                child.peopleManager(father).updateMuList(father.getMuList(), mother.locality.getDayNum())
+                child.peopleManager(mother).updateMuList(mother.getMuList(), mother.locality.getDayNum())
+
+                # print(child.peopleManager(father).getFamilyList())
+                # print([x.name for x in child.peopleManager(child).getFamilyList()])
 
     # TODO add holidays.
     # TODO protestant churches should not be a single business, catholic should.
@@ -92,7 +138,7 @@ class generator(object):
     # people must be even int because marriages
     # we only generate a single locality- don't ask
     def generateWorld(self, p_quantity, w_width, w_height):
-        peopleList = []
+        # peopleList = []
 
         # need even number of people for marriages
         if p_quantity % 2 != 0:
@@ -106,53 +152,53 @@ class generator(object):
         l_location = (random.randrange(w_width), random.randrange(w_height))
         gennedLocality = self.generateLocality(l_location)
 
-        # TODO generate from center, not corner. Houses should cluster together with open areas for markets.
+        # TODO-DONE generate from center, not corner. Houses should cluster together with open areas for markets.
         # TODO farms on the outskirts. Zoning?
         # houses, people, store
-        h_quantity = p_quantity // 2
-        houseList = self.generateHouses(h_quantity, gennedLocality)
+        # h_quantity = p_quantity // 2
+        # houseList = self.generateHouses(h_quantity, gennedLocality)
         religions = self.generateReligions(gennedLocality)
-        self.generatePeople(p_quantity, gennedLocality, houseList, religions)
+        self.generatePeople(p_quantity, gennedLocality, religions)
 
         return gennedWorld
 
     # makes are called by model after worldgen completes
     # TODO-DONE Spouses should have 10 opinion of one another.
-    def makeSpouses(self):
-        peopleList = d.getPeople()
-        
-        i = 0
-
-        for index in range((len(peopleList) // 2)):
-            wife = peopleList[i]
-            husband = peopleList[i + 1]
-            wife.setSpouse(husband)
-            husband.setSpouse(wife)
-
-            # Create profiles and update opinion
-            husband.peopleManager(wife).updateOpinion(10)
-            wife.peopleManager(husband).updateOpinion(10)
-
-            # Share home
-            # TODO people should start in their parents home and move in together to a new home when married.
-            wife.home.removeTenant(wife)
-            wife.setHome(husband.getHome())
-            wife.home.addTenant(wife)
-
-            # Update basic info
-            husband.peopleManager(wife).updateBirthday(wife.birthday)
-            husband.peopleManager(wife).updateHouse(wife.getHome(), self.model.getDayNum())
-            husband.peopleManager(husband).updateFamily(spouse=(husband.peopleManager(wife), self.model.getDayNum()))
-            husband.peopleManager(wife).updateFamily(spouse=(husband.peopleManager(husband), self.model.getDayNum()))
-            husband.peopleManager(wife).updateMuList(wife.getMuList(), wife.locality.getDayNum())
-
-            wife.peopleManager(husband).updateBirthday(husband.birthday)
-            wife.peopleManager(husband).updateFamily(spouse=(wife.peopleManager(wife), self.model.getDayNum()))
-            wife.peopleManager(wife).updateFamily(spouse=(wife.peopleManager(husband), self.model.getDayNum()))
-            wife.peopleManager(husband).updateHouse(husband.getHome(), self.model.getDayNum())
-            wife.peopleManager(husband).updateMuList(husband.getMuList(), husband.locality.getDayNum())
-
-            i += 2
+    # def makeSpouses(self):
+    #     peopleList = d.getPeople()
+    #
+    #     i = 0
+    #
+    #     for index in range((len(peopleList) // 2)):
+    #         wife = peopleList[i]
+    #         husband = peopleList[i + 1]
+    #         wife.setSpouse(husband)
+    #         husband.setSpouse(wife)
+    #
+    #         # Create profiles and update opinion
+    #         husband.peopleManager(wife).updateOpinion(10)
+    #         wife.peopleManager(husband).updateOpinion(10)
+    #
+    #         # Share home
+    #         # TODO people should start in their parents home and move in together to a new home when married.
+    #         wife.home.removeTenant(wife)
+    #         wife.setHome(husband.getHome())
+    #         wife.home.addTenant(wife)
+    #
+    #         # Update basic info
+    #         husband.peopleManager(wife).updateBirthday(wife.birthday)
+    #         husband.peopleManager(wife).updateHouse(wife.getHome(), self.model.getDayNum())
+    #         husband.peopleManager(husband).updateFamily(spouse=(husband.peopleManager(wife), self.model.getDayNum()))
+    #         husband.peopleManager(wife).updateFamily(spouse=(husband.peopleManager(husband), self.model.getDayNum()))
+    #         husband.peopleManager(wife).updateMuList(wife.getMuList(), wife.locality.getDayNum())
+    #
+    #         wife.peopleManager(husband).updateBirthday(husband.birthday)
+    #         wife.peopleManager(husband).updateFamily(spouse=(wife.peopleManager(wife), self.model.getDayNum()))
+    #         wife.peopleManager(wife).updateFamily(spouse=(wife.peopleManager(husband), self.model.getDayNum()))
+    #         wife.peopleManager(husband).updateHouse(husband.getHome(), self.model.getDayNum())
+    #         wife.peopleManager(husband).updateMuList(husband.getMuList(), husband.locality.getDayNum())
+    #
+    #         i += 2
 
     # TODO-DONE friends should start out with 5 opinion of each other.
     def makeFriends(self):

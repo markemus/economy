@@ -151,25 +151,26 @@ class Builder(object):
             transferOrder.setAmount(10)
         
     def buildIt(self, business, locality, toBuild):
-        unitLocation = locality.find_property()
-        existingUnits = business.getUnits()
-        nonesuch = True
+        unitLocation = locality.find_property(zone=toBuild.zoningType)
+        if unitLocation is not None:
+            existingUnits = business.getUnits()
+            nonesuch = True
 
-        for unit in existingUnits:
-            unitType = unit.getUnitType()
+            for unit in existingUnits:
+                unitType = unit.getUnitType()
 
-            if (unitType == toBuild.unitType):
-                nonesuch = False
+                if (unitType == toBuild.unitType):
+                    nonesuch = False
 
-        if nonesuch:
-            unitName = business.owners[0].lastname + " " + toBuild.unitType
-            newUnit = toBuild(unitName, locality, unitLocation, business)
-            locality.claim_node(unitLocation, newUnit)
-            self.initial_demand(newUnit)
-            new_job = self.jobMaker(newUnit)
-            self.craftOrderMaker(new_job)
-            if newUnit.unitType == "Farm":
-                self.giveGrain(newUnit)
+            if nonesuch:
+                unitName = business.owners[0].lastname + " " + toBuild.unitType
+                newUnit = toBuild(unitName, locality, unitLocation, business)
+                locality.claim_node(unitLocation, newUnit)
+                self.initial_demand(newUnit)
+                new_job = self.jobMaker(newUnit)
+                self.craftOrderMaker(new_job)
+                if newUnit.unitType == "Farm":
+                    self.giveGrain(newUnit)
 
     # TODO start with prebuilt farms with existing grain stocks, not giving grain to new farms.
     def giveGrain(self, unit):
