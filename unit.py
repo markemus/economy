@@ -9,6 +9,7 @@ import math
 # TODO add advertising with % chance to see for visitors.
 # TODO slots- maximum number of hires.
 # TODO startup costs.
+# TODO allow player to set prices.
 
 
 # Not all units, but all units you can create (no house, church)

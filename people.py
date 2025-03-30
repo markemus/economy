@@ -90,7 +90,7 @@ class People:
     def sleepHandler(self):
         self.think("My bed is so cozy.")
         self.update_my_profile()
-        self.familyConversations()
+        self.spouseConversations()
         # TODO should eat 3x per day, 1 bread each time (or substitute good)
         # TODO eating, drinking should give MU
         self.eat()
@@ -237,7 +237,7 @@ class People:
                 if conversee is not self:
                     Convo.beginConversation(self, conversee)
 
-    # don't use unless you add children
+    # TODO fix this function so we can use it instead of spouseConversation
     def familyConversations(self):
         family = self.peopleManager(self).getFamilyList()
 

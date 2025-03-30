@@ -105,7 +105,20 @@ class Locality(object):
             claimed = True
 
         return claimed
-    
+
+    def claim_nodes_from_topleft(self, xy, xsize, ysize, entity):
+        """Claim a patch of map nodes."""
+        claimed = False
+        x = xy[0]
+        y = xy[1]
+
+        if (self.local_map[x:x+xsize, y:y+ysize] == None).all():
+            self.local_map[x:x+xsize, y:y+ysize] = entity
+            self.zoning_map[x:x+xsize, y:y+ysize] = self.zoning_map[x, y].upper()
+            claimed = True
+
+        return claimed
+
     def check_node(self, node):
         is_empty = False
         
@@ -118,6 +131,18 @@ class Locality(object):
         """Selects a random plot for use."""
         zone_map = self.getZoningMap()
         available_plots = np.argwhere(zone_map==zone)
+        np.random.shuffle(available_plots)
+        if len(available_plots):
+            location = available_plots[0]
+        else:
+            location = None
+
+        return location
+
+    def find_sized_property(self, zone, xsize, ysize):
+        zone_map = self.getZoningMap()
+        # print(np.lib.stride_tricks.sliding_window_view(zone_map==zone, (xsize, ysize)).all(axis=(-2,-1)))
+        available_plots = np.argwhere(np.lib.stride_tricks.sliding_window_view(zone_map==zone, (xsize, ysize)).all(axis=(-2,-1)))
         np.random.shuffle(available_plots)
         if len(available_plots):
             location = available_plots[0]

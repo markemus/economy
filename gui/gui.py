@@ -1097,11 +1097,22 @@ class new_unit(tk.Frame):
         name = self.unit_name.get()
         business = self.controller.get_business()
         locality = business.locality
-        location = locality.find_property()
+        if unit.zoningType == "f":
+            location = locality.find_sized_property(zone=unit.zoningType, xsize=5, ysize=5)
+        else:
+            location = locality.find_property(zone=unit.zoningType)
 
-        new_unit = unit(name, locality, location, business)
-        self.unit_name.set(new_unit)
-        self.root.event_generate("<<refresh>>", when="tail")
+        if location:
+            new_unit = unit(name, locality, location, business)
+
+            if unit.zoningType == "f":
+                locality.claim_nodes_from_topleft(location, xsize=5, ysize=5, entity=new_unit)
+            else:
+                locality.claim_node(location, new_unit)
+    
+            # TODO should go to unit page instead of this debug display.
+            self.unit_name.set(new_unit)
+            self.root.event_generate("<<refresh>>", when="tail")
 
 
 

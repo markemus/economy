@@ -8,6 +8,7 @@ import people as p
 import unit as u
 
 
+# TODO review ai and see if we can improve it.
 # singleton
 class StartupAI(object):
     def __init__(self):
@@ -128,7 +129,7 @@ class Builder(object):
 
         return newJob
 
-    #also makes transfer orders
+    # also makes transfer orders
     def craftOrderMaker(self, job):
         # final commas needed so they're all tuples
         jobProductLink = {"Farmer" : (d.GRAIN_INDEX,),
@@ -150,7 +151,11 @@ class Builder(object):
             transferOrder.setAmount(10)
         
     def buildIt(self, business, locality, toBuild):
-        unitLocation = locality.find_property(zone=toBuild.zoningType)
+        if toBuild.zoningType == "f":
+            unitLocation = locality.find_sized_property(zone=toBuild.zoningType, xsize=5, ysize=5)
+        else:
+            unitLocation = locality.find_property(zone=toBuild.zoningType)
+
         if unitLocation is not None:
             existingUnits = business.getUnits()
             nonesuch = True
@@ -164,7 +169,10 @@ class Builder(object):
             if nonesuch:
                 unitName = business.owners[0].lastname + " " + toBuild.unitType
                 newUnit = toBuild(unitName, locality, unitLocation, business)
-                locality.claim_node(unitLocation, newUnit)
+                if toBuild.zoningType == "f":
+                    locality.claim_nodes_from_topleft(unitLocation, xsize=5, ysize=5, entity=newUnit)
+                else:
+                    locality.claim_node(unitLocation, newUnit)
                 self.initial_demand(newUnit)
                 new_job = self.jobMaker(newUnit)
                 self.craftOrderMaker(new_job)
