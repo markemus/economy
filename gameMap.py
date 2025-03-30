@@ -94,22 +94,31 @@ class Locality(object):
             xspread = random.randint(3, 5)
             yspread = random.randint(3, 5)
             zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
-            zmap[f_centroid[0]-xspread-random.randint(0,3): f_centroid[0]+xspread+random.randint(0,3), f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
-            zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread-random.randint(0,3): f_centroid[1]+yspread+random.randint(0,3)] = "w"
-            zmap[f_centroid[0]-xspread-random.randint(2,5): f_centroid[0]+xspread+random.randint(2,5), f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
-            zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread-random.randint(2,5): f_centroid[1]+yspread+random.randint(2,5)] = "w"
+            zmap[f_centroid[0]-xspread-random.randint(0, 3): f_centroid[0]+xspread+random.randint(0, 3), f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
+            zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread-random.randint(0, 3): f_centroid[1]+yspread+random.randint(0, 3)] = "w"
+            zmap[f_centroid[0]-xspread-random.randint(2, 5): f_centroid[0]+xspread+random.randint(2, 5), f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
+            zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread-random.randint(2, 5): f_centroid[1]+yspread+random.randint(2, 5)] = "w"
 
         # city boundaries
         outskirts = [[center[0]-center[0]//2, center[0]+center[0]//2], [center[1]-center[1]//2, center[1]+center[1]//2]]
         # Housing- surrounding city center.
         zmap[outskirts[0][0]: outskirts[0][1], outskirts[1][0]: outskirts[1][1]] = "h"
-        # Businesses on roads through housing
-        for r in range(outskirts[0][0], outskirts[0][1], 25)[1:]:
-            zmap[outskirts[1][0]:outskirts[1][1], r] = "b"
-        for r in range(outskirts[1][0], outskirts[1][1], 25)[1:]:
-            zmap[r, outskirts[0][0]:outskirts[0][1]] = "b"
+
+        # Business zoning on roads through city.
+        for road in range(random.randint(4, 10)):
+            b_direction = (0, 0)
+            b_location = (random.randint(outskirts[0][0], outskirts[0][1]), random.randint(outskirts[1][0], outskirts[1][1]))
+            while (outskirts[0][0] < b_location[0] < outskirts[0][1]) and (outskirts[1][0] < b_location[1] < outskirts[1][1]):
+                # print(b_location)
+                zmap[b_location] = "b"
+                bmap[b_location] = "b"
+                if not random.randint(0, 5):
+                    b_direction = random.choice([(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)])
+                b_location = (b_location[0] + b_direction[0], b_location[1] + b_direction[1])
+
         # City center- businesses
-        zmap[center[0]-3: center[0]+3, center[1]-3: center[1]+3] = "b"
+        zmap[center[0]-2: center[0]+3, center[1]-2: center[1]+3] = "b"
+        bmap[center[0]-2: center[0]+3, center[1]-2: center[1]+3] = "b"
         # City hall- central spot
         zmap[center[0], center[1]] = "c"
 
@@ -125,6 +134,7 @@ class Locality(object):
                     if (0 <= r_location[0] + x < zmap.shape[0]) and (0 <= r_location[1] + y < zmap.shape[1]):
                         if zmap[r_location[0]+x, r_location[1]+y] not in ["r", "c"]:
                             zmap[r_location[0] + x, r_location[1] + y] = "m"
+                            bmap[r_location[0] + x, r_location[1] + y] = None
             if not random.randint(0, 5):
                 r_direction = random.choice([(1, 0), (1, 1), (0, 1), (1, 1)])
             r_location = (r_location[0] + r_direction[0], r_location[1] + r_direction[1])
@@ -220,6 +230,8 @@ class Locality(object):
                     rowAppearance = rowAppearance + "_"
                 elif i == "r":
                     rowAppearance = rowAppearance + "r"
+                elif i == "b":
+                    rowAppearance = rowAppearance + "b"
                 else:
                     rowAppearance = rowAppearance + i.character
             
