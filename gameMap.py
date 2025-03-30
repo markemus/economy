@@ -5,15 +5,14 @@ import numpy as np
 import database as d
 import clock
 
+
 # world map made up of ALL localities (for particular installation, or otherwise compartmentalize)
 class World(object):
-
     def __init__(self, width, height):
         self.width = width
         self.height = height
 
     def getMap(self):
-
         mWorldMap = [[None for y in range(self.height)] for x in range(self.width)]
 
         #all localities share char T for now
@@ -25,7 +24,6 @@ class World(object):
         return mWorldMap
 
     def printMap(self):
-
         print("The Known World")
 
         mWorldMap = self.getMap()

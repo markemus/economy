@@ -66,13 +66,13 @@ class PersonProfile(object):
         return family
 
     # TODO-DECIDE does this require a Profile or a People object?
-    #daynums in params
-    #this method is a sin
+    # daynums in params
+    # this method is a sin
     def updateFamily(self, father=(None, -2), mother=(None, -2), spouse=(None, -2), siblings=(None, -2), children=(None, -2)):
         family = {"father": father, "mother": mother, "spouse": spouse, "siblings": siblings, "children": children}
         for title, relative in family.items():
-            #compare daynum
-            if relative[-1] > getattr(self, title)[-1]:
+            # compare daynum
+            if (relative[0]) and (relative[-1] > getattr(self, title)[-1]):
                 setattr(self, title, relative)
 
     def updateHouse(self, p_house, dayNum):

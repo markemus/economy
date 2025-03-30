@@ -90,7 +90,7 @@ class People:
     def sleepHandler(self):
         self.think("My bed is so cozy.")
         self.update_my_profile()
-        self.spouseConversations()
+        self.familyConversations()
         # TODO should eat 3x per day, 1 bread each time (or substitute good)
         # TODO eating, drinking should give MU
         self.eat()
@@ -123,9 +123,8 @@ class People:
         profile = self.peopleManager(self)
         dayNum = self.model.clock.getDayNum()
 
-        profile.updateBirthday(self.birthday)
+        # profile.updateBirthday(self.birthday)
         profile.updateJob(self.job, dayNum)
-        profile.updateFamily(spouse=(self.spouse, dayNum))
         profile.updateHouse(self.home, dayNum)
         profile.updateMuList(self.muList, dayNum)
 
@@ -239,7 +238,9 @@ class People:
 
     # TODO fix this function so we can use it instead of spouseConversation
     def familyConversations(self):
-        family = self.peopleManager(self).getFamilyList()
+        family = [x.person for x in self.peopleManager(self).getFamilyList()]
+        # print([(x.firstname, x.lastname) for x in family])
+        # family = [x.person for x in family]
 
         if len(family) > 0:
             conversee = random.choice(family)
