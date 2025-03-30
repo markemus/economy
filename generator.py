@@ -140,43 +140,6 @@ class generator(object):
 
         return gennedWorld
 
-    # makes are called by model after worldgen completes
-    # def makeSpouses(self):
-    #     peopleList = d.getPeople()
-    #
-    #     i = 0
-    #
-    #     for index in range((len(peopleList) // 2)):
-    #         wife = peopleList[i]
-    #         husband = peopleList[i + 1]
-    #         wife.setSpouse(husband)
-    #         husband.setSpouse(wife)
-    #
-    #         # Create profiles and update opinion
-    #         husband.peopleManager(wife).updateOpinion(10)
-    #         wife.peopleManager(husband).updateOpinion(10)
-    #
-    #         # Share home
-    #         # TODO people should start in their parents home and move in together to a new home when married.
-    #         wife.home.removeTenant(wife)
-    #         wife.setHome(husband.getHome())
-    #         wife.home.addTenant(wife)
-    #
-    #         # Update basic info
-    #         husband.peopleManager(wife).updateBirthday(wife.birthday)
-    #         husband.peopleManager(wife).updateHouse(wife.getHome(), self.model.getDayNum())
-    #         husband.peopleManager(husband).updateFamily(spouse=(husband.peopleManager(wife), self.model.getDayNum()))
-    #         husband.peopleManager(wife).updateFamily(spouse=(husband.peopleManager(husband), self.model.getDayNum()))
-    #         husband.peopleManager(wife).updateMuList(wife.getMuList(), wife.locality.getDayNum())
-    #
-    #         wife.peopleManager(husband).updateBirthday(husband.birthday)
-    #         wife.peopleManager(husband).updateFamily(spouse=(wife.peopleManager(wife), self.model.getDayNum()))
-    #         wife.peopleManager(wife).updateFamily(spouse=(wife.peopleManager(husband), self.model.getDayNum()))
-    #         wife.peopleManager(husband).updateHouse(husband.getHome(), self.model.getDayNum())
-    #         wife.peopleManager(husband).updateMuList(husband.getMuList(), husband.locality.getDayNum())
-    #
-    #         i += 2
-
     # TODO replace friends with neighbors
     def makeFriends(self):
         peopleList = d.getPeople()

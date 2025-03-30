@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 import database as d
@@ -74,9 +76,12 @@ class Locality(object):
         Lower case means unoccupied."""
         return self.zoning_map
 
+    # TODO forest zone and river with neighboring mill zones
+    # TODO move this function to generator
     def make_zoning(self):
         """Build the zoning_map. Optimized for locality(100,100)."""
         zmap = self.getZoningMap()
+        bmap = self.getBuildingMap()
         center = (zmap.shape[0] // 2, zmap.shape[1] // 2)
         # Fields- surrounding city
         zmap[:, :] = "f"
@@ -93,6 +98,22 @@ class Locality(object):
         zmap[center[0]-3: center[0]+3, center[1]-3: center[1]+3] = "b"
         # City hall- central spot
         zmap[center[0], center[1]] = "c"
+
+        # TODO once we add town hall ("c"), make the river go around it if it needs to.
+        # River
+        r_direction = (1, 1)
+        r_location = (0, random.randint(0, zmap.shape[1] // 2))
+        while (r_location[0] < zmap.shape[0]) and (r_location[1] < zmap.shape[1]):
+            zmap[r_location] = "r"
+            bmap[r_location] = "r"
+            for x in [-1, 0, 1]:
+                for y in [-1, 0, 1]:
+                    if (0 <= r_location[0] + x < zmap.shape[0]) and (0 <= r_location[1] + y < zmap.shape[1]):
+                        if zmap[r_location[0]+x, r_location[1]+y] not in ["r", "c"]:
+                            zmap[r_location[0] + x, r_location[1] + y] = "m"
+            if not random.randint(0, 5):
+                r_direction = random.choice([(1, 0), (1, 1), (0, 1), (1, 1)])
+            r_location = (r_location[0] + r_direction[0], r_location[1] + r_direction[1])
 
     def claim_node(self, xy, entity):
         claimed = False
@@ -167,19 +188,31 @@ class Locality(object):
             print(rowAppearance)
 
     # TODO-DECIDE player's properties should be bolded?
+    # TODO should show * every 5 plots on header and sidebar
     def get_print_map(self):
         print_map = ""
 
-        for row in self.local_map:
-            rowAppearance = ""
+        # Add navigational guides to map (longitude)
+        star_row = " *   " * ((self.local_map.shape[0] // 5) + 1)
+        print_map += star_row + "\n"
+
+        for k, row in enumerate(self.local_map):
+            # Lines of latitude
+            lat = "*" if not k % 5 else " "
+            rowAppearance = lat
             
             for i in row:
                 if (i == None):
                     rowAppearance = rowAppearance + "_"
+                elif i == "r":
+                    rowAppearance = rowAppearance + "r"
                 else:
                     rowAppearance = rowAppearance + i.character
             
-            print_map += rowAppearance + "\n"
+            print_map += rowAppearance + lat + "\n"
+
+        # Bottom lines of longitude
+        print_map += star_row
 
         return print_map
 
@@ -187,13 +220,22 @@ class Locality(object):
         """Generates a printable map of the locality's zoning."""
         print_map = ""
 
-        for row in self.zoning_map:
-            rowAppearance = ""
+        # Add navigational guides to map (longitude)
+        star_row = " *   " * ((self.zoning_map.shape[0] // 5) + 1)
+        print_map += star_row + "\n"
+
+        for k, row in enumerate(self.zoning_map):
+            # Lines of latitude
+            lat = "*" if not k % 5 else " "
+            rowAppearance = lat
 
             for x in row:
                 rowAppearance = rowAppearance + x
 
-            print_map += rowAppearance + "\n"
+            print_map += rowAppearance + lat + "\n"
+
+        # Bottom lines of longitude
+        print_map += star_row
 
         return print_map
 

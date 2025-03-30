@@ -447,7 +447,7 @@ class Farm(Manufactury):
 #  20-30 kg flour per hour- ~440 lb per 8 hours
 class Mill(Manufactury):
     unitType = "Mill"
-    zoningType = "b"
+    zoningType = "m"
     character = "M"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):

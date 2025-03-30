@@ -1102,7 +1102,7 @@ class new_unit(tk.Frame):
         else:
             location = locality.find_property(zone=unit.zoningType)
 
-        if location:
+        if location is not None:
             new_unit = unit(name, locality, location, business)
 
             if unit.zoningType == "f":
@@ -1115,12 +1115,8 @@ class new_unit(tk.Frame):
             self.root.event_generate("<<refresh>>", when="tail")
 
 
-
-
 # TODO figure out why buttons are pushed to the left side, except in business frame?
-# class unitData(tk.Frame):
 class unitData(tsf.tkscrollframe):
-
     def __init__(self, parent, controller, root):
         # tk.Frame.__init__(self, parent)
         tsf.tkscrollframe.__init__(self, parent)
@@ -1224,10 +1220,7 @@ class unitData(tsf.tkscrollframe):
             key += 1
 
 
-
-
 class ledger(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1235,7 +1228,7 @@ class ledger(tk.Frame):
         self.hotkeys = ["<Return>" "<Escape>"]
         self.dynamic_buttons = []
 
-        #main
+        # main
         header = tk.Label(self, text="Ledger", font=TITLE_FONT)
         self.mat = tk.IntVar()
         self.left = tk.Frame(self)
@@ -1243,7 +1236,7 @@ class ledger(tk.Frame):
         enter = tk.Button(self, text="[enter] Go!", font=BUTTON_FONT, command=lambda: controller.show_ledger(self.controller.get_unit(), self.mat.get(), (self.price.get(), self.DMC.get(), self.crafted.get(), self.sales.get(), self.failSales.get(), self.transports.get(), self.failTransports.get(), self.stock.get(), self.output.get())))
         esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
 
-        #right
+        # right
         self.price = tk.IntVar(value=1)
         self.DMC = tk.IntVar(value=1)
         self.crafted = tk.IntVar(value=1)
@@ -1312,7 +1305,6 @@ class ledger(tk.Frame):
 
 
 class new_job(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1378,12 +1370,7 @@ class new_job(tk.Frame):
         self.root.event_generate("<<refresh>>", when="tail")
 
 
-
-
-
-
 class jobData(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1475,10 +1462,7 @@ class jobData(tk.Frame):
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
 
 
-
-
 class new_order(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1527,10 +1511,7 @@ class new_order(tk.Frame):
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("jobData"))
 
 
-
-
 class market(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1558,7 +1539,7 @@ class market(tk.Frame):
         self.new_order.pack_forget()
         self.new_transport.pack_forget()
 
-        #vars
+        # vars
         char = self.root.getChar()
         self.manager = self.controller.get_unit().staff.manager
         self.carrier = self.controller.get_unit().staff.carrier
@@ -1567,7 +1548,7 @@ class market(tk.Frame):
         transfers = self.cull_wrong_orders(raw_transfers, self.manager)
         transports = self.cull_wrong_orders(raw_transports, self.carrier)
 
-        #sales lines
+        # sales lines
         orderTitle = tk.Label(self, text="Sales Lines:", font=TEXT_FONT)
         self.dynamic_buttons.append(orderTitle)
         
@@ -1576,7 +1557,7 @@ class market(tk.Frame):
 
         self.spawn_orders(transfers)
 
-        #transport lines
+        # transport lines
         transportTitle = tk.Label(self, text="Transport Lines:", font=TEXT_FONT)
         self.dynamic_buttons.append(transportTitle)
 
@@ -1585,7 +1566,7 @@ class market(tk.Frame):
         
         self.spawn_orders(transports)
 
-        #end
+        # end
         self.esc.pack_forget()
         self.esc.pack(fill=tk.X)
 
@@ -1677,7 +1658,7 @@ class new_transfer(tk.Frame):
         self.root.dynamic_hotkeys = []
 
         self.root.hotkeys = self.hotkeys
-        #I don't know why this works
+        # I don't know why this works
         self.root.bind("<Return>", lambda x: self.controller.create_transfer(self.order_var, self.amount_var)())
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("market"))
 
@@ -1951,7 +1932,7 @@ class manu_profiles(tsf.tkscrollframe):
         self.hotkeys = ["<Escape>"]
         self.dynamic_buttons = []
 
-        #widgets go in self.frame not self
+        # widgets go in self.frame not self
         header = tk.Label(self.frame, text="Factory Profiles", font=TITLE_FONT)
         self.esc = tk.Button(self.frame, text="[esc] Return to House", font=BUTTON_FONT, command=lambda: self.controller.show_frame("house"))
         self.esc.callback = lambda event: self.controller.show_frame("house")
