@@ -76,9 +76,8 @@ class Locality(object):
         Lower case means unoccupied."""
         return self.zoning_map
 
-    # TODO forest zone(s)
+    # TODO-DONE forest zone(s)
     # TODO-DONE river with neighboring mill zones
-    # TODO move this function to generator
     def make_zoning(self):
         """Build the zoning_map. Optimized for locality(100,100)."""
         zmap = self.getZoningMap()

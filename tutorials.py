@@ -201,9 +201,11 @@ town = """Town
         zoning map of the town. Units can only be built in the appropriate zoning location,
         and you'll want to choose your spot carefully so that you can maximize the number
         of customers you can capture.
+        
+        Map key:
+        Capital letters are occupied locations.
+        h- housing. b- business unit. m- mill. f- farm. w- forest. r- river.
 
         """
-
-
 
 tutorials = [welcome, main_display, new_business, businessData, new_unit, unitData, new_job, jobData, new_order, market, new_transfer, house, people_profiles, store_profiles, manu_profiles, church_profiles, town]
