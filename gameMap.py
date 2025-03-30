@@ -110,14 +110,14 @@ class Locality(object):
             while (outskirts[0][0] < b_location[0] < outskirts[0][1]) and (outskirts[1][0] < b_location[1] < outskirts[1][1]):
                 # print(b_location)
                 zmap[b_location] = "b"
-                bmap[b_location] = "b"
+                # bmap[b_location] = "b"
                 if not random.randint(0, 5):
                     b_direction = random.choice([(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)])
                 b_location = (b_location[0] + b_direction[0], b_location[1] + b_direction[1])
 
         # City center- businesses
         zmap[center[0]-2: center[0]+3, center[1]-2: center[1]+3] = "b"
-        bmap[center[0]-2: center[0]+3, center[1]-2: center[1]+3] = "b"
+        # bmap[center[0]-2: center[0]+3, center[1]-2: center[1]+3] = "b"
         # City hall- central spot
         zmap[center[0], center[1]] = "c"
 

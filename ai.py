@@ -149,7 +149,8 @@ class Builder(object):
 
             transferOrder = business.transferOrderManager(unit, i)
             transferOrder.setAmount(10)
-        
+
+    # TODO get ai to build things other than bakery line.
     def buildIt(self, business, locality, toBuild):
         if toBuild.zoningType == "f":
             unitLocation = locality.find_sized_property(zone=toBuild.zoningType, xsize=5, ysize=5)
