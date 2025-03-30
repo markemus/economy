@@ -3,12 +3,12 @@ import numpy as np
 import random
 from transitions import Machine
 
-#Conversations are markov chains. Works as follows: a column vector for each CURRENT state j, a row vector for each TARGET state i.
-#Each entry i,j = the probability of moving to state i from state j.
-#target state D = end of conversation. We start in state D when initializing conversation.
-#row vectors sum to 1, internal lists are columns.
+# Conversations are markov chains. Works as follows: a column vector for each CURRENT state j, a row vector for each TARGET state i.
+# Each entry i,j = the probability of moving to state i from state j.
+# target state D = end of conversation. We start in state D when initializing conversation.
+# row vectors sum to 1, internal lists are columns.
 
-#Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
+# Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
 class Conversation(object):
     #a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
 
@@ -70,15 +70,15 @@ class Conversation(object):
     # [0.2,0,0.15,0.15,0.15,0.00]
     # ]
 
-    states = ['topic','store','manu','friend', 'myself', 'exit']
+    states = ['topic', 'store', 'manu', 'friend', 'myself', 'exit']
 
     transitions = [
-    {'trigger' : 'toTopic',   'source' : '*',     'dest' : 'topic'},
-    {'trigger' : 'toStore',   'source' : 'topic', 'dest' : 'store'},
-    {'trigger' : 'toManu' ,   'source' : 'topic', 'dest' : 'manu' },
-    {'trigger' : 'toFriend',  'source' : 'topic', 'dest' : 'friend' },
-    {'trigger' : 'toMyself',  'source' : 'topic', 'dest' : 'myself'},
-    {'trigger' : 'toExit',    'source' : '*',     'dest' : 'exit'}
+        {'trigger': 'toTopic',   'source': '*',     'dest': 'topic'},
+        {'trigger': 'toStore',   'source': 'topic', 'dest': 'store'},
+        {'trigger': 'toManu' ,   'source': 'topic', 'dest': 'manu'},
+        {'trigger': 'toFriend',  'source': 'topic', 'dest': 'friend'},
+        {'trigger': 'toMyself',  'source': 'topic', 'dest': 'myself'},
+        {'trigger': 'toExit',    'source': '*',     'dest': 'exit'}
     ]
 
     def __init__(self):
@@ -181,17 +181,17 @@ class Conversation(object):
     # TODO-DECIDE if self.target is None, what does that mean? Maybe there should just be no thought?
     def family(self):
         if self.target is not None:
-            #info: family, people
-            #profiles
+            # info: family, people
+            # profiles
             p1 = self.firstPerson.peopleManager(self.target)
             p2 = self.secondPerson.peopleManager(self.target)
 
-            #variables
+            # variables
             f1 = p1.getFamily()
             f2 = p2.getFamily()
             ff = []
 
-            #update profiles
+            # update profiles
             for a, b in zip(f1, f2):
                 if a[-1] >= b[-1]:
                     ff.append(a)
@@ -201,7 +201,7 @@ class Conversation(object):
             p1.updateFamily(*ff)
             p2.updateFamily(*ff)
 
-            #thoughts
+            # thoughts
             self.firstPerson.think(self.secondPerson.name + " and I gossiped about " + self.target.name + "'s family.")
             self.secondPerson.think(self.firstPerson.name + " and I gossiped about " + self.target.name + "'s family.")
 
@@ -211,15 +211,15 @@ class Conversation(object):
 
     def job(self):
         if self.target is not None:
-            #profiles
+            # profiles
             firstProfile = self.firstPerson.peopleManager(self.target)
             secondProfile = self.secondPerson.peopleManager(self.target)
 
-            #variables
+            # variables
             firstJob  = firstProfile.getJob()
             secondJob = secondProfile.getJob()
 
-            #update profiles
+            # update profiles
             if firstJob[1] > secondJob[1]:
                 secondProfile.updateJob(*firstJob)
                 self.firstPerson.think("I told " + self.secondPerson.name + " what " + self.target.name + " does for a living.")
@@ -268,29 +268,29 @@ class Conversation(object):
     #         self.secondPerson.think("I should spend more time doing things with my friends.")
 
     def myfamily(self):
-        #info: family, people
-        #profiles
+        # info: family, people
+        # profiles
         firstProfile = self.secondPerson.peopleManager(self.firstPerson)
         secondProfile = self.firstPerson.peopleManager(self.secondPerson)
 
         firstOwn = self.firstPerson.peopleManager(self.firstPerson)
         secondOwn = self.secondPerson.peopleManager(self.secondPerson)
 
-        #update profiles
+        # update profiles
         firstProfile.updateFamily(firstOwn.getFather(), firstOwn.getMother(), firstOwn.getSpouse(), firstOwn.getSiblings(), firstOwn.getChildren())
         secondProfile.updateFamily(secondOwn.getFather(), secondOwn.getMother(), secondOwn.getSpouse(), secondOwn.getSiblings(), secondOwn.getChildren())
 
-        #thoughts
+        # thoughts
         self.firstPerson.think(self.secondPerson.name + " caught me up on their family life.")
         self.secondPerson.think(self.firstPerson.name + " caught me up on their family life.")
         
     def myjob(self):
-        #info: jobs, jobUnits, *salaries
-        #profiles
+        # info: jobs, jobUnits, *salaries
+        # profiles
         firstProfile = self.secondPerson.peopleManager(self.firstPerson)
         secondProfile = self.firstPerson.peopleManager(self.secondPerson)
 
-        #variables
+        # variables
         firstJob = self.firstPerson.getJob()
         secondJob = self.secondPerson.getJob()
         dayNum = self.firstPerson.model.getDayNum()
@@ -318,7 +318,7 @@ class Conversation(object):
             secondSalary = 0
 
 
-        #update profiles
+        # update profiles
         if dayNum > firstProfile.getJob()[1]:
             firstProfile.updateJob(firstJob, dayNum)
         if dayNum > firstProfile.getSalary()[1]:
@@ -334,7 +334,7 @@ class Conversation(object):
         if secondJobUnit is not None:
             self.firstPerson.unitManager(secondJobUnit, self.secondPerson)
 
-        #thoughts
+        # thoughts
         self.firstPerson.think(self.secondPerson.name + " told me about their job as a " + secondJobType + " at " + secondJobLoc + ".")
         self.secondPerson.think(self.firstPerson.name + " told me about their job as a " + firstJobType + " at " + firstJobLoc + ".")
 

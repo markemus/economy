@@ -196,11 +196,11 @@ church_profiles = """Church Profiles
 
 town = """Town
 
-        This is the town you live in, Jonestown. There are two maps available. The first
-        displays the businesses, homes, and churches in the town, and the second shows the
-        zoning map of the town. Units can only be built in the appropriate zoning location,
-        and you'll want to choose your spot carefully so that you can maximize the number
-        of customers you can capture.
+        This is the town you live in, Jonestown. There are two maps available. 
+        The first displays the businesses, homes, and churches in the town, and 
+        the second shows the zoning map of the town. Units can only be built in 
+        the appropriate zoning location, and you'll want to choose your spot 
+        carefully so that you can maximize the number of customers you can capture.
         
         Map key:
         Capital letters are occupied locations.
