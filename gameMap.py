@@ -76,7 +76,8 @@ class Locality(object):
         Lower case means unoccupied."""
         return self.zoning_map
 
-    # TODO forest zone and river with neighboring mill zones
+    # TODO forest zone(s)
+    # TODO-DONE river with neighboring mill zones
     # TODO move this function to generator
     def make_zoning(self):
         """Build the zoning_map. Optimized for locality(100,100)."""
@@ -85,6 +86,19 @@ class Locality(object):
         center = (zmap.shape[0] // 2, zmap.shape[1] // 2)
         # Fields- surrounding city
         zmap[:, :] = "f"
+        # Forest - in the fields
+        poss_f_centroids = np.argwhere(zmap == "f")
+        np.random.shuffle(poss_f_centroids)
+        f_centroids = poss_f_centroids[:random.randint(5, 15)]
+        for f_centroid in f_centroids:
+            xspread = random.randint(3, 5)
+            yspread = random.randint(3, 5)
+            zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
+            zmap[f_centroid[0]-xspread-random.randint(0,3): f_centroid[0]+xspread+random.randint(0,3), f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
+            zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread-random.randint(0,3): f_centroid[1]+yspread+random.randint(0,3)] = "w"
+            zmap[f_centroid[0]-xspread-random.randint(2,5): f_centroid[0]+xspread+random.randint(2,5), f_centroid[1]-yspread: f_centroid[1]+yspread] = "w"
+            zmap[f_centroid[0]-xspread: f_centroid[0]+xspread, f_centroid[1]-yspread-random.randint(2,5): f_centroid[1]+yspread+random.randint(2,5)] = "w"
+
         # city boundaries
         outskirts = [[center[0]-center[0]//2, center[0]+center[0]//2], [center[1]-center[1]//2, center[1]+center[1]//2]]
         # Housing- surrounding city center.

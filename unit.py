@@ -503,7 +503,7 @@ class Bakery(Manufactury):
 
 class Lumberyard(Manufactury):
     unitType = "Lumberyard"
-    zoningType = "f"
+    zoningType = "w"
     character = "L"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
