@@ -3,7 +3,6 @@ import random
 import numpy as np
 
 import database as d
-import clock
 
 
 # world map made up of ALL localities (for particular installation, or otherwise compartmentalize)
@@ -208,8 +207,7 @@ class Locality(object):
             
             print(rowAppearance)
 
-    # TODO-DECIDE player's properties should be bolded?
-    # TODO should show * every 5 plots on header and sidebar
+    # TODO-DONE should show * every 5 plots on header and sidebar
     def get_print_map(self):
         print_map = ""
 

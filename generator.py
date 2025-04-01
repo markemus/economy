@@ -185,14 +185,15 @@ class generator(object):
                 locality.claim_node(location, newChurch)
 
     # TODO people should shop around for churches just like businesses. But they should settle on one?
-    # TODO people should be assigned to nearby churches.
+    # TODO-DONE people should be assigned to nearby churches.
     def assignChurches(self):
         peopleList = d.getPeople()
 
         for person in peopleList:
             religion = person.getReligion()
             business = religion.getLocalBusiness(person.getLocality())
-            # Churches will have more or fewer members by chance.
-            church = random.choice(business.getUnits())
+            # People go to the nearest church at game start.
+            all_churches = business.getUnits()
+            church = min(all_churches, key=lambda church: person.pyth(church)[0])
             person.unitManager(church)
             person.newChurch(church)

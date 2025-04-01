@@ -616,10 +616,9 @@ class key_controller(tk.Frame):
 
         return isInt
 
+    # TODO create transfer and transport orders manually as well.
     def create_order(self, order_var, amount_var):
         def callback():
-            import orders as o
-
             business = self.get_business()
             job = self.get_job()
             materialIndex = d.getMaterials().index(order_var.get())
