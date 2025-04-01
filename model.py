@@ -32,8 +32,9 @@ class Model(object):
         yourHome.addTenant(self.char)
         spouse = p.People(self, "Susan", "Spinster", 1, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(spouse)
-        self.char.setSpouse(spouse)
+        # TODO spouse setting should be done by one character for both to avoid race conditions
         spouse.setSpouse(self.char)
+        self.char.setSpouse(spouse)
         self.char.addCapital(10000)
 
         # makes

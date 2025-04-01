@@ -208,4 +208,13 @@ town = """Town
 
         """
 
-tutorials = [welcome, main_display, new_business, businessData, new_unit, unitData, new_job, jobData, new_order, market, new_transfer, house, people_profiles, store_profiles, manu_profiles, church_profiles, town]
+
+personal_data = """Personal Data
+        
+        Here you can view information about your character's personal well-being.
+        Make your character as happy as possible by ensuring they have access to
+        all the commodities they desire!
+
+        """
+
+tutorials = [welcome, main_display, new_business, businessData, new_unit, unitData, new_job, jobData, new_order, market, new_transfer, house, people_profiles, store_profiles, manu_profiles, church_profiles, town, personal_data]

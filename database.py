@@ -75,8 +75,8 @@ bossList = []
 
 # utility
 # people will buy up to the number below INCLUSIVE.
-utilityLimitList = [0, 2, 6, 14, 2, 2, 0, 2, 1]
-utilityScaleList = [0, 0, 10, 50, 20, 15, 0, 2, 4]
+utilityLimitList = [0, 0, 6, 14, 0, 0, 0, 2, 1]
+utilityScaleList = [0, 0, 50, 50, 0, 0, 0, 300, 300]
 # happinessMax = sum( utilityLimitList[i] * utilityScaleList[i] for i in range(len(utilityLimitList)))
 
 def addBusiness(business):

@@ -280,7 +280,7 @@ class People:
         scaleList = d.getUtilityScale()
         owned = self.home.getAllOutput()
 
-        #muList calc
+        # muList calc
         muList = [0 for item in owned]
 
         for itemIndex in range(len(owned)):
@@ -305,6 +305,33 @@ class People:
         mu = scale * ((math.sqrt(limit) / math.sqrt(count)) - 1)
 
         return mu
+
+    def muCurves(self):
+        """Get marginal utility curves for plotting. Use self.allMu() for marginal utility."""
+        limitList = d.getUtilityLimit()
+        # scaleList = d.getUtilityScale()
+
+        all_xs = []
+        all_ys = []
+        legend = []
+
+        for i in range(len(limitList)):
+            xs = []
+            ys = []
+
+            for c in range(limitList[i]+1):
+                if c == 0:
+                    c = .1
+                mu = self.singleMu(i, c)
+                xs.append(c)
+                ys.append(mu)
+
+            if len(xs) > 1:
+                all_xs.append(xs)
+                all_ys.append(ys)
+                legend.append(d.getMaterials()[i])
+
+        return all_xs, all_ys, legend
 
     def goShopping(self):
         p_chosenStore = self.chooseStore()[0]

@@ -156,8 +156,24 @@ class display_controller(tk.Frame):
         self.frames["matplotlib_display"].bar_chart(x, y, xlabel, ylabel, title)
         self.show_frame("matplotlib_display")
 
-    def line_chart(self, x, y, xlabel, ylabel, title, legend=None):
+    def line_chart(self, x, y, xlabel, ylabel, title, legend=None, scatter_x=None, scatter_y=None):
         self.frames["matplotlib_display"].line_chart(x, y, xlabel, ylabel, title, legend=legend)
+        if scatter_x:
+            self.frames["matplotlib_display"].add_scatter_plot(x=scatter_x, y=scatter_y)
+        self.show_frame("matplotlib_display")
+
+    def line_charts(self, xs, ys, xlabel, ylabel, title, legend=None, scatter_x=None, scatter_y=None):
+        self.frames["matplotlib_display"].fig.clf()
+        self.frames["matplotlib_display"].fig.add_subplot(111)
+
+        for x, y in zip(xs, ys):
+            self.frames["matplotlib_display"].add_line_chart(x, [y], xlabel, ylabel, title, legend=legend)
+
+        if scatter_x:
+            self.frames["matplotlib_display"].add_scatter_plot(x=scatter_x, y=scatter_y)
+
+        self.frames["matplotlib_display"].fig.gca().grid(visible=True)
+
         self.show_frame("matplotlib_display")
 
     def display_list(self, values_dict):
@@ -286,6 +302,26 @@ class matplotlib_display(tk.Frame):
         graph.set_xlabel(xlabel)
         graph.set_ylabel(ylabel)
         graph.grid()
+
+    def add_line_chart(self, x, y, xlabel, ylabel, title, legend=None):
+        """Add a line chart to an existing graph
+        legend = optional list of strings that name the xvals."""
+        graph = self.fig.gca()
+
+        for z in y:
+            graph.plot(x, z, "o-")
+
+        if legend:
+            graph.legend(legend)
+
+        graph.set_title(title)
+        graph.set_xlabel(xlabel)
+        graph.set_ylabel(ylabel)
+        graph.grid()
+
+    def add_scatter_plot(self, x, y):
+        graph = self.fig.gca()
+        graph.scatter(x, y, c="black", alpha=0.5, zorder=100)
 
     def raise_frame(self):
         # self.canvas.show()
@@ -575,7 +611,8 @@ class key_controller(tk.Frame):
             store_profiles,
             manu_profiles,
             church_profiles,
-            town):
+            town,
+            personal_data):
 
             page_name = keyboard.__name__
             frame = keyboard(parent=self, controller=self, root=root)
@@ -1799,13 +1836,15 @@ class house(tk.Frame):
         s_profiles = tk.Button(self, text="[s] Store profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("store_profiles"))
         m_profiles = tk.Button(self, text="[f] Factory profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("manu_profiles"))
         c_profiles = tk.Button(self, text="[c] Church profiles", font=BUTTON_FONT, command=lambda: controller.show_frame("church_profiles"))
-        esc = tk.Button(self,  text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        p_data = tk.Button(self, text="[d] Personal data", font=BUTTON_FONT, command=lambda: controller.show_frame("personal_data"))
+        esc = tk.Button(self, text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
         p_profiles.pack(fill=tk.X)
         s_profiles.pack(fill=tk.X)
         m_profiles.pack(fill=tk.X)
         c_profiles.pack(fill=tk.X)
+        p_data.pack(fill=tk.X)
         esc.pack(fill=tk.X)
 
     def show_splash(self):
@@ -1830,6 +1869,7 @@ class house(tk.Frame):
         self.root.bind("s", lambda x: self.controller.show_frame("store_profiles"))
         self.root.bind("f", lambda x: self.controller.show_frame("manu_profiles"))
         self.root.bind("c", lambda x: self.controller.show_frame("church_profiles"))
+        self.root.bind("d", lambda x: self.controller.show_frame("personal_data"))
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
 
@@ -2067,6 +2107,56 @@ class church_profiles(tsf.tkscrollframe):
         self.root.dynamic_hotkeys = []
         self.root.hotkeys = self.hotkeys
         self.root.bind("<Escape>", self.esc.callback)
+
+
+class personal_data(tk.Frame):
+    def __init__(self, parent, controller, root):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.root = root
+        self.hotkeys = ["<Escape>"]
+        header = tk.Label(self, text="Personal Data", font=TITLE_FONT)
+        mu = tk.Button(self, text="[m] Marginal Utility", font=BUTTON_FONT, command=lambda: self.show_utility_curves())
+        self.esc = tk.Button(self, text="[esc] Return to House", font=BUTTON_FONT, command=lambda: self.controller.show_frame("house"))
+
+        header.pack(fill=tk.X)
+        mu.pack(fill=tk.X)
+        self.esc.pack(fill=tk.X)
+
+    def show_splash(self):
+        cont = self.controller.get_display_cont()
+        cont.update_frame("main_display", tutorials.personal_data)
+
+    def show_utility_curves(self):
+        char = self.root.getChar()
+        char.allMu()
+        all_xs, all_ys, legend = self.root.getChar().muCurves()
+        # print(all_xs)
+        index = [i for (i, x) in enumerate(d.getMaterials()) if x in legend]
+
+        owned = char.home.getAllOutput()
+        muList = char.muList
+        owned = [owned[i] if owned[i] != 0 else 0.1 for i in index]
+        muList = [muList[i] for i in index]
+
+        self.root.display_cont.line_charts(all_xs, all_ys, xlabel="Amount", ylabel="MU", title="Marginal Utility", legend=legend, scatter_x=owned, scatter_y=muList)
+
+    def raise_frame(self):
+        self.set_hotkeys()
+        self.show_splash()
+        self.tkraise()
+
+    def set_hotkeys(self):
+        for hotkey in self.root.hotkeys:
+            self.root.unbind(hotkey)
+
+        for hotkey in self.root.dynamic_hotkeys:
+            self.root.unbind(hotkey)
+
+        self.root.dynamic_hotkeys = []
+        self.root.hotkeys = self.hotkeys
+        self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
+        self.root.bind("m", lambda x: self.show_utility_curves())
 
 
 class town(tk.Frame):
