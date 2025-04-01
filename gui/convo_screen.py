@@ -4,8 +4,9 @@ TITLE_FONT = ("Black chancery", "18", "bold")
 TEXT_FONT = ("Black chancery", "15")
 BUTTON_FONT = ("Black chancery", "13")
 
-class convo_controller(tk.Frame):
 
+# TODO enable conversation menus!
+class convo_controller(tk.Frame):
     def __init__(self, parent, root, *args, **kwargs):
         tk.Frame.__init__(self, master=parent, *args, **kwargs)
         self.root = root
@@ -23,7 +24,6 @@ class convo_controller(tk.Frame):
 
 
 class options(tk.Frame):
-
     def __init__(self, parent, root, controller):
         tk.Frame.__init__(self, parent)
         self.root = root
@@ -52,8 +52,8 @@ class options(tk.Frame):
     def set_convos(self):
         pass
 
-class topic(tk.Frame):
 
+class topic(tk.Frame):
     def __init__(self, parent, root, controller):
         tk.Frame.__init__(self, parent)
         self.root = root
@@ -75,8 +75,8 @@ class topic(tk.Frame):
     def raise_frame(self):
         self.tkraise()
 
-class store(tk.Frame):
 
+class store(tk.Frame):
     def __init__(self, parent, root, controller):
         tk.Frame.__init__(self, parent)
         self.root = root
@@ -98,8 +98,8 @@ class store(tk.Frame):
     def raise_frame(self):
         self.tkraise()
 
-class manu(tk.Frame):
 
+class manu(tk.Frame):
     def __init__(self, parent, root, controller):
         tk.Frame.__init__(self, parent)
         self.root = root
@@ -121,8 +121,8 @@ class manu(tk.Frame):
     def raise_frame(self):
         self.tkraise()
 
-class friend(tk.Frame):
 
+class friend(tk.Frame):
     def __init__(self, parent, root, controller):
         tk.Frame.__init__(self, parent)
         self.root = root
@@ -147,11 +147,6 @@ class friend(tk.Frame):
 
     def raise_frame(self):
         self.tkraise()
-
-
-
-
-
 
 
 gui = tk.Tk()

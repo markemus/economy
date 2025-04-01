@@ -15,11 +15,10 @@ from operator import attrgetter
 
 import database as d
 import tutorials
-#tkscrollframe is a custom package that extends tkframes with a scrollbar. Standard solution from web.
+# tkscrollframe is a custom package that extends tkframes with a scrollbar. Standard solution from web.
 from tkscrollframe import tkscrollframe as tsf
 
-#WARNING: throws error if run from here. Import to economy directory and run from there. Necessary because image files are stored there.
-
+# WARNING: throws error if run from here. Import to economy directory and run from there. Necessary because image files are stored there.
 # TITLE_FONT = ("Courier", "18", "bold")
 # TEXT_FONT = ("Courier", "15", "bold")
 # BUTTON_FONT = ("Courier", "13")
@@ -32,8 +31,10 @@ BUTTON_FONT = ("Black chancery", "13")
 MAP_FONT = ("Consolas", "9")
 
 
+# TODO business aggregate info-
+#  EG show all transports and transfers
+#  show ledger (same as for unit)
 class gui(tk.Tk):
-
     def __init__(self, char, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         #char is character controller from ai
@@ -53,11 +54,11 @@ class gui(tk.Tk):
         self.geometry('1366x768')
         # self.geometry('680x240')
 
-        #megaFrames
+        # megaFrames
         leftSide    = tk.Frame(self)
         rightSide   = tk.Frame(self)
 
-        #frames
+        # frames
         titleImage      = tk.PhotoImage(file="./images/jonestown.gif")
         titleBar        = tk.Label(leftSide, image=titleImage, width=1114, height=150)
         titleBar.image  = titleImage
@@ -71,13 +72,13 @@ class gui(tk.Tk):
         quitter             = quitBar(              rightSide, self,             width=300)
         self.static_cont   = static_controller(self, charDisplay, busDisplay)
 
-        #printout
+        # printout
         self.text_cont.grid_propagate(False)
 
-        #charData
+        # charData
         self.display_cont.pack_propagate(False)
 
-        #root grid
+        # root grid
         leftSide.grid(row=0, column=0, sticky=tk.NSEW)
         rightSide.grid(row=0, column=1, sticky=tk.NSEW)
         self.grid_rowconfigure(0, weight=1)
@@ -85,7 +86,7 @@ class gui(tk.Tk):
         # Setting weight=0 makes the buttons be visible on smaller screens. I have no idea why this works.
         self.grid_columnconfigure(1, weight=0)
 
-        #leftSide grid
+        # leftSide grid
         titleBar.grid(row=0, column=0)
         self.display_cont.grid(row=1, column=0)
         self.text_cont.grid(row=2, column=0, sticky='nsew')
@@ -94,7 +95,7 @@ class gui(tk.Tk):
         leftSide.grid_rowconfigure(2, weight=1)
         leftSide.grid_columnconfigure(0, weight=1)
 
-        #rightSide grid
+        # rightSide grid
         charDisplay.grid(row=0, column=0, sticky='nsew')
         busDisplay.grid( row=1, column=0, sticky='nsew')
         keyboard.grid(   row=2, column=0, sticky="nsew")

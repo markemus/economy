@@ -279,7 +279,7 @@ class Carrier(Job):
         # thoughts
         for employee in self.getEmployees():
             if isTransport == True:
-                employee.think("I carried " + str(amount) + " things today.")
+                employee.think(f"I carried {str(amount)} {d.getMaterials()[materialIndex]} today from {unit1.name} to {unit2.name}.")
             else:
                 employee.think("My boss sent me on a wild goose chase today.")
 
