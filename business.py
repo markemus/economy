@@ -1,7 +1,8 @@
 import database as d
 import orders as o
 
-#composed of Units
+
+# composed of Units
 class Business(object):
     name = "businessName"
     cash = 0
@@ -66,7 +67,7 @@ class Business(object):
     def getTransportOrders(self):
         return self.transportOrders
 
-    #addUnit should be called AFTER missions assignment.
+    # addUnit should be called AFTER missions assignment.
     def addUnit(self, unit):
         self.m_unitList.append(unit)
         self.pricingOrders.append(o.pricingOrder(self, unit.staff.manager, unit))
@@ -104,10 +105,10 @@ class Business(object):
             for i in range(len(thisSales[1])):
                 sales[i] += thisSales[1][i]
 
-        return ([0,1,2,3,4,5,6,7,8], sales)
+        return ([0, 1, 2, 3, 4, 5, 6, 7, 8], sales)
 
     def getAllStock(self):
-        stock = [0,0,0,0,0,0,0,0,0]
+        stock = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         for unit in self.m_unitList:
             thisStock = unit.getAllStock()
 
@@ -229,7 +230,7 @@ class Business(object):
 
         return targetOrder
 
-    #does not create units if they don't exist
+    # does not create units if they don't exist
     def unitManager(self, productIndex):
         targetUnit = None
 

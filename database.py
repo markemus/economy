@@ -25,7 +25,7 @@ CHURCH_INDEX = 3
 # harvest inputs are currently placeholders
 grain   = []
 # grain   = [(GRAIN_INDEX, .04)]
-flour   = [(GRAIN_INDEX, 1.5)]
+flour   = [(GRAIN_INDEX, 1)]
 beer    = [(GRAIN_INDEX, 1/1000)]
 bread   = [(FLOUR_INDEX, .02)]
 meat    = []

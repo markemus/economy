@@ -135,9 +135,9 @@ class Unit(object):
         
         # natural price
         if d.getMaterials()[i] in d.planted:
-            # 2 days, tech same for planting and harvesting
+            # Full growth cycle
             # ratio = self.incubator.ratios[d.getMaterials()[i]]
-            labor = 2 / (self.tech[i])
+            labor = self.incubator.grow_days[d.getMaterials()[i]] / self.tech[i]
         else:
             labor = 1 / self.tech[i]
 
@@ -446,7 +446,7 @@ class Farm(Manufactury):
         self.allowed_jobs = [jobs.Farmer]
         self.slots = 10
         # self.can_make[d.GRAIN_INDEX] = True
-        self.tech[d.GRAIN_INDEX] = 4
+        self.tech[d.GRAIN_INDEX] = 16
         self.stock[d.GRAIN_INDEX] = 50
         # self.DMC[d.GRAIN_INDEX] = 1
         self.failSales[d.GRAIN_INDEX] = 500
@@ -506,7 +506,7 @@ class Bakery(Manufactury):
         self.allowed_jobs = [jobs.Baker]
         self.slots = 10
         # self.can_make[d.BREAD_INDEX] = True
-        self.tech[d.BREAD_INDEX] = 60
+        self.tech[d.BREAD_INDEX] = 100
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
         self.stock[d.FLOUR_INDEX] = 50
