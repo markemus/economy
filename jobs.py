@@ -7,9 +7,9 @@ from conversation import Convo
 
 
 # not all jobs, but all jobs you can create (not manager, priest)
-def all_jobs():
-    job_list = [Baker, Brewer, Carrier, Farmer, Miller, Lumberjack, Carpenter]
-    return job_list
+# def all_jobs():
+#     job_list = [Baker, Brewer, Carrier, Farmer, Miller, Lumberjack, Carpenter]
+#     return job_list
 
 
 class Job(object):
@@ -17,6 +17,7 @@ class Job(object):
     jobVerb = "Genericking"
     naturalWage = 0
 
+    # TODO investigate equipment
     def __init__(self, slots, business, unit, salary):
         # slots is an int, number of employee slots available
         equipLength = len(d.getEquipment())
@@ -24,6 +25,7 @@ class Job(object):
         self.business = business
         self.unit = unit
         self.equipment = [0 for equip in range(equipLength)]
+        self.can_make   = [False for material in range(len(d.getMaterials()))]
         self.employees = []
         self.salary = salary
         self.business.addJob(self)
@@ -225,6 +227,7 @@ class Baker(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
+        self.can_make[d.BREAD_INDEX] = True
         self.business.addCraftingJob(self)
 
 
@@ -233,6 +236,7 @@ class Brewer(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
+        self.can_make[d.BEER_INDEX] = True
         self.business.addCraftingJob(self)
 
 
@@ -287,6 +291,7 @@ class Farmer(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
+        self.can_make[d.GRAIN_INDEX] = True
         self.business.addCraftingJob(self)
         # self.business.addHarvestJob(self)
 
@@ -349,6 +354,7 @@ class Miller(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
+        self.can_make[d.FLOUR_INDEX] = True
         self.business.addCraftingJob(self)
 
 
@@ -357,6 +363,7 @@ class Lumberjack(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
+        self.can_make[d.LUMBER_INDEX] = True
         self.business.addHarvestJob(self)
 
 
@@ -365,6 +372,8 @@ class Carpenter(Job):
 
     def __init__(self, slots, business, unit, salary):
         Job.__init__(self, slots, business, unit, salary)
+        self.can_make[d.CHAIR_INDEX] = True
+        self.can_make[d.TABLE_INDEX] = True
         self.business.addCraftingJob(self)
 
 

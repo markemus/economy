@@ -7,6 +7,9 @@ from conversation import Convo
 from profiles import PersonProfile
 from profiles import StoreProfile
 
+# TODO personalities- research shopping types.
+# TODO Advertisements- should target particular personalities. IE build a brand.
+# TODO surveys- target store customers (yours) or a geographical area.
 class People:
     # name = "John Doe"
     firstname = "John"

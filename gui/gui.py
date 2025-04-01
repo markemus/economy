@@ -1314,16 +1314,24 @@ class new_job(tk.Frame):
         header = tk.Label(self, text="Create a new Job", font=TITLE_FONT)
 
         self.job_var = tk.StringVar()
-        job_list = self.get_jobs()
-        jobs = tk.OptionMenu(self, self.job_var, *job_list)
+        # job_list = self.get_jobs()
+        self.jobs = tk.OptionMenu(self, self.job_var, ["empty"])
 
         enter = tk.Button(self, text="[enter]", font=BUTTON_FONT, command=self.create_job)
         esc = tk.Button(self, text="[esc] Return to Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("unitData"))
 
         header.pack()
-        jobs.pack()
+        self.jobs.pack()
         enter.pack()
         esc.pack(fill=tk.X)
+
+    def update_menu(self, values):
+        menu = self.jobs["menu"]
+        menu.delete(0, "end")
+
+        # Add new values
+        for val in values:
+            menu.add_command(label=val, command=lambda v=val: self.job_var.set(v))
 
     def show_splash(self):
         cont = self.controller.get_display_cont()
@@ -1331,6 +1339,7 @@ class new_job(tk.Frame):
 
     def raise_frame(self):
         self.set_hotkeys()
+        self.update_menu(self.get_jobs())
         self.show_splash()
         self.tkraise()
 
@@ -1348,21 +1357,23 @@ class new_job(tk.Frame):
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("unitData"))
 
     def get_jobs(self):
-        from jobs import all_jobs
-        
-        job_list = []
-
-        for job in all_jobs():
-            job_list.append(job.jobType)
-
-        return job_list
+        # from jobs import all_jobs
+        #
+        # job_list = []
+        #
+        # for job in all_jobs():
+        #     job_list.append(job.jobType)
+        unit = self.controller.get_unit()
+        if unit:
+            jobTypes = [j.jobType for j in unit.allowed_jobs]
+        else:
+            jobTypes = [""]
+        return jobTypes
 
     def create_job(self):
-        from jobs import all_jobs
-
         jobType = self.job_var.get()
 
-        for job in all_jobs():
+        for job in self.controller.get_unit().allowed_jobs:
             if job.jobType == jobType:
                 break
 
@@ -1472,7 +1483,7 @@ class new_order(tk.Frame):
 
         products = copy.copy(d.getMaterials())
         self.order_var = tk.StringVar()
-        order = tk.OptionMenu(self, self.order_var, *products)
+        self.order = tk.OptionMenu(self, self.order_var, *products)
 
         self.amount_var = tk.StringVar()
         vcmd = (self.register(self.controller.isInt), '%P')
@@ -1482,16 +1493,34 @@ class new_order(tk.Frame):
         esc = tk.Button(self, text="[esc] Return to Job", font=BUTTON_FONT, command=lambda: controller.show_frame("jobData"))
 
         header.pack()
-        order.pack()
+        self.order.pack()
         amount.pack()
         enter.pack()
         esc.pack()
+
+    def update_menu(self, values):
+        menu = self.order["menu"]
+        menu.delete(0, "end")
+
+        # Add new values
+        for val in values:
+            menu.add_command(label=val, command=lambda v=val: self.order_var.set(v))
+
+    def get_orderables(self):
+        """Returns a list of materials the job is able to create."""
+        job = self.controller.get_job()
+        orderables = []
+        for i, mat in enumerate(d.getMaterials()):
+            if job.can_make[i]:
+                orderables.append(mat)
+        return orderables
 
     def show_splash(self):
         cont = self.controller.get_display_cont()
         cont.update_frame("main_display", tutorials.new_order)
 
     def raise_frame(self):
+        self.update_menu(self.get_orderables())
         self.set_hotkeys()
         self.show_splash()
         self.tkraise()

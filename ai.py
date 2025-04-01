@@ -107,27 +107,31 @@ class Builder(object):
     def __init__(self, model):
         self.model = model
 
-    # TODO can we get rid of this fake initial_demand and let them learn entirely from failedSales?
-    def initial_demand(self, unit):
-        for i in range(len(unit.can_make)):
-            if unit.can_make[i]:
-                unit.failSales[i] = 500
+    # TODO-DONE can we get rid of this fake initial_demand and let them learn entirely from failedSales?
+    # def initial_demand(self, unit):
+    #     for i in range(len(unit.can_make)):
+    #         if unit.can_make[i]:
+    #             unit.failSales[i] = 500
 
-    # TODO jobs should be allowed per unit, you shouldn't be able to create any job in any unit.
+    # TODO-DONE jobs should be allowed per unit, you shouldn't be able to create any job in any unit.
     def jobMaker(self, unit):
-        unitJobLink = { "Farm"      : jobs.Farmer,
-                        "Brewery"   : jobs.Brewer,
-                        "Mill"      : jobs.Miller,
-                        "Bakery"    : jobs.Baker,
-                        "Lumberyard": jobs.Lumberjack,
-                        "Joinery"   : jobs.Carpenter}
+        # unitJobLink = { "Farm"      : jobs.Farmer,
+        #                 "Brewery"   : jobs.Brewer,
+        #                 "Mill"      : jobs.Miller,
+        #                 "Bakery"    : jobs.Baker,
+        #                 "Lumberyard": jobs.Lumberjack,
+        #                 "Joinery"   : jobs.Carpenter}
         # TODO slots should be more dynamic- it looks like currently units will always hire to max?
-        slots = 10
+        slots = unit.getSlots()
         salary = 6
+        new_jobs = []
 
-        newJob = unitJobLink[unit.getUnitType()](slots, unit.getBusiness(), unit, salary)
+        for job_type in unit.allowed_jobs:
+            job_slots = slots // len(unit.allowed_jobs)
+            new_job = job_type(job_slots, unit.getBusiness(), unit, salary)
+            new_jobs.append(new_job)
 
-        return newJob
+        return new_jobs
 
     # also makes transfer orders
     def craftOrderMaker(self, job):
@@ -174,9 +178,10 @@ class Builder(object):
                     locality.claim_nodes_from_topleft(unitLocation, xsize=5, ysize=5, entity=newUnit)
                 else:
                     locality.claim_node(unitLocation, newUnit)
-                self.initial_demand(newUnit)
-                new_job = self.jobMaker(newUnit)
-                self.craftOrderMaker(new_job)
+                # self.initial_demand(newUnit)
+                new_jobs = self.jobMaker(newUnit)
+                for new_job in new_jobs:
+                    self.craftOrderMaker(new_job)
                 if newUnit.unitType == "Farm":
                     self.giveGrain(newUnit)
 
@@ -239,12 +244,12 @@ class Character(p.People):
 
         return newBusiness
 
-    def build(self, business, unit, unitName):
-        units = {"farm" : u.Farm, "bakery" : u.Bakery, "mill" : u.Mill, "warehouse" : u.Warehouse, "church" : u.Church}
-        if business in self.businesses:
-            newUnit = units[unit](unitName, business.getLocality(), business)
-
-        return newUnit
+    # def build(self, business, unit, unitName):
+    #     units = {"farm" : u.Farm, "bakery" : u.Bakery, "mill" : u.Mill, "warehouse" : u.Warehouse, "church" : u.Church}
+    #     if business in self.businesses:
+    #         newUnit = units[unit](unitName, business.getLocality(), business)
+    #
+    #     return newUnit
 
     def run_day(self):
         self.model.clock.runDay()
@@ -254,14 +259,14 @@ class ProductionAI(object):
     def __init__(self, model):
         self.model = model
 
+    # TODO-DONE job should have can_make, not unit
     def setProduction(self, business):
         for job in business.getCraftingJobs():
             jobUnit = job.getUnit()
             demand  = jobUnit.getTotalDemand()
 
             for i in range(len(demand)):
-                if (jobUnit.can_make[i] and demand[i] > 0):
-                    
+                if job.can_make[i] and demand[i] > 0:
                     # crafted
                     if d.is_crafted(i):
                         self.setCraftOrder(business, job, demand[i], i)
@@ -333,7 +338,6 @@ class JobPoster(object):
         totalWorkers    = 0
 
         for order in (x for x in job.business.craftOrders if x.job == job):
-
             amount          = order.amount
             materialIndex   = order.materialIndex
             tech            = job.unit.getTech(materialIndex)
