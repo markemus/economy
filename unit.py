@@ -136,8 +136,8 @@ class Unit(object):
         # natural price
         if d.getMaterials()[i] in d.planted:
             # 2 days, tech same for planting and harvesting
-            ratio = self.incubator.ratios[d.getMaterials()[i]]
-            labor = 2 / (self.tech[i] * ratio)
+            # ratio = self.incubator.ratios[d.getMaterials()[i]]
+            labor = 2 / (self.tech[i])
         else:
             labor = 1 / self.tech[i]
 
@@ -422,6 +422,7 @@ class Unit(object):
 
     def dailyExpenses(self):
         pass
+    # TODO more debug info- planted and harvested if it has an incubator, expenses for all units.
 
 
 class Manufactury(Unit):
@@ -439,12 +440,13 @@ class Farm(Manufactury):
     zoningType = "f"
     character = "F"
 
+    # TODO limit jobs to self.slots amount- currently not used
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Farmer]
         self.slots = 10
         # self.can_make[d.GRAIN_INDEX] = True
-        self.tech[d.GRAIN_INDEX] = 4.5
+        self.tech[d.GRAIN_INDEX] = 4
         self.stock[d.GRAIN_INDEX] = 50
         # self.DMC[d.GRAIN_INDEX] = 1
         self.failSales[d.GRAIN_INDEX] = 500
@@ -453,7 +455,7 @@ class Farm(Manufactury):
             self.business.addUnit(self)
 
 
-#  20-30 kg flour per hour- ~440 lb per 8 hours
+#  50 bushels per day
 class Mill(Manufactury):
     unitType = "Mill"
     zoningType = "m"
@@ -464,7 +466,7 @@ class Mill(Manufactury):
         self.allowed_jobs = [jobs.Miller]
         self.slots = 10
         # self.can_make[d.FLOUR_INDEX] = True
-        self.tech[d.FLOUR_INDEX] = 440
+        self.tech[d.FLOUR_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
         # self.DMC[d.GRAIN_INDEX] = 1

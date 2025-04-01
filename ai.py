@@ -135,13 +135,12 @@ class Builder(object):
 
     # also makes transfer orders
     def craftOrderMaker(self, job):
-        # final commas needed so they're all tuples
-        jobProductLink = {"Farmer" : (d.GRAIN_INDEX,),
-                          "Miller" : (d.FLOUR_INDEX,),
-                          "Baker"  : (d.BREAD_INDEX,),
-                          "Brewer" : (d.BEER_INDEX,),
-                          "Lumberjack" : (d.LUMBER_INDEX,),
-                          "Carpenter" : (d.CHAIR_INDEX, d.TABLE_INDEX)}
+        jobProductLink = {"Farmer": [d.GRAIN_INDEX],
+                          "Miller": [d.FLOUR_INDEX],
+                          "Baker": [d.BREAD_INDEX],
+                          "Brewer": [d.BEER_INDEX],
+                          "Lumberjack": [d.LUMBER_INDEX],
+                          "Carpenter": [d.CHAIR_INDEX, d.TABLE_INDEX]}
         business = job.getBusiness()
         unit = job.getUnit()
         materialIndexList = jobProductLink[job.getJobType()]
@@ -293,6 +292,7 @@ class ProductionAI(object):
                 # build unit?
                 pass
 
+        # TODO reduce amount if demand drops
         # they just flood the market if demand drops, which should raise demand. Nice and simple.
         if order.getAmount() < demand:
             order.setAmount(demand)
@@ -305,8 +305,9 @@ class ProductionAI(object):
 
         grow_days = jobUnit.incubator.getGrowDays(i)
         avgDemand = jobUnit.bigdata.getAvgDemand(i)
-        ratio = jobUnit.incubator.getRatio(i)
-        amount = avgDemand / ratio
+        # ratio = jobUnit.incubator.getRatio(i)
+        # amount = avgDemand / ratio
+        amount = avgDemand
 
         # get components- does nothing if none.
         for component in d.getComponents(i):
@@ -319,8 +320,14 @@ class ProductionAI(object):
                 # build unit?
                 pass
 
-        if order.getAmount() < (amount * grow_days):
-            order.setAmount(amount * grow_days)
+        total_amount = amount * grow_days
+        # If there's a planting season for the material, we need a full year's worth.
+        if d.seasons[i] != "all":
+            total_amount = amount * 256
+
+        if order.getAmount() < total_amount:
+            order.setAmount(total_amount)
+            # TODO transfer should allow "reserve" so we don't sell all our seeds.
             transfer.setAmount(avgDemand)
 
     def setHarvestOrder(self, business, job, i):
@@ -331,6 +338,7 @@ class JobPoster(object):
     def __init__(self, model):
         self.model = model
 
+    # TODO slots should not go above unit available slots
     # don't fire anyone for now, just go bankrupt- that's fine. AI is loyal. (Otherwise they may not get them back.)
     def managePositions(self, job):
         slots           = job.slots

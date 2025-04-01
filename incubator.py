@@ -3,19 +3,21 @@ import math
 import database as d
 
 
+# TODO max capacity- acres for farms and lumberyards, barrels for beer etc.
+# TODO how do we calculate DMC for incubator materials?
 class Incubator(object):
     def __init__(self, parent):
         self.parent = parent
-        self.grow_days = {"grain": 270, "beer": 30, "wood": 5, "meat": 1, "fruit": 1}
-        self.rot_days = {"grain": 65, "beer": 180, "wood": 5, "meat": 1, "fruit": 1}
+        self.grow_days = {"grain": 270, "beer": 30, "wood": 2560, "meat": 1, "fruit": 1}
+        self.rot_days = {"grain": 65, "beer": 180, "wood": 25600, "meat": 1, "fruit": 1}
         self.growing = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
         self.grow_timers = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
         self.ripe = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
         self.rot_timers = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
         
-        # ratios including germination chance; wheat has an 80% germination chance and an avg yield of 110 grains per stalk.
-        # beer is about 2000 grains per pint.
-        self.ratios = {"grain": 88, "beer": 1/2000, "wood": 1, "meat": 1, "fruit": 1}
+        # ratios including germination chance; wheat has an avg yield of 5 bushels per bushel.
+        # beer is about 1/1000 bushels per pint.
+        # self.ratios = {"grain": 5, "beer": 1000, "wood": 1, "meat": 1, "fruit": 1}
 
     def itorzero(self, it):
         value = 0
@@ -25,12 +27,14 @@ class Incubator(object):
 
     def plant(self, mat, amount):
         if amount > 0:
+            # This way we only need to decrement the first grow timer every day.
             growtime = self.itorzero(self.grow_days[mat] - sum(self.grow_timers[mat]))
             self.growing[mat].append(amount)
             self.grow_timers[mat].append(growtime)
 
     def ripen(self, mat):
-        ready = math.floor(self.growing[mat][0] * self.ratios[mat])
+        # ready = math.floor(self.growing[mat][0] * self.ratios[mat])
+        ready = self.growing[mat][0]
         timer = self.itorzero(self.rot_days[mat] - sum(self.rot_timers[mat]))
         self.ripe[mat].append(ready)
         self.rot_timers[mat].append(timer)
@@ -75,7 +79,7 @@ class Incubator(object):
     def rot_handler(self):
         for mat in self.rot_timers.keys():
             if len(self.rot_timers[mat]) > 0:
-                if self.rot_timers[mat][0] == 0:
+                if self.rot_timers[mat][0] <= 0:
                     self.rot(mat)
                 else:
                     self.rot_timers[mat][0] -= 1
@@ -103,9 +107,9 @@ class Incubator(object):
         mat = d.getMaterials()[materialIndex]
         return self.grow_days[mat]
 
-    def getRatio(self, materialIndex):
-        mat = d.getMaterials()[materialIndex]
-        return self.ratios[mat]
+    # def getRatio(self, materialIndex):
+    #     mat = d.getMaterials()[materialIndex]
+    #     return self.ratios[mat]
 
 # #test
 

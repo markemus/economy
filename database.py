@@ -2,7 +2,7 @@ from random import shuffle
 
 
 # TODO remove meat and fruit
-#indices
+# indices
 GRAIN_INDEX = 0
 FLOUR_INDEX = 1
 BEER_INDEX  = 2
@@ -14,20 +14,20 @@ CHAIR_INDEX = 7
 TABLE_INDEX = 8 
 
 # TODO-DECIDE reconcile with zoning?
-#profile indices
+# profile indices
 MANU_INDEX = 0
 STORE_INDEX = 1
 HOME_INDEX = 2
 CHURCH_INDEX = 3
 
-#required stock- empty list if none
-#each tuple contains indexes of required inputs and the ratio of input to output. eg 1 flour needs only 2 grain.
-#harvest inputs are currently placeholders
+# required stock- empty list if none
+# each tuple contains indexes of required inputs and the ratio of input to output. eg 1 flour needs only 2 grain.
+# harvest inputs are currently placeholders
 grain   = []
 # grain   = [(GRAIN_INDEX, .04)]
-flour   = [(GRAIN_INDEX, 2)]
-beer    = [(GRAIN_INDEX, 0)]
-bread   = [(FLOUR_INDEX, 4)]
+flour   = [(GRAIN_INDEX, 1.5)]
+beer    = [(GRAIN_INDEX, 1/1000)]
+bread   = [(FLOUR_INDEX, .02)]
 meat    = []
 fruit   = [(FRUIT_INDEX, .04)]
 lumber    = [(LUMBER_INDEX, .04)]
@@ -36,32 +36,34 @@ table   = [(LUMBER_INDEX, 100)]
 
 components = [grain, flour, beer, bread, meat, fruit, lumber, chair, table]
 
-#growth ratios
-#plant 1 grain, harvest 20 grain
-
+# growth ratios
+# plant 1 grain, harvest X grain
 growratios = []
 
-#production types
+# Units of measurement- for reference.
+material_units = {"grain": "bushels", "flour": "kg", "beer": "pint", "bread": "loaf", "meat": None, "fruit": None, "lumber": None, "chair": None, "table": None}
+
+# production types
 planted = ["grain", "beer", "meat", "fruit", "lumber"]
 crafted = ["flour", "bread", "chair", "table"]
 
-#planting seasons- only grain for now (which is winter wheat)
+# planting seasons- only grain for now (which is winter wheat)
 seasons = ["September", "all", "all", "all", "all", "all", "all", "all", "all"]
 
-#name lists
+# name lists
 maleNameList = open("boynames", "r").read().splitlines()
 femaleNameList = open("girlnames", "r").read().splitlines()
 lastNameList = open("lastnames", "r").read().splitlines()
 busiNameList = open("businessnames", "r").read().splitlines()
 
-#these are identified by these same indices throughout the program.
+# these are identified by these same indices throughout the program.
 equipmentList = ["millstone"]
-skillsList = [0,0,0,0,0,0,0,0,0]
+skillsList = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 materialsList = ["grain", "flour", "beer", "bread", "meat", "fruit", "lumber", "chair", "table"]
 unitMissions = ["manu", "store", "house", "church"]
 
-#game objects
-#HOW MANY OF THESE ARE ACTUALLY USED?
+# game objects
+# TODO HOW MANY OF THESE ARE ACTUALLY USED?
 localityList = []
 businessList = []
 religionList = []
@@ -70,10 +72,10 @@ churchList = []
 peopleList = []
 bossList = []
 
-#utility
-#people will buy up to the number below INCLUSIVE.
-utilityLimitList = [0,2,6,4,2,2,0,2,1]
-utilityScaleList = [0,2,6,100,20,15,0,2,4]
+# utility
+# people will buy up to the number below INCLUSIVE.
+utilityLimitList = [0, 2, 6, 4, 2, 2, 0, 2, 1]
+utilityScaleList = [0, 2, 6, 100, 20, 15, 0, 2, 4]
 # happinessMax = sum( utilityLimitList[i] * utilityScaleList[i] for i in range(len(utilityLimitList)))
 
 def addBusiness(business):

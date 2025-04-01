@@ -19,6 +19,7 @@ class Business(object):
         self.craftingJobs       = []
         self.harvestJobs        = []
         self.priestJobs         = []
+        # TODO ai needs to manage harvestOrders
         self.harvestOrders      = []
         self.craftOrders        = []
         self.transferOrders     = []
