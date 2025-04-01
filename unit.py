@@ -476,10 +476,11 @@ class Mill(Manufactury):
             self.business.addUnit(self)
 
 
+# TODO figure out why no one is buying beer
 class Brewery(Manufactury):
     unitType = "Brewery"
     zoningType = "b"
-    character = "b"
+    character = "R"
 
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)

@@ -49,7 +49,7 @@ class gui(tk.Tk):
         # TODO fix screen sizing issue.
         # TODO currently text gets cut off on the main display when not full sized.
         # self.resizable(0,0)
-        self.resizable(1,1)
+        self.resizable(1, 1)
         # self.geometry('1414x940')
         self.geometry('1366x768')
         # self.geometry('680x240')

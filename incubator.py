@@ -3,17 +3,18 @@ import math
 import database as d
 
 
-# TODO max capacity- acres for farms and lumberyards, barrels for beer etc. Plus need workers for maintenance.
+# TODO max capacity- acres for farms and lumberyards, barrels for beer etc.
+# TODO need workers for maintenance.
 # TODO-DONE how do we calculate DMC for incubator materials?
 class Incubator(object):
     def __init__(self, parent):
         self.parent = parent
-        self.grow_days = {"grain": 270, "beer": 30, "wood": 2560, "meat": 1, "fruit": 1}
-        self.rot_days = {"grain": 65, "beer": 180, "wood": 25600, "meat": 1, "fruit": 1}
-        self.growing = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
-        self.grow_timers = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
-        self.ripe = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
-        self.rot_timers = {"grain": [], "beer": [], "wood": [], "meat": [], "fruit": []}
+        self.grow_days = {"grain": 270, "beer": 30, "lumber": 2560, "meat": 1, "fruit": 1}
+        self.rot_days = {"grain": 65, "beer": 180, "lumber": 25600, "meat": 1, "fruit": 1}
+        self.growing = {"grain": [], "beer": [], "lumber": [], "meat": [], "fruit": []}
+        self.grow_timers = {"grain": [], "beer": [], "lumber": [], "meat": [], "fruit": []}
+        self.ripe = {"grain": [], "beer": [], "lumber": [], "meat": [], "fruit": []}
+        self.rot_timers = {"grain": [], "beer": [], "lumber": [], "meat": [], "fruit": []}
         
         # ratios including germination chance; wheat has an avg yield of 5 bushels per bushel.
         # beer is about 1/1000 bushels per pint.

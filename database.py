@@ -59,11 +59,12 @@ busiNameList = open("businessnames", "r").read().splitlines()
 # these are identified by these same indices throughout the program.
 equipmentList = ["millstone"]
 skillsList = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+# TODO more products.
 materialsList = ["grain", "flour", "beer", "bread", "meat", "fruit", "lumber", "chair", "table"]
 unitMissions = ["manu", "store", "house", "church"]
 
 # game objects
-# TODO HOW MANY OF THESE ARE ACTUALLY USED?
+# TODO-DONE HOW MANY OF THESE ARE ACTUALLY USED?
 localityList = []
 businessList = []
 religionList = []
@@ -74,8 +75,8 @@ bossList = []
 
 # utility
 # people will buy up to the number below INCLUSIVE.
-utilityLimitList = [0, 2, 6, 4, 2, 2, 0, 2, 1]
-utilityScaleList = [0, 2, 6, 100, 20, 15, 0, 2, 4]
+utilityLimitList = [0, 2, 6, 14, 2, 2, 0, 2, 1]
+utilityScaleList = [0, 0, 10, 50, 20, 15, 0, 2, 4]
 # happinessMax = sum( utilityLimitList[i] * utilityScaleList[i] for i in range(len(utilityLimitList)))
 
 def addBusiness(business):

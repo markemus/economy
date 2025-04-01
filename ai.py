@@ -1,6 +1,8 @@
 import math
 import random
 
+import numpy as np
+
 import business as bu
 import database as d
 import jobs
@@ -21,7 +23,7 @@ class StartupAI(object):
         # possibilities = self.possibilities(investor, knownStock)
         possibilities = self.tempPossibilities(investor)
         optimalList = self.optimalList(investor)
-        bestPossible = self.bestPossible(possibilities, optimalList)
+        bestPossible = self.weightedBestPossible(possibilities, optimalList)
 
         return bestPossible
 
@@ -71,35 +73,32 @@ class StartupAI(object):
     # people shop for the thing they want the most. So they want to open businesses with that in mind- what will bring in the most customers?
     def optimalList(self, investor):
         peopleProfiles = investor.getKnownPeople()
-        highestMU = [0 for i in d.getMaterials()]
+        # highestMU = [0 for i in d.getMaterials()]
+        mu_lists = np.array([profile.getMuList()[0] for profile in peopleProfiles])
+        mu_avg = mu_lists.mean(axis=0)
+        mu_avg = mu_avg / mu_avg.sum()
 
-        for profile in peopleProfiles:
-            
-            muList = profile.getMuList()[0]
-            maxMu = muList.index(max(muList))
-            if muList[maxMu] != 0:
-                highestMU[maxMu] += 1
+        return mu_avg
 
-        return highestMU
-
-    def bestPossible(self, possibilities, optimalList):
-        """Selects the best possible business to build, based on friends' marginal utility."""
+    def weightedBestPossible(self, possibilities, optimalList):
+        """Selects a good business to build, weighted on friends' marginal utility."""
         notDone = True
 
         while notDone:
-            bestOption = optimalList.index(max(optimalList))
+            option = list(optimalList).index(np.random.choice(optimalList, p=optimalList))
             
-            if optimalList[bestOption] == 0:
-                bestOption = None
+            if optimalList[option] == 0:
+                option = None
                 notDone = False
 
-            if bestOption is not None:
-                if possibilities[bestOption]:
+            if option is not None:
+                if possibilities[option]:
                     notDone = False
                 else:
-                    optimalList[bestOption] = 0
+                    optimalList[option] = 0
+                    optimalList = optimalList / optimalList.sum()
 
-        return bestOption
+        return option
 
 
 # factory for supply chains.

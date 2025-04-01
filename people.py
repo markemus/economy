@@ -5,13 +5,14 @@ import copy
 import database as d
 from conversation import Convo
 from profiles import PersonProfile
-from profiles import StoreProfile
+
 
 # TODO personalities- research shopping types.
 # TODO Advertisements- should target particular personalities. IE build a brand.
 # TODO surveys- target store customers (yours) or a geographical area.
+# TODO surveys and ads should require a manager
+# TODO check- prioritize purchases using marginal utility.
 class People:
-    # name = "John Doe"
     firstname = "John"
     lastname = "Doe"
     # 0 are men, 1 are women
@@ -44,7 +45,7 @@ class People:
         self.religion = theirReligion
         self.muList = [0 for i in range(len(d.materialsList))]
         self.inventory = [0 for i in range(len(d.materialsList))]
-        # TODO-TEST clear thoughts at the end of every week.
+        # TODO-DONE clear thoughts at the end of every week.
         self.thoughts = []
         # profiles
         self.knownPeople = {}

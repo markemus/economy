@@ -241,7 +241,8 @@ class Business(object):
 
         return targetUnit
 
-    # TODO prices are way too low for bread. .03 ducats after 1 week.
+    # TODO we should still run some functions on weekends, like bigdata and incubator. But be sure to reset values first. But that will mess up ai...
+    # TODO-DONE prices are way too low for bread. .03 ducats after 1 week.
     def workHandler(self):
         self.resetHired()
 
