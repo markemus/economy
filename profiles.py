@@ -72,7 +72,7 @@ class PersonProfile(object):
         family = {"father": father, "mother": mother, "spouse": spouse, "siblings": siblings, "children": children}
         for title, relative in family.items():
             # compare daynum
-            if (relative[0]) and (relative[-1] > getattr(self, title)[-1]):
+            if (relative[0]) and (relative[-1] >= getattr(self, title)[-1]):
                 setattr(self, title, relative)
 
     def updateHouse(self, p_house, dayNum):

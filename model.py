@@ -28,9 +28,9 @@ class Model(object):
         yourHome            = u.House(Jonestown, address)
         Jonestown.claim_node(address, yourHome)
         # TODO character creation.
-        self.char           = ai.Character(self, "Markemus", "Williamson", 0, Jonestown, yourHome, d.getReligions()[0])
+        self.char = ai.Character(self, "Markemus", "Williamson", 0, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(self.char)
-        spouse              = p.People(self, "Susan", "Spinster", 1, Jonestown, yourHome, d.getReligions()[0])
+        spouse = p.People(self, "Susan", "Spinster", 1, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(spouse)
         self.char.setSpouse(spouse)
         spouse.setSpouse(self.char)

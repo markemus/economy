@@ -84,20 +84,21 @@ class People:
         self.think("I can finally relax a little.")
         self.jobHandler()
         self.friendConversations()
+        self.eat()
 
     def shopHandler(self):
         self.allMu()
         self.goShopping()
         self.allMu()
+        self.drink()
 
     def sleepHandler(self):
         self.think("My bed is so cozy.")
         self.update_my_profile()
         self.familyConversations()
-        # TODO should eat 3x per day, 1 bread each time (or substitute good)
+        # TODO-DONE should eat 3x per day, 1 bread each time (or substitute good)
         # TODO eating, drinking should give MU
         self.eat()
-        self.drink()
 
     def jobHandler(self):
         if self.job is None:
@@ -654,6 +655,8 @@ class People:
         self.spouse = spouse
         if self.getGender() == 1:
             self.lastname = spouse.lastname
+        self.peopleManager(self).updateFamily(spouse=(self.peopleManager(spouse), self.model.getDayNum()))
+        self.peopleManager(spouse).updateFamily(spouse=(self.peopleManager(self), self.model.getDayNum()))
 
     def getCapital(self):
         return self.capital
