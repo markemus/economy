@@ -7,7 +7,7 @@ import database as d
 
 
 # world map made up of ALL localities (for particular installation, or otherwise compartmentalize)
-class World(object):
+class World:
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -47,7 +47,7 @@ class World(object):
 
 
 # town map made up of nodes
-class Locality(object):
+class Locality:
     def __init__(self, model, location, width, height, name):
         self.model = model
         self.width = width

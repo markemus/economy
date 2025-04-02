@@ -11,7 +11,7 @@ import unit as u
 import people as p
 
 
-class generator(object):
+class generator:
     def __init__(self, model):
         self.model = model
 
@@ -98,7 +98,7 @@ class generator(object):
         religionList = [Catholic, Protestant]
         return religionList
 
-    # TODO Stores should be near owner's house?
+    # TODO-DONE Stores should be near owner's house?
     # TODO city hall
     def generateWorld(self, p_quantity, w_width, w_height):
         # world

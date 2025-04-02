@@ -7,7 +7,7 @@ import people as p
 import unit as u
 
 
-class Model(object):
+class Model:
     def __init__(self):
         self.clock          = cl.Clock(self)
         self.week           = cl.Week(self)

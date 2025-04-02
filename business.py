@@ -3,7 +3,7 @@ import orders as o
 
 
 # composed of Units
-class Business(object):
+class Business:
     name = "businessName"
     cash = 0
     locality = None

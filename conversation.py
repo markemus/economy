@@ -13,7 +13,7 @@ from transitions import Machine
 #  should play a role.
 # TODO people should prefer to talk to people they have a high opinion of. Personality should be linked to that.
 # Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
-class Conversation(object):
+class Conversation:
     # a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
 
     topicMatrix = [
