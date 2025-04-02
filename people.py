@@ -386,7 +386,7 @@ class People:
             desiredItemWeight = max(mu_weights) if mu_weights else 0
 
             # Find store weight- (desiredItemWeight=500 for 1)
-            weight = (5 / distance) + familiarity + experience + (10*np.tanh(.004*desiredItemWeight))
+            weight = (5 / distance) + familiarity + (2 * experience) + (10*np.tanh(.004*desiredItemWeight))
             
             if (weight > bestWeight[1]) or (bestWeight[0] is None):
                 if isLocal:
@@ -477,9 +477,9 @@ class People:
         
         # experience should increase only if they had a good experience
         if sold:
-            experience = experience * 1.1
+            experience = experience + 1
         else:
-            experience = experience / 1.1
+            experience = experience - 1
 
         storeProfile.updateExperience(experience)
 
