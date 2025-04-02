@@ -158,10 +158,15 @@ class Builder(object):
 
     # TODO-DONE get ai to build things other than bakery line.
     def buildIt(self, business, locality, toBuild):
-        if toBuild.zoningType == "f":
-            unitLocation = locality.find_sized_property(zone=toBuild.zoningType, xsize=5, ysize=5)
+        if business.owners:
+            owner = business.owners[0]
         else:
-            unitLocation = locality.find_property(zone=toBuild.zoningType)
+            owner = None
+
+        if toBuild.zoningType == "f":
+            unitLocation = locality.find_sized_property(zone=toBuild.zoningType, xsize=5, ysize=5, owner=owner)
+        else:
+            unitLocation = locality.find_property(zone=toBuild.zoningType, owner=owner)
 
         if unitLocation is not None:
             existingUnits = business.getUnits()
@@ -193,6 +198,7 @@ class Builder(object):
         unit.addStock(d.GRAIN_INDEX, 100000)
 
     # TODO for now, there is no startup cost
+    # TODO city hall, pay for new buildings.
     def buildChain(self, business, toBuild):
         locality = business.getLocality()
 

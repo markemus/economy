@@ -98,12 +98,8 @@ class generator(object):
         religionList = [Catholic, Protestant]
         return religionList
 
-    # TODO-DONE more chaotic map generation. How to organize houses and store locations?
-    # TODO-DONE Churches should be scattered around.
     # TODO Stores should be near owner's house?
-    # TODO-DONE Start with neighbors, not friends.
-    # people must be even int because marriages
-    # we only generate a single locality- don't ask
+    # TODO city hall
     def generateWorld(self, p_quantity, w_width, w_height):
         # world
         gennedWorld = g.World(w_width, w_height)
@@ -112,13 +108,11 @@ class generator(object):
         l_location = (random.randrange(w_width), random.randrange(w_height))
         gennedLocality = self.generateLocality(l_location)
 
-        # TODO-DONE farms on the outskirts. Zoning?
         religions = self.generateReligions(gennedLocality)
         self.generatePeople(p_quantity, gennedLocality, religions)
 
         return gennedWorld
 
-    # TODO-DONE replace friends with neighbors
     def makeNeighbors(self):
         peopleList = d.getPeople()
         for person in peopleList:

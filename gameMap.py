@@ -1,3 +1,4 @@
+import math
 import random
 
 import numpy as np
@@ -168,11 +169,22 @@ class Locality(object):
         
         return is_empty
 
-    def find_property(self, zone):
-        """Selects a random plot for use."""
+    def pyth(self, xy1, xy2):
+        distanceX = xy1[0] - xy2[0]
+        distanceY = xy1[1] - xy2[1]
+        distance = math.sqrt(distanceX ** 2 + distanceY ** 2)
+
+        return distance
+
+    def find_property(self, zone, owner=None):
+        """Selects a nearby plot for use."""
         zone_map = self.getZoningMap()
         available_plots = np.argwhere(zone_map==zone)
-        np.random.shuffle(available_plots)
+        if owner:
+            available_plots = sorted(available_plots, key=lambda xy: self.pyth(xy, owner.home.location))
+        else:
+            np.random.shuffle(available_plots)
+
         if len(available_plots):
             location = available_plots[0]
         else:
@@ -180,11 +192,15 @@ class Locality(object):
 
         return location
 
-    def find_sized_property(self, zone, xsize, ysize):
+    def find_sized_property(self, zone, xsize, ysize, owner=None):
         zone_map = self.getZoningMap()
         # print(np.lib.stride_tricks.sliding_window_view(zone_map==zone, (xsize, ysize)).all(axis=(-2,-1)))
         available_plots = np.argwhere(np.lib.stride_tricks.sliding_window_view(zone_map==zone, (xsize, ysize)).all(axis=(-2,-1)))
-        np.random.shuffle(available_plots)
+        if owner:
+            available_plots = sorted(available_plots, key=lambda xy: self.pyth(xy, owner.home.location))
+        else:
+            np.random.shuffle(available_plots)
+
         if len(available_plots):
             location = available_plots[0]
         else:

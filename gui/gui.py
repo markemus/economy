@@ -1131,9 +1131,9 @@ class new_unit(tk.Frame):
             locality = business.locality
 
             if unit.zoningType == "f":
-                location = locality.find_sized_property(zone=unit.zoningType, xsize=5, ysize=5)
+                location = locality.find_sized_property(zone=unit.zoningType, xsize=5, ysize=5, owner=business.owners[0])
             else:
-                location = locality.find_property(zone=unit.zoningType)
+                location = locality.find_property(zone=unit.zoningType, owner=business.owners[0])
 
             if location is not None:
                 new_unit = unit(name, locality, location, business)
