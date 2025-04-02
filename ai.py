@@ -341,7 +341,7 @@ class JobPoster(object):
     def __init__(self, model):
         self.model = model
 
-    # TODO slots should not go above unit available slots
+    # TODO-DONE slots should not go above unit available slots
     # don't fire anyone for now, just go bankrupt- that's fine. AI is loyal. (Otherwise they may not get them back.)
     def managePositions(self, job):
         # slots           = job.slots

@@ -617,15 +617,15 @@ class key_controller(tk.Frame):
             frame = keyboard(parent=self, controller=self, root=root)
             self.frames[page_name] = frame
 
-            #stack frames
+            # stack frames
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame("welcome")
 
-    def show_frame(self, page_name, *args):
+    def show_frame(self, page_name, *args, **kwargs):
         frame = self.frames[page_name]
         self.root.focus()
-        frame.raise_frame(*args)
+        frame.raise_frame(*args, **kwargs)
 
     def get_display_cont(self):
         return self.root.get_display_cont()
@@ -653,7 +653,7 @@ class key_controller(tk.Frame):
 
         return isInt
 
-    # TODO create transfer and transport orders manually as well.
+    # TODO-DONE create transfer and transport orders manually as well.
     def create_order(self, order_var, amount_var):
         def callback():
             business = self.get_business()
@@ -890,10 +890,7 @@ class main_keyboard(tsf.tkscrollframe):
             key += 1
 
 
-
-
 class new_business(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -963,7 +960,6 @@ class new_business(tk.Frame):
 
 # class businessData(tk.Frame):
 class businessData(tsf.tkscrollframe):
-
     def __init__(self, parent, controller, root):
         # tk.Frame.__init__(self, parent)
         tsf.tkscrollframe.__init__(self, parent)
@@ -1061,10 +1057,7 @@ class businessData(tsf.tkscrollframe):
             key += 1
 
 
-
-
 class new_unit(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1125,30 +1118,37 @@ class new_unit(tk.Frame):
         from unit import all_units
 
         unitType = self.unit_var.get()
-
-        for unit in all_units():
-            if unit.unitType == unitType:
-                break
-
         name = self.unit_name.get()
-        business = self.controller.get_business()
-        locality = business.locality
-        if unit.zoningType == "f":
-            location = locality.find_sized_property(zone=unit.zoningType, xsize=5, ysize=5)
-        else:
-            location = locality.find_property(zone=unit.zoningType)
 
-        if location is not None:
-            new_unit = unit(name, locality, location, business)
+        if unitType and name:
+            for unit in all_units():
+                if unit.unitType == unitType:
+                    break
+            else:
+                return
+
+            business = self.controller.get_business()
+            locality = business.locality
 
             if unit.zoningType == "f":
-                locality.claim_nodes_from_topleft(location, xsize=5, ysize=5, entity=new_unit)
+                location = locality.find_sized_property(zone=unit.zoningType, xsize=5, ysize=5)
             else:
-                locality.claim_node(location, new_unit)
-    
-            # TODO should go to unit page instead of this debug display.
-            self.unit_name.set(new_unit)
-            self.root.event_generate("<<refresh>>", when="tail")
+                location = locality.find_property(zone=unit.zoningType)
+
+            if location is not None:
+                new_unit = unit(name, locality, location, business)
+
+                if unit.zoningType == "f":
+                    locality.claim_nodes_from_topleft(location, xsize=5, ysize=5, entity=new_unit)
+                else:
+                    locality.claim_node(location, new_unit)
+
+                # TODO-DONE should go to unit page instead of this debug display.
+                # self.controller.frames["unitData"].unit = new_unit
+                self.controller.show_frame("unitData", unit=new_unit)
+                # self.unit_name.set(new_unit)
+                # unitData
+                # self.root.event_generate("<<refresh>>", when="tail")
 
 
 # TODO figure out why buttons are pushed to the left side, except in business frame?
@@ -1159,7 +1159,7 @@ class unitData(tsf.tkscrollframe):
         self.controller = controller
         self.root = root
         self.dynamic_buttons = []
-        self.hotkeys = ["s", "c", "d", "e", "p", "l", "m", "n","<Escape>"]
+        self.hotkeys = ["s", "c", "d", "e", "p", "l", "m", "n", "<Escape>"]
         self.unit = None
         self.unitName = tk.StringVar()
         self.unitName.set("unitName")

@@ -9,7 +9,7 @@ import copy
 import math
 # TODO add units- gym, pub, bank, store
 # TODO add advertising with % chance to see for visitors.
-# TODO slots- maximum number of hires.
+# TODO-DONE slots- maximum number of hires.
 # TODO startup costs.
 # TODO allow player to set prices.
 
