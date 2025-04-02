@@ -976,10 +976,10 @@ class businessData(tsf.tkscrollframe):
         production = tk.Button(self.frame, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
         sales = tk.Button(self.frame, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.business))
         employees = tk.Button(self.frame, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
-        # TODO add business prices screen
+        # TODO-DONE add business prices screen
         # prices = tk.Button(self.frame, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.business))
         new_unit = tk.Button(self.frame, text="[n] New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
-        self.esc = tk.Button(self.frame, text="[esc] Return to Office",font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
+        self.esc = tk.Button(self.frame, text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
         header.pack(fill=tk.X)
         stock.pack(fill=tk.X)

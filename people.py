@@ -50,6 +50,7 @@ class People:
         # TODO-DONE clear thoughts at the end of every week.
         self.thoughts = []
         # profiles
+        # TODO all profile managers should use a dictionary like knownPeople.
         self.knownPeople = {}
         self.knownManus = []
         self.knownStores = []
@@ -63,6 +64,7 @@ class People:
         self.businesses = []
         # initial values
         self.allMu()
+        # TODO finish happiness
         self.maxSadness = sum(self.muList)
         self.isboss = False
 
@@ -256,7 +258,7 @@ class People:
             self.think("I'm all alone in the world.")
 
     def friendConversations(self):
-        friend = self.randomPerson().person
+        friend = self.randomWeightedPerson().person
 
         if friend is not self:
             Convo.beginConversation(self, friend)
@@ -510,64 +512,103 @@ class People:
         else:
             self.think("I could really use a beer right now.")
 
-    # TODO-DECIDE this function is weird and I don't know why. Just use random.choice?
-    def randomManu(self, oldManu=None):
-        length = len(self.knownManus)
-        if length >= 2:
-            manuIndex = random.randint(0, length-1)
-            tryManu = self.knownManus[manuIndex]
+    # TODO-DONE this function is weird and I don't know why. Just use random.choice?
+    # def randomManu(self, oldManu=None):
+    #     length = len(self.knownManus)
+    #     if length >= 2:
+    #         manuIndex = random.randint(0, length-1)
+    #         tryManu = self.knownManus[manuIndex]
+    #
+    #         if (tryManu is not oldManu) or (oldManu is None):
+    #             newManu = tryManu
+    #         else:
+    #             newManu = self.randomManu(oldManu)
+    #
+    #     elif length == 1 and oldManu == None:
+    #         newManu= self.knownManus[0]
+    #
+    #     else:
+    #         newManu = None
+    #
+    #     return newManu
 
-            if (tryManu is not oldManu) or (oldManu is None):
-                newManu = tryManu
-            else:
-                newManu = self.randomManu(oldManu)
-        
-        elif length == 1 and oldManu == None:
-            newManu= self.knownManus[0]
-        
+    def randomManu(self):
+        """Returns a random person, weighted on opinion of that person."""
+        if self.knownManus:
+            chosen = random.choice(self.knownManus)
         else:
-            newManu = None
-        
-        return newManu
+            chosen = None
 
-    def randomPerson(self, oldPerson=None):
-        length = len(self.knownPeople)
-        if length >= 2:
-            tryPerson = self.knownPeople[random.choice(list(self.knownPeople.keys()))]
+        return chosen
 
-            if (tryPerson is not oldPerson) or (oldPerson is None):
-                newPerson = tryPerson
-            else:
-                newPerson = self.randomPerson(oldPerson)
 
-        elif length == 1 and oldPerson == None:
-            newPerson = self.knownPeople[list(self.knownPeople.keys())[0]]
+    # def randomPerson(self, oldPerson=None):
+    #     length = len(self.knownPeople)
+    #     if length >= 2:
+    #         tryPerson = self.knownPeople[random.choice(list(self.knownPeople.keys()))]
+    #
+    #         if (tryPerson is not oldPerson) or (oldPerson is None):
+    #             newPerson = tryPerson
+    #         else:
+    #             newPerson = self.randomPerson(oldPerson)
+    #
+    #     elif length == 1 and oldPerson == None:
+    #         newPerson = self.knownPeople[list(self.knownPeople.keys())[0]]
+    #
+    #     else:
+    #         newPerson = None
+    #
+    #     return newPerson
 
+    # def randomPerson(self, oldPerson=None):
+    #     all_people = list(self.knownPeople.values())
+    #     if oldPerson:
+    #         all_people.remove(oldPerson)
+    #
+    #     chosen = random.choice(all_people)
+    #
+    #     return chosen
+    def randomWeightedPerson(self):
+        """Returns a random person, weighted on opinion of that person."""
+        all_people = list(self.knownPeople.values())
+        if all_people:
+            weights = [x.opinion + 1 for x in all_people]
+            chosen = random.choices(all_people, weights, k=1)[0]
         else:
-            newPerson = None
+            chosen = None
 
-        return newPerson
+        return chosen
 
-    def randomStore(self, oldStore=None):
-        length = len(self.knownStores)
-        if length >= 2:
-            storeIndex = random.randint(0, length-1)
-            tryStore = self.knownStores[storeIndex]
+    # def randomStore(self, oldStore=None):
+    #     length = len(self.knownStores)
+    #     if length >= 2:
+    #         storeIndex = random.randint(0, length-1)
+    #         tryStore = self.knownStores[storeIndex]
+    #
+    #         if (tryStore is not oldStore) or (oldStore is None):
+    #             newStore = tryStore
+    #         else:
+    #             newStore = self.randomStore(oldStore)
+    #
+    #     elif length == 1 and oldStore == None:
+    #         newStore = self.knownStores[0]
+    #
+    #     else:
+    #         newStore = None
+    #
+    #     return newStore
 
-            if (tryStore is not oldStore) or (oldStore is None):
-                newStore = tryStore
-            else:
-                newStore = self.randomStore(oldStore)
-        
-        elif length == 1 and oldStore == None:
-            newStore = self.knownStores[0]
-        
+    def randomWeightedStore(self):
+        """Returns a random store, weighted on experience."""
+        if self.knownStores:
+            weights = [x.experience if x.experience > 0 else 1 for x in self.knownStores]
+            chosen = random.choices(self.knownStores, weights, k=1)[0]
         else:
-            newStore = None
-        
-        return newStore
+            chosen = None
 
-    def peopleManager(self, target):        
+        return chosen
+
+    def peopleManager(self, target):
         if target in self.knownPeople:
             targetProfile = self.knownPeople[target]
         else:

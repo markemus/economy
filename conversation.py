@@ -8,41 +8,45 @@ from transitions import Machine
 # target state D = end of conversation. We start in state D when initializing conversation.
 # row vectors sum to 1, internal lists are columns.
 
+
+# TODO conversations should build familiarity with people who like what they hear. Build a brand. Personality
+#  should play a role.
+# TODO people should prefer to talk to people they have a high opinion of. Personality should be linked to that.
 # Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
 class Conversation(object):
-    #a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
+    # a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
 
     topicMatrix = [
-    [0.00,0.20,0.15,0.15,0.25],
-    [0.20,0.00,0.15,0.15,0.25],
-    [0.15,0.15,0.00,0.20,0.25],
-    [0.15,0.15,0.20,0.00,0.25],
-    [0.50,0.50,0.50,0.50,0.00]
+        [0.00, 0.20, 0.15, 0.15, 0.25],
+        [0.20, 0.00, 0.15, 0.15, 0.25],
+        [0.15, 0.15, 0.00, 0.20, 0.25],
+        [0.15, 0.15, 0.20, 0.00, 0.25],
+        [0.50, 0.50, 0.50, 0.50, 0.00]
     ]
 
-    #a. different store, b. new topic, c. end convo, d. prices
+    # a. different store, b. new topic, c. end convo, d. prices
     storeMatrix = [
-    [0.0,0.0,0.25,0.25],
-    [0.0,0.0,0.25,0.25],
-    [0.0,0.0,0.25,0.50],
-    [1.0,1.0,0.25,0.00]
+        [0.0, 0.0, 0.25, 0.25],
+        [0.0, 0.0, 0.25, 0.25],
+        [0.0, 0.0, 0.25, 0.50],
+        [1.0, 1.0, 0.25, 0.00]
     ]
 
-    #a. different manufacturer, b. new topic, c. end convo, d. prices
+    # a. different manufacturer, b. new topic, c. end convo, d. prices
     manuMatrix = [
-    [0.0,0.0,0.25,0.25],
-    [0.0,0.0,0.25,0.25],
-    [0.0,0.0,0.25,0.50],
-    [1.0,1.0,0.25,0.00]
+        [0.0, 0.0, 0.25, 0.25],
+        [0.0, 0.0, 0.25, 0.25],
+        [0.0, 0.0, 0.25, 0.50],
+        [1.0, 1.0, 0.25, 0.00]
     ]
 
-    #a. different friend, b. new topic, c. end convo, d. family, e. job, /f. skills
+    # a. different friend, b. new topic, c. end convo, d. family, e. job, /f. skills
     friendMatrix = [
-    [0.0,0.0,0.2,0.1,0.1],
-    [0.0,0.0,0.2,0.2,0.2],
-    [0.0,0.0,0.2,0.5,0.5],
-    [0.5,0.5,0.2,0.0,0.2],
-    [0.5,0.5,0.2,0.2,0.0]
+        [0.0, 0.0, 0.2, 0.1, 0.1],
+        [0.0, 0.0, 0.2, 0.2, 0.2],
+        [0.0, 0.0, 0.2, 0.5, 0.5],
+        [0.5, 0.5, 0.2, 0.0, 0.2],
+        [0.5, 0.5, 0.2, 0.2, 0.0]
     ]
     # friendMatrix = [
     # [0.00,0.00,0.15,0.1,0.1,0.1],
@@ -53,13 +57,13 @@ class Conversation(object):
     # [0.33,0.33,0.25,0.1,0.1,0.0]
     # ]
 
-    #a. introduction, b. new topic, c. end convo, d. myfamily, e. myjob, /f. myskills
+    # a. introduction, b. new topic, c. end convo, d. myfamily, e. myjob, /f. myskills
     myselfMatrix = [
-    [0.00,1,0.2,0.0,0.0],
-    [0.25,0,0.2,0.2,0.2],
-    [0.25,0,0.2,0.5,0.5],
-    [0.25,0,0.2,0.0,0.3],
-    [0.25,0,0.2,0.3,0.0]
+        [0.00, 1, 0.2, 0.0, 0.0],
+        [0.25, 0, 0.2, 0.2, 0.2],
+        [0.25, 0, 0.2, 0.5, 0.5],
+        [0.25, 0, 0.2, 0.0, 0.3],
+        [0.25, 0, 0.2, 0.3, 0.0]
     ]
     # myselfMatrix = [
     # [0.0,1,0.15,0.00,0.00,0.00],
@@ -120,22 +124,22 @@ class Conversation(object):
 
     def different(self):
         if self.state == 'friend':
-            testTarget = self.firstPerson.randomPerson(self.target)
+            testTarget = self.firstPerson.randomWeightedPerson()
             if testTarget is not None:
                 self.target = testTarget.person
             else:
                 self.target = None
 
         elif self.state == 'manu':
-            testTarget = self.firstPerson.randomManu(self.target)
+            testTarget = self.firstPerson.randomManu()
             if testTarget is not None:
                 self.target = testTarget.store
             else:
                 self.target = None
 
         elif self.state == 'store':
-            # TODO people should prefer stores they like (high experience)
-            testTarget = self.firstPerson.randomStore(self.target)
+            # TODO-DONE people should prefer stores they like (high experience)
+            testTarget = self.firstPerson.randomWeightedStore()
             if testTarget is not None:
                 self.target = testTarget.store
             else:
@@ -229,7 +233,7 @@ class Conversation(object):
             elif secondJob[1] > firstJob[1]:
                 firstProfile.updateJob(*secondJob)
                 self.firstPerson.think(self.secondPerson.name + " told me what " + self.target.name + " does for a living.")
-                self.secondPerson.think("I told " + self.firstPerson.name + " about " + self.target.name + " does for a living.")
+                self.secondPerson.think("I told " + self.firstPerson.name + " about what " + self.target.name + " does for a living.")
 
             else:
                 self.firstPerson.think(self.secondPerson.name + " and I talked about " + self.target.name + "'s job.")
