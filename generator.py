@@ -22,7 +22,6 @@ class generator(object):
 
     def generatePeople(self, p_quantity, locality, religionList):
         lastNameList = d.getLastNameList()
-        # house_list = []
 
         # Create families
         while p_quantity > len(d.peopleList):
@@ -36,16 +35,17 @@ class generator(object):
             home_location = locality.find_property(zone="h")
             family_home = u.House(locality, home_location)
             locality.claim_node(home_location, family_home)
-            # house_list.append(family_home)
 
             # Parents
             father_name = random.choice(d.getFirstNameList(gender=0))
             father = p.People(self.model, father_name, family_name, 0, locality, family_home, family_religion)
+            father.birthday = self.model.calendar.sample_date(year=self.model.calendar.year-random.randint(35, 45))
             family_home.addTenant(father)
             father.addCapital(100)
 
             mother_name = random.choice(d.getFirstNameList(gender=1))
             mother = p.People(self.model, mother_name, family_name, 1, locality, family_home, family_religion)
+            mother.birthday = self.model.calendar.sample_date(year=self.model.calendar.year - random.randint(30, 40))
             family_home.addTenant(mother)
             mother.addCapital(100)
 
@@ -59,27 +59,10 @@ class generator(object):
                 gender = random.choice([0, 1])
                 child_name = random.choice(d.getFirstNameList(gender=gender))
                 child = p.People(self.model, child_name, family_name, gender, locality, family_home, family_religion)
+                child.birthday = self.model.calendar.sample_date(year=self.model.calendar.year - random.randint(15, 23))
                 family_home.addTenant(child)
                 child.addCapital(100)
                 child_list.append(child)
-
-            # Profiles
-            # Create profiles and update opinion
-            father.peopleManager(mother).updateOpinion(10)
-            mother.peopleManager(father).updateOpinion(10)
-
-            # Update basic info
-            father.peopleManager(mother).updateBirthday(mother.birthday)
-            father.peopleManager(mother).updateHouse(mother.getHome(), self.model.getDayNum())
-            father.peopleManager(father).updateFamily(spouse=(father.peopleManager(mother), self.model.getDayNum()))
-            father.peopleManager(mother).updateFamily(spouse=(father.peopleManager(father), self.model.getDayNum()))
-            father.peopleManager(mother).updateMuList(mother.getMuList(), mother.locality.getDayNum())
-
-            mother.peopleManager(father).updateBirthday(father.birthday)
-            mother.peopleManager(father).updateFamily(spouse=(mother.peopleManager(mother), self.model.getDayNum()))
-            mother.peopleManager(mother).updateFamily(spouse=(mother.peopleManager(father), self.model.getDayNum()))
-            mother.peopleManager(father).updateHouse(father.getHome(), self.model.getDayNum())
-            mother.peopleManager(father).updateMuList(father.getMuList(), father.locality.getDayNum())
 
             for child in child_list:
                 other_children = child_list.copy()
@@ -144,16 +127,23 @@ class generator(object):
     def makeFriends(self):
         peopleList = d.getPeople()
         for person in peopleList:
-            for count in range(3):
-                i = random.randrange(len(peopleList))
-                friend = peopleList[i]
-                friendProfile = person.peopleManager(friend)
-                friendProfile.updateMuList(friend.getMuList(), person.locality.getDayNum())
-                friend.peopleManager(person).updateOpinion(5)
+            houses = d.getHouses().copy()
+            houses.sort(key=lambda x: person.pyth(x)[0])
+            dayNum = person.locality.getDayNum()
 
-                personProfile = friend.peopleManager(person)
-                personProfile.updateMuList(person.getMuList(), person.locality.getDayNum())
-                person.peopleManager(friend).updateOpinion(5)
+            for count in range(random.randint(2, 5)):
+                neighbor = random.choice(houses[count].tenants)
+                neighborProfile = person.peopleManager(neighbor)
+                neighborProfile.updateMuList(neighbor.getMuList(), dayNum)
+                neighborProfile.updateOpinion(5)
+                neighborProfile.updateBirthday(neighbor.birthday)
+                neighborProfile.updateHouse(neighbor.home, dayNum)
+
+                personProfile = neighbor.peopleManager(person)
+                personProfile.updateOpinion(5)
+                personProfile.updateBirthday(person.birthday)
+                personProfile.updateMuList(person.getMuList(), dayNum)
+                personProfile.updateHouse(person.home, dayNum)
 
     # TODO bosses should start with far less money (maybe just a loan from a bank instead)
     # just gives money- actual boss stuff handled in clock and people

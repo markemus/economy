@@ -1,7 +1,10 @@
+import random
+
 import database as d
+
 from transitions import Machine
 from transitions import State
-# from ai import startupAI, productionAI
+
 
 class Clock(object):
     states = ['work', 'relax', 'shop', 'sleep']
@@ -157,6 +160,12 @@ class Calendar(object):
     def date(self):
         date = self.state + " " + str(self.dayOfMonth) + ", " + str(self.year)
         return date
+
+    def sample_date(self, year):
+        month = random.choice(self.months)
+        day = random.randint(1, self.daysPerMonth[self.months.index(month)])
+        year = year
+        return f"{month} {day}, {year}"
 
 
 # example calendar. Also is the secular calendar- each religion has their own.

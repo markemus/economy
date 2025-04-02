@@ -680,11 +680,20 @@ class People:
             return "woman"
 
     def setSpouse(self, spouse):
+        """Set female spouse first."""
         self.spouse = spouse
+        dayNum = self.model.getDayNum()
         if self.getGender() == 1:
             self.lastname = spouse.lastname
-        self.peopleManager(self).updateFamily(spouse=(self.peopleManager(spouse), self.model.getDayNum()))
-        self.peopleManager(spouse).updateFamily(spouse=(self.peopleManager(self), self.model.getDayNum()))
+            self.home = spouse.getHome()
+
+        self.peopleManager(self).updateFamily(spouse=(self.peopleManager(spouse), dayNum))
+
+        self.peopleManager(spouse).updateOpinion(25)
+        self.peopleManager(spouse).updateBirthday(spouse.birthday)
+        self.peopleManager(spouse).updateHouse(spouse.getHome(), dayNum)
+        self.peopleManager(spouse).updateFamily(spouse=(self.peopleManager(self), dayNum))
+        self.peopleManager(spouse).updateMuList(spouse.getMuList(), dayNum)
 
     def getCapital(self):
         return self.capital

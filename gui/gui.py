@@ -1,20 +1,20 @@
+import copy
+
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 matplotlib.use('TkAgg')
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-
 import tkinter as tk
-import tkinter.scrolledtext as st
-
 import tkinter.font
-
-import copy
-from operator import attrgetter
+import tkinter.scrolledtext as st
 
 import database as d
 import tutorials
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+from operator import attrgetter
+
 # tkscrollframe is a custom package that extends tkframes with a scrollbar. Standard solution from web.
 from tkscrollframe import tkscrollframe as tsf
 
@@ -31,13 +31,14 @@ BUTTON_FONT = ("Black chancery", "13")
 MAP_FONT = ("Consolas", "9")
 
 
+# TODO local multiplayer option- hotseat, multiple chars in same locality.
 # TODO business aggregate info-
 #  EG show all transports and transfers
 #  show ledger (same as for unit)
 class gui(tk.Tk):
     def __init__(self, char, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        #char is character controller from ai
+        # char is character controller from ai
         self.char = char
         self.display_cont = None
         self.text_cont = None

@@ -571,13 +571,14 @@ class House(Unit):
     def __init__(self, unitLocality, unitLocationTuple, business=None, unitName="House"):
         Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.missions[d.HOME_INDEX] = True
-        self.tenants = set()
+        self.tenants = []
         d.addUnit(self)
+        d.addHouse(self)
         if self.business is not None:
             self.business.addUnit(self)
 
     def addTenant(self, tenant):
-        self.tenants.add(tenant)
+        self.tenants.append(tenant)
 
     def removeTenant(self, tenant):
         self.tenants.remove(tenant)

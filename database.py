@@ -72,6 +72,7 @@ unitList = []
 churchList = []
 peopleList = []
 bossList = []
+houseList = []
 
 # utility
 # people will buy up to the number below INCLUSIVE.
@@ -87,6 +88,9 @@ def addLocality(locality):
 
 def addPeople(person):
     peopleList.append(person)
+
+def addHouse(house):
+    houseList.append(house)
 
 def addBoss(boss):
     bossList.append(boss)
@@ -149,6 +153,9 @@ def getSkills():
 
 def getPeople():
     return peopleList
+
+def getHouses():
+    return houseList
 
 def shufflePeople():
     shuffle(peopleList)
