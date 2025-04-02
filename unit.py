@@ -519,6 +519,8 @@ class Bakery(Manufactury):
             self.business.addUnit(self)
 
 
+# TODO lumberyards should start with trees.
+# TODO units should limit slots for employees.
 class Lumberyard(Manufactury):
     unitType = "Lumberyard"
     zoningType = "w"

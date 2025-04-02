@@ -75,8 +75,8 @@ bossList = []
 houseList = []
 
 # utility
-# people will buy up to the number below INCLUSIVE.
-utilityLimitList = [0, 0, 6, 14, 0, 0, 0, 2, 1]
+# people will buy up to the number below EXCLUSIVE.
+utilityLimitList = [0, 0, 7, 14, 0, 0, 0, 3, 2]
 utilityScaleList = [0, 0, 50, 50, 0, 0, 0, 300, 300]
 # happinessMax = sum( utilityLimitList[i] * utilityScaleList[i] for i in range(len(utilityLimitList)))
 

@@ -278,8 +278,6 @@ class People:
     # limit zeroes mu curve for each item
     # scale scales mu curve for each item
     def allMu(self):
-        limitList = d.getUtilityLimit()
-        scaleList = d.getUtilityScale()
         owned = self.home.getAllOutput()
 
         # muList calc
@@ -287,12 +285,11 @@ class People:
 
         for itemIndex in range(len(owned)):
             itemCount = owned[itemIndex]
-            if itemCount == 0:
-                itemCount = .1
+            # if itemCount == 0:
+            #     itemCount = .1
 
-            limit = limitList[itemIndex]
-            scale = scaleList[itemIndex]
-            mu = self.singleMu(itemIndex, itemCount)
+            # Marginal utility for the NEXT one we buy.
+            mu = self.singleMu(itemIndex, itemCount + 1)
             muList[itemIndex] = mu
         
         self.muList = muList
@@ -321,14 +318,15 @@ class People:
             xs = []
             ys = []
 
-            for c in range(limitList[i]+1):
-                if c == 0:
-                    c = .1
+            for c in range(1, limitList[i]+1):
+                # print(c)
+                # if c == 0:
+                #     c = .1
                 mu = self.singleMu(i, c)
                 xs.append(c)
                 ys.append(mu)
 
-            if len(xs) > 1:
+            if len(xs):
                 all_xs.append(xs)
                 all_ys.append(ys)
                 legend.append(d.getMaterials()[i])
@@ -363,10 +361,6 @@ class People:
 
     def chooseStore(self):
         """returns (storeProfile, weight)"""
-        # weights
-        F = 1
-        E = 2
-        D = 1
         bestWeight = (None, 0)
 
         # possible stores
@@ -380,6 +374,7 @@ class People:
             distance, isLocal = self.pyth(store)
 
             # desiredItemWeight
+            # TODO-DONE use summation and weights to normalize values so each is roughly equal.
             # TODO-DONE rank items by mu/price instead of just targeting one? Currently everyone wants a chair.
             muList = self.getMuList()
             # We find the most desired item relative to its cost and use that to rank stores
@@ -390,13 +385,13 @@ class People:
             # If there's nothing they want to buy, store weight is 0
             desiredItemWeight = max(mu_weights) if mu_weights else 0
 
-            # Find store weight
-            weight = (1 / distance) * familiarity * experience * desiredItemWeight
+            # Find store weight- (desiredItemWeight=500 for 1)
+            weight = (5 / distance) + familiarity + experience + (10*np.tanh(.004*desiredItemWeight))
             
             if (weight > bestWeight[1]) or (bestWeight[0] is None):
                 if isLocal:
                     bestWeight = (store, weight)
-                    print(f"{store.name}: weight: {weight}, distance: {distance}, familiarity: {familiarity}, experience: {experience}, item weight: {desiredItemWeight}")
+                    # print(f"{store.name}: weight: {weight}, distance: {distance}, familiarity: {familiarity}, experience: {experience}, item weight: {desiredItemWeight}")
         # thoughts
         if bestWeight[0] is not None:
             self.think(f"{bestWeight[0].name} seems like a good place to shop. I'd rate it at {round(bestWeight[1], ndigits=2)}.")

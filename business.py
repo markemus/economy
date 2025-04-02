@@ -74,7 +74,8 @@ class Business(object):
         for owner in self.owners:
             owner.unitManager(unit)
 
-            #they tell all their friends about their new venture.
+            # TODO-DECIDE this might be letting too many people know about the business.
+            # they tell all their friends about their new venture.
             for friend in owner.getKnownPeople():
                 friend.person.unitManager(unit, owner)
 

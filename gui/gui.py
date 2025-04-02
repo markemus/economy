@@ -2135,7 +2135,7 @@ class personal_data(tk.Frame):
 
         owned = char.home.getAllOutput()
         muList = char.muList
-        owned = [owned[i] if owned[i] != 0 else 0.1 for i in index]
+        owned = [owned[i] + 1 for i in index]
         muList = [muList[i] for i in index]
 
         self.root.display_cont.line_charts(all_xs, all_ys, xlabel="Amount", ylabel="MU", title="Marginal Utility", legend=legend, scatter_x=owned, scatter_y=muList)
