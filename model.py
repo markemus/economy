@@ -32,7 +32,6 @@ class Model(object):
         yourHome.addTenant(self.char)
         spouse = p.People(self, "Susan", "Spinster", 1, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(spouse)
-        # TODO spouse setting should be done by one character for both to avoid race conditions
         spouse.setSpouse(self.char)
         self.char.setSpouse(spouse)
         self.char.addCapital(10000)
@@ -40,10 +39,10 @@ class Model(object):
         # makes
         # ourGen.makeSpouses()
         # TODO-DECIDE remove makeFriends and have it happen from interactions in-game?
-        ourGen.makeFriends()
+        ourGen.makeNeighbors()
         ourGen.makeBosses()
         ourGen.makeChurches(Jonestown)
-        # TODO people should be assigned to nearest church of their religion (pyth)
+        # TODO-DONE people should be assigned to nearest church of their religion (pyth)
         ourGen.assignChurches()
         self.gui = gui.gui(self.char)
 

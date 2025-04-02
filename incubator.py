@@ -3,7 +3,7 @@ import math
 import database as d
 
 
-# TODO max capacity- acres for farms and lumberyards, barrels for beer etc.
+# TODO max capacity- acres for farms and lumberyards, barrels for beer etc. Multiple farms per bakery.
 # TODO need workers for maintenance.
 # TODO-DONE how do we calculate DMC for incubator materials?
 class Incubator(object):

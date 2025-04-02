@@ -1,7 +1,7 @@
 from random import shuffle
 
 
-# TODO remove meat and fruit
+# TODO update meat and fruit. Replacement goods for bread.
 # indices
 GRAIN_INDEX = 0
 FLOUR_INDEX = 1

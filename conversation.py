@@ -134,6 +134,7 @@ class Conversation(object):
                 self.target = None
 
         elif self.state == 'store':
+            # TODO people should prefer stores they like (high experience)
             testTarget = self.firstPerson.randomStore(self.target)
             if testTarget is not None:
                 self.target = testTarget.store
@@ -178,7 +179,7 @@ class Conversation(object):
             #     self.firstPerson.think("There is a bug in conversation.prices. (not manu or store)")
             #     self.secondPerson.think("There is a bug in conversation.prices. (not manu or store)")
 
-    # TODO-DECIDE if self.target is None, what does that mean? Maybe there should just be no thought?
+
     def family(self):
         if self.target is not None:
             # info: family, people

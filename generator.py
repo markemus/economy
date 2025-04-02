@@ -119,7 +119,7 @@ class generator(object):
         return gennedWorld
 
     # TODO-DONE replace friends with neighbors
-    def makeFriends(self):
+    def makeNeighbors(self):
         peopleList = d.getPeople()
         for person in peopleList:
             houses = d.getHouses().copy()

@@ -243,7 +243,7 @@ class People:
                 if conversee is not self:
                     Convo.beginConversation(self, conversee)
 
-    # TODO fix this function so we can use it instead of spouseConversation
+    # TODO-DONE fix this function so we can use it instead of spouseConversation
     def familyConversations(self):
         family = [x.person for x in self.peopleManager(self).getFamilyList()]
         # print([(x.firstname, x.lastname) for x in family])
@@ -273,7 +273,7 @@ class People:
         happiness = 100 * ((self.maxSadness - sadness) / self.maxSadness)
         return happiness
 
-    # TODO display player's MU curves as a graph, with a dot at current MU.
+    # TODO-DONE display player's MU curves as a graph, with a dot at current MU.
     # updates muList- run at start and end of shop state. We want it to be persistent even after they eat, for example
     # limit zeroes mu curve for each item
     # scale scales mu curve for each item

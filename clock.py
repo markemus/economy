@@ -136,7 +136,6 @@ class Week(object):
         self.machine.add_ordered_transitions()
 
 
-# TODO People's thoughts should use their religion's calendar?
 class Calendar(object):
     def __init__(self, months, daysPerMonth, firstMonth, year):
         # self.locality = locality
