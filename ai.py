@@ -344,8 +344,8 @@ class JobPoster(object):
     # TODO slots should not go above unit available slots
     # don't fire anyone for now, just go bankrupt- that's fine. AI is loyal. (Otherwise they may not get them back.)
     def managePositions(self, job):
-        slots           = job.slots
-        employees       = job.employees
+        # slots           = job.slots
+        # employees       = job.employees
         totalWorkers    = 0
 
         for order in (x for x in job.business.craftOrders if x.job == job):
@@ -354,7 +354,7 @@ class JobPoster(object):
             tech            = job.unit.getTech(materialIndex)
 
             if d.is_planted(materialIndex):
-                # divide by length of planting season, not grow_days- how?
+                # TODO divide by length of planting season, not grow_days- how?
                 grow_days = job.unit.incubator.getGrowDays(materialIndex)
                 workers = math.ceil(amount / (tech * grow_days))
 

@@ -56,13 +56,25 @@ class Job(object):
         return self.jobType
 
     def incrementSlots(self):
-        self.slots += 1
+        # if sum([x.slots + len(x.getEmployees()) for x in self.unit.getJobList()]) < self.unit.getSlots():
+        if self.unit.getSlots():
+            self.slots += 1
+            return True
+        else:
+            return False
 
     def decrementSlots(self):
         self.slots -= 1
+        return True
 
     def setSlots(self, slots):
-        self.slots = slots
+        if slots <= (self.unit.getSlots() + self.getSlots()):
+            self.slots = slots
+            return True
+        else:
+            available_slots = self.unit.getSlots() + self.getSlots()
+            self.slots = available_slots
+            return False
 
     def getEmployees(self):
         return self.employees

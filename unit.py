@@ -209,7 +209,8 @@ class Unit(object):
         return self.name
 
     def getSlots(self):
-        return self.slots
+        used_slots = sum([x.slots + len(x.getEmployees()) for x in self.getJobList()])
+        return self.slots - used_slots
 
     def getEmployees(self):
         employeeList = []
