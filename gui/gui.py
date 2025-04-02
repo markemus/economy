@@ -24,9 +24,7 @@ from tkscrollframe import tkscrollframe as tsf
 # BUTTON_FONT = ("Courier", "13")
 
 TITLE_FONT = ("Black chancery", "18", "bold")
-
-# TITLE_FONT = tkinter.font.Font(root=None, family='Helvetica', size='18', weight='bold', underline=1)
-TEXT_FONT = ("Black chancery", "15")
+TEXT_FONT = ("Black chancery", "13")
 BUTTON_FONT = ("Black chancery", "13")
 MAP_FONT = ("Consolas", "9")
 

@@ -99,6 +99,8 @@ class StartupAI(object):
                     optimalList[option] = 0
                     if optimalList.sum() != 0:
                         optimalList = optimalList / optimalList.sum()
+                    else:
+                        notDone = False
 
         return option
 

@@ -164,6 +164,8 @@ class Calendar(object):
     def sample_date(self, year):
         month = random.choice(self.months)
         day = random.randint(1, self.daysPerMonth[self.months.index(month)])
+        if not isinstance(month, str):
+            month = month.name
         year = year
         return f"{month} {day}, {year}"
 

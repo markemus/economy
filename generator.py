@@ -53,7 +53,7 @@ class generator(object):
             father.setSpouse(mother)
 
             # Children
-            # TODO birthdays and ages
+            # TODO-DONE birthdays and ages
             child_list = []
             for i in range(n_children):
                 gender = random.choice([0, 1])
@@ -98,18 +98,13 @@ class generator(object):
         religionList = [Catholic, Protestant]
         return religionList
 
-    # TODO more chaotic map generation. How to organize houses and store locations? Churches should
-    #  be scattered around. Stores should be near owner's house? Start with neighbors, not friends.
+    # TODO-DONE more chaotic map generation. How to organize houses and store locations?
+    # TODO-DONE Churches should be scattered around.
+    # TODO Stores should be near owner's house?
+    # TODO-DONE Start with neighbors, not friends.
     # people must be even int because marriages
     # we only generate a single locality- don't ask
     def generateWorld(self, p_quantity, w_width, w_height):
-        # peopleList = []
-
-        # need even number of people for marriages
-        if p_quantity % 2 != 0:
-            print("Please choose an even number of people for your world.")
-            return False
-
         # world
         gennedWorld = g.World(w_width, w_height)
 
@@ -123,7 +118,7 @@ class generator(object):
 
         return gennedWorld
 
-    # TODO replace friends with neighbors
+    # TODO-DONE replace friends with neighbors
     def makeFriends(self):
         peopleList = d.getPeople()
         for person in peopleList:

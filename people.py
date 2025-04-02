@@ -2,6 +2,8 @@ import math
 import random
 import copy
 
+import numpy as np
+
 import database as d
 from conversation import Convo
 from profiles import PersonProfile
@@ -199,7 +201,7 @@ class People:
         return isHired
 
     def updateJobPrices(self):
-        #if works at market, update workplaces price profile
+        # if works at market, update workplaces price profile
         workplace = None
         worksAtMarket = False
 
@@ -368,7 +370,6 @@ class People:
         bestWeight = (None, 0)
 
         # possible stores
-
         for store in self.possStores():
             # vars
             familiarity = store.getFamiliarity()
@@ -379,24 +380,26 @@ class People:
             distance, isLocal = self.pyth(store)
 
             # desiredItemWeight
+            # TODO-DONE rank items by mu/price instead of just targeting one? Currently everyone wants a chair.
             muList = self.getMuList()
-            maxMu = max(muList)
-            price = avgPrices[muList.index(maxMu)]
+            # We find the most desired item relative to its cost and use that to rank stores
+            mu_weights = []
+            for i, price in enumerate(avgPrices):
+                if (price > 0) and self.canAfford(price):
+                    mu_weights.append(muList[i] / price)
+            # If there's nothing they want to buy, store weight is 0
+            desiredItemWeight = max(mu_weights) if mu_weights else 0
 
-            if price != 0:
-                desiredItemWeight = maxMu/price
-            else:
-                desiredItemWeight = 0
-
-            # formula
-            weight = (1 / distance) * (familiarity * F) * (experience * E) * (desiredItemWeight * D)
+            # Find store weight
+            weight = (1 / distance) * familiarity * experience * desiredItemWeight
             
             if (weight > bestWeight[1]) or (bestWeight[0] is None):
                 if isLocal:
                     bestWeight = (store, weight)
+                    print(f"{store.name}: weight: {weight}, distance: {distance}, familiarity: {familiarity}, experience: {experience}, item weight: {desiredItemWeight}")
         # thoughts
         if bestWeight[0] is not None:
-            self.think(f"{bestWeight[0].name} seems like a good place to shop.")
+            self.think(f"{bestWeight[0].name} seems like a good place to shop. I'd rate it at {round(bestWeight[1], ndigits=2)}.")
         else:
             self.think("I can't think of anywhere to go shopping.")
 
