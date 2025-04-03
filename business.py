@@ -31,7 +31,7 @@ class Business:
         self.newTotalSalaries   = 0
         d.addBusiness(self)
 
-    def addCash(self, amount):
+    def addCapital(self, amount):
         self.cash += amount
 
     def getJobs(self):

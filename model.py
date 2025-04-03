@@ -26,7 +26,7 @@ class Model:
         # char
         address             = Jonestown.find_property(zone="h")
         yourHome            = u.House(Jonestown, address)
-        Jonestown.claim_node(address, yourHome)
+
         # TODO character creation.
         self.char = ai.Character(self, "Markemus", "Williamson", 0, Jonestown, yourHome, d.getReligions()[0])
         yourHome.addTenant(self.char)
@@ -35,6 +35,7 @@ class Model:
         spouse.setSpouse(self.char)
         self.char.setSpouse(spouse)
         self.char.addCapital(10000)
+        Jonestown.claim_node(address, yourHome)
 
         # makes
         # ourGen.makeSpouses()

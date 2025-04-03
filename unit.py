@@ -107,7 +107,7 @@ class Unit(object):
         if who.canAfford(cost):
             # sale
             who.addCapital(-cost)
-            self.business.addCash(cost)
+            self.business.addCapital(cost)
             
             for i in range(len(self.output)):
                 self.addOutput(i, -amounts[i])

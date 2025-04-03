@@ -58,6 +58,9 @@ class Locality:
         self.height = height
         self.name = name
         self.location = location
+        # Government will be created after people are generated
+        self.government = None
+        self.town_hall = None
         # Should be dtype object so we can store buildings. We'll use that for both.
         self.local_map = np.array([[None for x in range(width)] for y in range(height)])
         self.zoning_map = np.array([["_" for x in range(width)] for y in range(height)])
@@ -141,16 +144,35 @@ class Locality:
 
             prop_location = (r_location[0] + r_direction[0], r_location[1] + r_direction[1])
             # If prop_location is reserved for city hall, we'll just try again next round.
-            if not zmap[prop_location] == "t":
+            if not (prop_location[0] < outskirts[0][1] and prop_location[1] < outskirts[1][1]) or not zmap[prop_location] == "t":
                 r_location = prop_location
 
     def make_town_hall(self):
         """Builds town hall in the center of the locality."""
-        mayor = random.choice([p for p in d.getPeople() if not p.businesses and not isinstance(p, ai.Character)])
+        # mayor = random.choice([p for p in d.getPeople() if not p.businesses and not isinstance(p, ai.Character)])
+        home_location = self.find_property(zone="h")
+        mayor_home = u.House(self, home_location)
+        mayor = p.People(model=self.model, firstname="John", lastname="Meyer", theirGender=0, theirHometown=self, theirHome=mayor_home, theirReligion=random.choice(d.getReligions()))
+        mayor.addCapital(200)
+        mayor_home.addTenant(mayor)
         location = self.find_property(zone="t")
-        government = bus.Business(owners=[mayor], name=f"City of {self.name}", busiLocality=self, busiCash=0)
-        town_hall = u.TownHall(unitName=f"{self.name} City Hall", unitLocality=self, unitLocationTuple=location, business=government)
-        self.claim_node(xy=location, entity=town_hall)
+        self.government = bus.Business(owners=[mayor], name=f"City of {self.name}", busiLocality=self, busiCash=0)
+        self.town_hall = u.TownHall(unitName=f"{self.name} City Hall", unitLocality=self, unitLocationTuple=location, business=self.government)
+        self.claim_node(xy=location, entity=self.town_hall)
+        self.claim_node(xy=home_location, entity=mayor_home)
+
+    # TODO balance node pricing.
+    def node_price(self, x, y):
+        """Cost of a plot in the city."""
+        pricing = {"t": 0,
+                   "f": 100,
+                   "w": 100,
+                   "h": 100,
+                   "b": 100,
+                   "m": 100,
+                   }
+
+        return pricing[self.zoning_map[x, y]]
 
     def claim_node(self, xy, entity):
         claimed = False
@@ -158,9 +180,19 @@ class Locality:
         y = xy[1]
 
         if self.local_map[x][y] is None:
-            self.local_map[x][y] = entity
-            self.zoning_map[x, y] = self.zoning_map[x, y].upper()
-            claimed = True
+            cost = self.node_price(x, y)
+
+            if self.zoning_map[x, y] == "h":
+                purchaser = entity.tenants[0]
+            else:
+                purchaser = entity.business
+
+            if purchaser.canAfford(cost):
+                purchaser.addCapital(-cost)
+                self.government.addCapital(cost)
+                self.local_map[x][y] = entity
+                self.zoning_map[x, y] = self.zoning_map[x, y].upper()
+                claimed = True
 
         return claimed
 
@@ -171,9 +203,19 @@ class Locality:
         y = xy[1]
 
         if (self.local_map[x:x+xsize, y:y+ysize] == None).all():
-            self.local_map[x:x+xsize, y:y+ysize] = entity
-            self.zoning_map[x:x+xsize, y:y+ysize] = self.zoning_map[x, y].upper()
-            claimed = True
+            cost = sum([sum([self.node_price(x, y) for y in range(y, y+ysize)]) for x in range(x, x+xsize)])
+
+            if self.zoning_map[x, y] == "h":
+                purchaser = entity.tenants[0]
+            else:
+                purchaser = entity.business
+
+            if purchaser.canAfford(cost):
+                purchaser.addCapital(-cost)
+                self.government.addCapital(cost)
+                self.local_map[x:x+xsize, y:y+ysize] = entity
+                self.zoning_map[x:x+xsize, y:y+ysize] = self.zoning_map[x, y].upper()
+                claimed = True
 
         return claimed
 

@@ -34,14 +34,16 @@ class generator:
 
             home_location = locality.find_property(zone="h")
             family_home = u.House(locality, home_location)
-            locality.claim_node(home_location, family_home)
 
             # Parents
             father_name = random.choice(d.getFirstNameList(gender=0))
             father = p.People(self.model, father_name, family_name, 0, locality, family_home, family_religion)
             father.birthday = self.model.calendar.sample_date(year=self.model.calendar.year-random.randint(35, 45))
             family_home.addTenant(father)
-            father.addCapital(100)
+            father.addCapital(200)
+
+            # Now that house has a tenant, claim property
+            locality.claim_node(home_location, family_home)
 
             mother_name = random.choice(d.getFirstNameList(gender=1))
             mother = p.People(self.model, mother_name, family_name, 1, locality, family_home, family_religion)
@@ -98,7 +100,6 @@ class generator:
         religionList = [Catholic, Protestant]
         return religionList
 
-    # TODO-DONE Stores should be near owner's house?
     # TODO-DONE city hall
     # TODO refactor generation so it's all done in one place. Right now it's split in generator, model, and gameMap.
     def generateWorld(self, p_quantity, w_width, w_height):
@@ -110,8 +111,8 @@ class generator:
         gennedLocality = self.generateLocality(l_location)
 
         religions = self.generateReligions(gennedLocality)
-        self.generatePeople(p_quantity, gennedLocality, religions)
         gennedLocality.make_town_hall()
+        self.generatePeople(p_quantity, gennedLocality, religions)
 
         return gennedWorld
 
