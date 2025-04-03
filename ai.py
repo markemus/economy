@@ -12,7 +12,7 @@ import unit as u
 
 # TODO review ai and see if we can improve it.
 # singleton
-class StartupAI(object):
+class StartupAI:
     def __init__(self):
         None
 
@@ -108,7 +108,7 @@ class StartupAI(object):
 
 
 # factory for supply chains.
-class Builder(object):
+class Builder:
     def __init__(self, model):
         self.model = model
 
@@ -258,7 +258,7 @@ class Character(p.People):
         self.model.clock.runDay()
 
 
-class ProductionAI(object):
+class ProductionAI:
     def __init__(self, model):
         self.model = model
 
@@ -338,7 +338,7 @@ class ProductionAI(object):
         order = business.harvestOrderManager(job, i)
 
 
-class JobPoster(object):
+class JobPoster:
     def __init__(self, model):
         self.model = model
 
@@ -356,7 +356,8 @@ class JobPoster(object):
             if d.is_planted(materialIndex):
                 # TODO-DONE divide by length of planting season, not grow_days- how?
                 # grow_days = job.unit.incubator.getGrowDays(materialIndex)
-                planting_days = d.getPlantingDays(materialIndex)
+                # planting_days = d.getPlantingDays(materialIndex)
+                planting_days = self.model.calendar.getPlantingDays(materialIndex)
                 workers = math.ceil(amount / (tech * planting_days))
 
             elif d.is_crafted(materialIndex):
@@ -368,7 +369,7 @@ class JobPoster(object):
         job.setSlots(newSlots if newSlots > 0 else 0)
 
 
-class Hirer(object):
+class Hirer:
     def __init__(self, model):
         self.model = model
 
@@ -402,7 +403,7 @@ class Hirer(object):
 
 
 # never used- no one is ever fired and that's okay.
-class Firer(object):
+class Firer:
     def __init__(self, model):
         self.model = model
 
@@ -434,7 +435,7 @@ class Firer(object):
         return isFired
 
 
-class SalaryPayer(object):
+class SalaryPayer:
     def __init__(self, model):
         self.model = model
 

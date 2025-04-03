@@ -3,7 +3,7 @@ import clock
 from transitions import State
 
 
-class Religion(object):
+class Religion:
     def __init__(self, reliName, months, daysPerMonth, firstMonth, year):
         self.name = reliName
         self.businesses = []
@@ -33,8 +33,9 @@ class Religion(object):
 
 
 # TODO add more songs and church names.
+# TODO religious holidays
 class Catholicism(Religion):
-    months = [State(name="January", on_enter=["yearChange"]), "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     year = 1000
 
@@ -43,7 +44,7 @@ class Catholicism(Religion):
         self.songs = [
         "In Paradisum (Fauré)",
         "Crux Fidelis (Saint Venantius Fortunatus)",
-        "Beautiful Savior/Crusader's Hymn (anonymous)",
+        "Crusader's Hymn (anonymous)",
         "Domine Jesu Christe (Mozart)"]
         self.churchNames = [
         "Blessed Mother Cathedral", 
@@ -53,7 +54,7 @@ class Catholicism(Religion):
 
 
 class Protestantism(Religion):
-    months = [State(name="January", on_enter=["yearChange"]), "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     year = 1000
 

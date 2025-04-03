@@ -11,7 +11,7 @@ from transitions import Machine
 
 # TODO conversations should build familiarity with people who like what they hear. Build a brand. Personality
 #  should play a role.
-# TODO people should prefer to talk to people they have a high opinion of. Personality should be linked to that.
+# TODO-DONE people should prefer to talk to people they have a high opinion of. Personality should be linked to that.
 # Conversation is a singleton. DO NOT CREATE NEW CONVERSATION OBJECTS.
 class Conversation:
     # a. stores, b.manufacturers, c.friends, d. myself, e.end conversation
@@ -364,18 +364,17 @@ class Conversation:
     #     self.firstPerson.think(self.secondPerson.name + " and I talked shop for a while.")
     #     self.secondPerson.think(self.firstPerson.name + " and I talked shop for a while.")
 
-    #dialogues are chosen here, but the actual method call is in the handler (eg prices)
     def talk(self, matrix, stateVector):
-
+        """Dialogues are chosen here, but the actual method call is in the handler (eg prices)"""
         if self.isPlayer:
             # stateVector = playerChoice
             pass
         else:
-            #get dialogue probabilities given last dialogue
+            # get dialogue probabilities given last dialogue
             probArray = np.dot(matrix, stateVector)
             prob = probArray.tolist()
 
-            #choose dialogue
+            # choose dialogue
             choice = random.random()
             stateVector = [0 for i in range(len(prob))]
             
@@ -390,7 +389,7 @@ class Conversation:
 
     def topicHandler(self):
         matrix = Conversation.topicMatrix
-        stateVector = [0,0,0,0,1]
+        stateVector = [0, 0, 0, 0, 1]
         # self.firstPerson.think("topicHandler")
 
         stateVector = self.talk(matrix, stateVector)
@@ -401,7 +400,7 @@ class Conversation:
 
     def storeHandler(self):
         matrix = Conversation.storeMatrix
-        stateVector = [0,1,0,0]
+        stateVector = [0, 1, 0, 0]
         # self.firstPerson.think("storeHandler")
 
         self.different()
@@ -415,7 +414,7 @@ class Conversation:
 
     def manuHandler(self):
         matrix = Conversation.manuMatrix
-        stateVector = [0,1,0,0]
+        stateVector = [0, 1, 0, 0]
         # self.firstPerson.think("manuHandler")
 
         self.different()
@@ -429,7 +428,7 @@ class Conversation:
 
     def friendHandler(self):
         matrix = Conversation.friendMatrix
-        stateVector = [0,1,0,0,0]
+        stateVector = [0, 1, 0, 0, 0]
         # self.firstPerson.think("friendHandler")
         
         self.different()
@@ -443,7 +442,7 @@ class Conversation:
 
     def myselfHandler(self):
         matrix = Conversation.myselfMatrix
-        stateVector = [0,1,0,0,0]
+        stateVector = [0, 1, 0, 0, 0]
         # self.firstPerson.think("myselfHandler")
 
         while self.state == 'myself':

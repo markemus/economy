@@ -191,23 +191,26 @@ def is_crafted(materialIndex):
 
     return is_crafted
 
+def getSeasons():
+    return seasons
+
 def isInSeason(materialIndex, month):
     if (seasons[materialIndex] == "all") or (month in seasons[materialIndex]):
         return True
     else:
         return False
 
-def getPlantingDays(materialIndex):
-    if seasons[materialIndex] == "all":
-        planting_days = 365
-    else:
-        planting_days = 0
-        for month in seasons[materialIndex]:
-            # Special case
-            if month == "January":
-                planting_days += clock.SecularCalendar.daysPerMonth[0]
-            else:
-                month_idx = clock.SecularCalendar.months.index(month)
-                planting_days += clock.SecularCalendar.daysPerMonth[month_idx]
-
-    return planting_days
+# def getPlantingDays(materialIndex):
+#     if seasons[materialIndex] == "all":
+#         planting_days = 365
+#     else:
+#         planting_days = 0
+#         for month in seasons[materialIndex]:
+#             # Special case
+#             if month == "January":
+#                 planting_days += clock.SecularCalendar.daysPerMonth[0]
+#             else:
+#                 month_idx = clock.SecularCalendar.months.index(month)
+#                 planting_days += clock.SecularCalendar.daysPerMonth[month_idx]
+#
+#     return planting_days

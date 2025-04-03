@@ -137,17 +137,26 @@ class Week(object):
         self.machine.add_ordered_transitions()
 
 
-class Calendar(object):
+class Calendar:
     def __init__(self, months, daysPerMonth, firstMonth, year):
         # self.locality = locality
         self.machine = Machine(model=self, states=months, initial=firstMonth)
         self.machine.add_ordered_transitions()
+        self.months = months
         self.first_month = firstMonth
-        self.dayOfMonth = 1
+        self.dayOfMonth = 31
+        self.daysPerMonth = daysPerMonth
+        self.year = year
+        # self.machine.on_enter_January("yearChange")
+        self.machine.__dir__()
+        # Dynamically change the year at beginning of first month
+        on_enter_setter = getattr(self.machine, f"on_enter_{months[0]}")
+        on_enter_setter("yearChange")
 
-    #should use daysPerMonth
+    # TODO-DONE should use daysPerMonth
     def next_day(self):
-        if self.dayOfMonth == 30:
+        # print(self.state)
+        if self.dayOfMonth == self.daysPerMonth[self.months.index(self.state)]:
             self.next_state()
             self.dayOfMonth = 1
         else:
@@ -172,9 +181,25 @@ class Calendar(object):
 
 # example calendar. Also is the secular calendar- each religion has their own.
 class SecularCalendar(Calendar):
-    months = [State(name='January', on_enter=['yearChange']), 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-    daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    year = 1000
-
+    """Non-religious standard calendar, used to calculate planting seasons."""
     def __init__(self):
-        Calendar.__init__(self, SecularCalendar.months, SecularCalendar.daysPerMonth, 'September', SecularCalendar.year)
+        months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        year = 1000
+        super().__init__(months, daysPerMonth, "December", year)
+
+    def getPlantingDays(self, materialIndex):
+        seasons = d.getSeasons()
+        if seasons[materialIndex] == "all":
+            planting_days = 365
+        else:
+            planting_days = 0
+            for month in seasons[materialIndex]:
+                # Special case
+                if month == "January":
+                    planting_days += self.daysPerMonth[0]
+                else:
+                    month_idx = self.months.index(month)
+                    planting_days += self.daysPerMonth[month_idx]
+
+        return planting_days
