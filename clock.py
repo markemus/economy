@@ -59,8 +59,9 @@ class Clock(object):
                 person.workHandler()
                 person.bossmaker()
             for boss in bossList:
-                i_build = self.model.startupAI.whatToBuild(boss)
-                self.model.builder.buildChain(boss.businesses[0], i_build)
+                if not boss.businesses[0].getUnits():
+                    i_build = self.model.startupAI.whatToBuild(boss)
+                    self.model.builder.buildChain(boss.businesses[0], i_build)
 
     def relaxHandler(self):
         bossList = d.getBosses()

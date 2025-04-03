@@ -18,6 +18,7 @@ class StartupAI(object):
 
     # O(n^2). Not ideal, but n SHOULD be low. Can we make O(n)?
     def whatToBuild(self, investor):
+        # TODO re-enable knownStock once we can do transfers from other people's businesses.
         # knownStock = self.knownStock(investor)
         # current dumb ai will build full product lines, so all are equally possible.
         # possibilities = self.possibilities(investor, knownStock)
@@ -46,13 +47,14 @@ class StartupAI(object):
 
         for business in investor.getBusinesses():
             for order in business.getCraftOrders():
+                # We're already producing product, so don't build for it.
                 possibilities[order.getProductIndex()] = False
 
         return possibilities
 
-    # which products can the investor find stock for?
-    # O(n^2)- not exactly, but multivariate
     def possibilities(self, investor, knownStock):
+        """Which products can the investor find stock for?
+        O(n^2)- not exactly, but multivariate."""
         requiredStock = d.getAllComponents()
         possibilities = [False for i in requiredStock]
 
@@ -110,20 +112,13 @@ class Builder(object):
     def __init__(self, model):
         self.model = model
 
-    # TODO-DONE can we get rid of this fake initial_demand and let them learn entirely from failedSales?
-    # def initial_demand(self, unit):
-    #     for i in range(len(unit.can_make)):
-    #         if unit.can_make[i]:
-    #             unit.failSales[i] = 500
+    def initial_demand(self, unit):
+        """This is necessary because otherwise customers won't come for products. Need some initial production."""
+        for i in range(len(unit.can_make)):
+            if unit.can_make[i]:
+                unit.failSales[i] = 50
 
-    # TODO-DONE jobs should be allowed per unit, you shouldn't be able to create any job in any unit.
     def jobMaker(self, unit):
-        # unitJobLink = { "Farm"      : jobs.Farmer,
-        #                 "Brewery"   : jobs.Brewer,
-        #                 "Mill"      : jobs.Miller,
-        #                 "Bakery"    : jobs.Baker,
-        #                 "Lumberyard": jobs.Lumberjack,
-        #                 "Joinery"   : jobs.Carpenter}
         # TODO slots should be more dynamic- it looks like currently units will always hire to max?
         slots = unit.getSlots()
         salary = 6
@@ -156,7 +151,6 @@ class Builder(object):
             transferOrder = business.transferOrderManager(unit, i)
             transferOrder.setAmount(10)
 
-    # TODO-DONE get ai to build things other than bakery line.
     def buildIt(self, business, locality, toBuild):
         if business.owners:
             owner = business.owners[0]
@@ -185,7 +179,7 @@ class Builder(object):
                     locality.claim_nodes_from_topleft(unitLocation, xsize=5, ysize=5, entity=newUnit)
                 else:
                     locality.claim_node(unitLocation, newUnit)
-                # self.initial_demand(newUnit)
+                self.initial_demand(newUnit)
                 new_jobs = self.jobMaker(newUnit)
                 for new_job in new_jobs:
                     self.craftOrderMaker(new_job)
@@ -202,6 +196,7 @@ class Builder(object):
     def buildChain(self, business, toBuild):
         locality = business.getLocality()
 
+        # Required buildings for a given material.
         chains = [
             [u.Farm],
             [u.Mill, u.Farm],
@@ -236,9 +231,9 @@ class Builder(object):
 
             self.model.hirer.jobApplication(boss, OwnerJob)
 
-            if boss != self.model.char:
-                i_build = self.model.startupAI.whatToBuild(boss)
-                self.model.builder.buildChain(boss.businesses[0], i_build)
+            # if boss != self.model.char:
+            #     i_build = self.model.startupAI.whatToBuild(boss)
+            #     self.model.builder.buildChain(boss.businesses[0], i_build)
 
         return newBus
 
@@ -267,7 +262,7 @@ class ProductionAI(object):
     def __init__(self, model):
         self.model = model
 
-    # TODO-DONE job should have can_make, not unit
+    # TODO-DECIDE do we still need initial_demand if we have this? It creates transer jobs too.
     def setProduction(self, business):
         for job in business.getCraftingJobs():
             jobUnit = job.getUnit()
@@ -347,7 +342,6 @@ class JobPoster(object):
     def __init__(self, model):
         self.model = model
 
-    # TODO-DONE slots should not go above unit available slots
     # don't fire anyone for now, just go bankrupt- that's fine. AI is loyal. (Otherwise they may not get them back.)
     def managePositions(self, job):
         # slots           = job.slots

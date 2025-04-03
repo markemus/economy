@@ -61,7 +61,7 @@ class Unit(object):
         self.planted    = [0 for material in stockLength]
         self.harvested  = [0 for material in stockLength]
         self.missions   = [False for mission in missionsLength]
-        # self.can_make   = [False for material in stockLength]
+        self.can_make   = [False for material in stockLength]
         self.slots = 0
         self.laborTotal = 0
         # self.rentTotal  = 0
@@ -446,7 +446,7 @@ class Farm(Manufactury):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Farmer]
         self.slots = 10
-        # self.can_make[d.GRAIN_INDEX] = True
+        self.can_make[d.GRAIN_INDEX] = True
         self.tech[d.GRAIN_INDEX] = 16
         self.stock[d.GRAIN_INDEX] = 50
         # self.DMC[d.GRAIN_INDEX] = 1
@@ -466,7 +466,7 @@ class Mill(Manufactury):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Miller]
         self.slots = 10
-        # self.can_make[d.FLOUR_INDEX] = True
+        self.can_make[d.FLOUR_INDEX] = True
         self.tech[d.FLOUR_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
@@ -487,7 +487,7 @@ class Brewery(Manufactury):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Brewer]
         self.slots = 10
-        # self.can_make[d.BEER_INDEX] = True
+        self.can_make[d.BEER_INDEX] = True
         self.tech[d.BEER_INDEX] = 40
         self.missions[d.MANU_INDEX] = True
         self.stock[d.GRAIN_INDEX] = 50
@@ -507,7 +507,7 @@ class Bakery(Manufactury):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Baker]
         self.slots = 10
-        # self.can_make[d.BREAD_INDEX] = True
+        self.can_make[d.BREAD_INDEX] = True
         self.tech[d.BREAD_INDEX] = 100
         self.missions[d.MANU_INDEX] = True
         self.missions[d.STORE_INDEX] = True
@@ -531,7 +531,7 @@ class Lumberyard(Manufactury):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Lumberjack]
         self.slots = 10
-        # self.can_make[d.LUMBER_INDEX] = True
+        self.can_make[d.LUMBER_INDEX] = True
         self.tech[d.LUMBER_INDEX] = 50
         self.missions[d.MANU_INDEX] = True
         self.stock[d.LUMBER_INDEX] = 50
@@ -551,8 +551,8 @@ class Joinery(Manufactury):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Carpenter]
         self.slots = 10
-        # self.can_make[d.CHAIR_INDEX] = True
-        # self.can_make[d.TABLE_INDEX] = True
+        self.can_make[d.CHAIR_INDEX] = True
+        self.can_make[d.TABLE_INDEX] = True
         self.tech[d.CHAIR_INDEX] = 1
         self.tech[d.TABLE_INDEX] = 1
         self.missions[d.MANU_INDEX] = True

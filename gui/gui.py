@@ -25,6 +25,7 @@ from tkscrollframe import tkscrollframe as tsf
 
 TITLE_FONT = ("Black chancery", "18", "bold")
 TEXT_FONT = ("Black chancery", "13")
+SPACED_TEXT_FONT = ("Consolas", "13")
 BUTTON_FONT = ("Black chancery", "13")
 MAP_FONT = ("Consolas", "9")
 
@@ -33,6 +34,7 @@ MAP_FONT = ("Consolas", "9")
 # TODO business aggregate info-
 #  EG show all transports and transfers
 #  show ledger (same as for unit)
+# TODO business level- show manufacturing ratios.
 class gui(tk.Tk):
     def __init__(self, char, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -122,7 +124,7 @@ class gui(tk.Tk):
         self.text_cont.out(text)
 
 
-#  display
+# display
 class display_controller(tk.Frame):
     def __init__(self, parent, root, *args, **kwargs):
         tk.Frame.__init__(self, master=parent, *args, **kwargs)
@@ -179,8 +181,8 @@ class display_controller(tk.Frame):
         self.frames["list_display"].display_list(values_dict)
         self.show_frame("list_display")
 
-    def display_spreadsheet(self, spreadsheet):
-        self.frames["list_display"].display_spreadsheet(spreadsheet)
+    def display_spreadsheet(self, spreadsheet, title):
+        self.frames["list_display"].display_spreadsheet(spreadsheet, title)
         self.show_frame("list_display")
 
     def display_p_profile(self, values_dict):
@@ -340,8 +342,7 @@ class list_display(tk.Frame):
         leftBar.image = leftBarImage
 
         self.display_var = tk.StringVar()
-        self.display = tk.Label(self, image=parchment, textvar=self.display_var, font=TEXT_FONT, width=800, height=500, borderwidth=5,
-            relief=tk.RIDGE, compound=tk.CENTER, justify=tk.LEFT)
+        self.display = tk.Label(self, image=parchment, textvar=self.display_var, font=SPACED_TEXT_FONT, width=800, height=500, borderwidth=5, relief=tk.RIDGE, compound=tk.CENTER, justify=tk.LEFT)
         self.display.image = parchment
 
         rightBar = tk.Label(self, image=rightBarImage, width=150, height=510)
@@ -361,16 +362,15 @@ class list_display(tk.Frame):
 
         self.display_var.set(string)
 
-    #can handle up to six columns
-    def display_spreadsheet(self, spreadsheet):
-
+    # can handle up to six columns
+    def display_spreadsheet(self, spreadsheet, title):
         def justify(item):
             spaces = " " + (" " * (8 - len(item))) + "|"
             item = item[:8]
             item += spaces
             return item
 
-        string = "Spreadsheet \n"
+        string = f"{title} \n"
         for array in spreadsheet:
             string += "\n"
             
@@ -653,7 +653,6 @@ class key_controller(tk.Frame):
 
         return isInt
 
-    # TODO-DONE create transfer and transport orders manually as well.
     def create_order(self, order_var, amount_var):
         def callback():
             business = self.get_business()
@@ -762,10 +761,7 @@ class key_controller(tk.Frame):
         display_cont.show_profile(values_dict)
 
 
-
-
 class welcome(tk.Frame):
-
     def __init__(self, parent, controller, root):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -976,8 +972,7 @@ class businessData(tsf.tkscrollframe):
         production = tk.Button(self.frame, text="[c] Crafted", font=BUTTON_FONT, command=lambda: controller.show_production(self.business))
         sales = tk.Button(self.frame, text="[d] Demand", font=BUTTON_FONT, command=lambda: controller.show_sales(self.business))
         employees = tk.Button(self.frame, text="[e] Employees", font=BUTTON_FONT, command=lambda: controller.show_employees(self.business))
-        # TODO-DONE add business prices screen
-        # prices = tk.Button(self.frame, text="[p] Prices", font=BUTTON_FONT, command=lambda: controller.show_prices(self.business))
+        ratios = tk.Button(self.frame, text="[r] Ratios", font=BUTTON_FONT, command=lambda: self.display_ratios())
         new_unit = tk.Button(self.frame, text="[n] New Unit", font=BUTTON_FONT, command=lambda: controller.show_frame("new_unit"))
         self.esc = tk.Button(self.frame, text="[esc] Return to Office", font=BUTTON_FONT, command=lambda: controller.show_frame("main_keyboard"))
 
@@ -986,13 +981,27 @@ class businessData(tsf.tkscrollframe):
         production.pack(fill=tk.X)
         sales.pack(fill=tk.X)
         employees.pack(fill=tk.X)
-        # prices.pack(fill=tk.X)
+        ratios.pack(fill=tk.X)
         new_unit.pack(fill=tk.X)
         self.esc.pack(fill=tk.X)
 
     def setBusiness(self, business):
         self.business = business
         self.busiName.set(business.getName())
+    
+    def display_ratios(self):
+        """Concatenate and display material input ratios as a spreadsheet.
+        [(mat1, amount1), (mat2, amount2)] -> [mat1, amount1, mat2, amount2]"""
+        orig_ratios = d.getAllComponents()
+        display_ratios = []
+        for i, ratio in enumerate(orig_ratios):
+            flat_ratios = []
+            flat_ratios.append(d.getMaterials()[i])
+            for (mat, amount) in ratio:
+                flat_ratios.append(d.getMaterials()[mat])
+                flat_ratios.append(str(amount))
+            display_ratios.append(flat_ratios)
+        self.root.display_cont.display_spreadsheet(display_ratios, "Production Ratios")
 
     def show_splash(self):
         cont = self.controller.get_display_cont()
@@ -1046,7 +1055,7 @@ class businessData(tsf.tkscrollframe):
         self.root.bind("c", lambda x: self.controller.show_production(self.business))
         self.root.bind("d", lambda x: self.controller.show_sales(self.business))
         self.root.bind("e", lambda x: self.controller.show_employees(self.business))
-        # self.root.bind("p", lambda x: self.controller.show_prices(self.business))
+        self.root.bind("r", lambda x: self.display_ratios())
         self.root.bind("n", lambda x: self.controller.show_frame("new_unit"))
         self.root.bind("<Escape>", lambda x: self.controller.show_frame("main_keyboard"))
 
@@ -1143,12 +1152,8 @@ class new_unit(tk.Frame):
                 else:
                     locality.claim_node(location, new_unit)
 
-                # TODO-DONE should go to unit page instead of this debug display.
-                # self.controller.frames["unitData"].unit = new_unit
+                # Go to new unit's screen
                 self.controller.show_frame("unitData", unit=new_unit)
-                # self.unit_name.set(new_unit)
-                # unitData
-                # self.root.event_generate("<<refresh>>", when="tail")
 
 
 # TODO figure out why buttons are pushed to the left side, except in business frame?
