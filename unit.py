@@ -426,6 +426,16 @@ class Unit(object):
     # TODO more debug info- planted and harvested if it has an incubator, expenses for all units.
 
 
+class TownHall(Unit):
+    unitType = "City Hall"
+    zoningType = "t"
+    character = "T"
+
+    def __init__(self, unitName, unitLocality, unitLocationTuple, business):
+        Unit.__init__(self, unitName, unitLocality, unitLocationTuple, business)
+        self.staff = []
+
+
 class Manufactury(Unit):
     unitType = "Manufactury"
     character = "Manu"

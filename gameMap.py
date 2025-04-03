@@ -3,7 +3,11 @@ import random
 
 import numpy as np
 
+import ai
+import business as bus
 import database as d
+import people as p
+import unit as u
 
 
 # world map made up of ALL localities (for particular installation, or otherwise compartmentalize)
@@ -117,9 +121,9 @@ class Locality:
         zmap[center[0]-2: center[0]+3, center[1]-2: center[1]+3] = "b"
         # bmap[center[0]-2: center[0]+3, center[1]-2: center[1]+3] = "b"
         # City hall- central spot
-        zmap[center[0], center[1]] = "c"
+        zmap[center[0], center[1]] = "t"
 
-        # TODO once we add town hall ("c"), make the river go around it if it needs to.
+        # TODO-DONE once we add town hall ("c"), make the river go around it if it needs to.
         # River
         r_direction = (1, 1)
         r_location = (0, random.randint(0, zmap.shape[1] // 2))
@@ -129,12 +133,24 @@ class Locality:
             for x in [-1, 0, 1]:
                 for y in [-1, 0, 1]:
                     if (0 <= r_location[0] + x < zmap.shape[0]) and (0 <= r_location[1] + y < zmap.shape[1]):
-                        if zmap[r_location[0]+x, r_location[1]+y] not in ["r", "c"]:
+                        if zmap[r_location[0]+x, r_location[1]+y] not in ["r", "t"]:
                             zmap[r_location[0] + x, r_location[1] + y] = "m"
                             bmap[r_location[0] + x, r_location[1] + y] = None
             if not random.randint(0, 5):
                 r_direction = random.choice([(1, 0), (1, 1), (0, 1), (1, 1)])
-            r_location = (r_location[0] + r_direction[0], r_location[1] + r_direction[1])
+
+            prop_location = (r_location[0] + r_direction[0], r_location[1] + r_direction[1])
+            # If prop_location is reserved for city hall, we'll just try again next round.
+            if not zmap[prop_location] == "t":
+                r_location = prop_location
+
+    def make_town_hall(self):
+        """Builds town hall in the center of the locality."""
+        mayor = random.choice([p for p in d.getPeople() if not p.businesses and not isinstance(p, ai.Character)])
+        location = self.find_property(zone="t")
+        government = bus.Business(owners=[mayor], name=f"City of {self.name}", busiLocality=self, busiCash=0)
+        town_hall = u.TownHall(unitName=f"{self.name} City Hall", unitLocality=self, unitLocationTuple=location, business=government)
+        self.claim_node(xy=location, entity=town_hall)
 
     def claim_node(self, xy, entity):
         claimed = False

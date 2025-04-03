@@ -82,7 +82,7 @@ class StartupAI(object):
 
         return mu_avg
 
-    # TODO businesses should not build everything
+    # TODO-DONE businesses should not build everything
     def weightedBestPossible(self, possibilities, optimalList):
         """Selects a good business to build, weighted on friends' marginal utility."""
         notDone = True

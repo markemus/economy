@@ -99,7 +99,8 @@ class generator:
         return religionList
 
     # TODO-DONE Stores should be near owner's house?
-    # TODO city hall
+    # TODO-DONE city hall
+    # TODO refactor generation so it's all done in one place. Right now it's split in generator, model, and gameMap.
     def generateWorld(self, p_quantity, w_width, w_height):
         # world
         gennedWorld = g.World(w_width, w_height)
@@ -110,6 +111,7 @@ class generator:
 
         religions = self.generateReligions(gennedLocality)
         self.generatePeople(p_quantity, gennedLocality, religions)
+        gennedLocality.make_town_hall()
 
         return gennedWorld
 
