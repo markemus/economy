@@ -146,7 +146,7 @@ class Job(object):
     def plant(self, productIndex, amount):
         product = d.getMaterials()[productIndex]
 
-        if d.isInSeason(productIndex, self.business.model.calendar.state):
+        if d.isInSeason(productIndex, month=self.business.model.calendar.state):
             components = d.getComponents(productIndex)
             tech = self.unit.getTech(productIndex)
             growing = self.unit.growingPlants(productIndex)

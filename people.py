@@ -47,7 +47,7 @@ class People:
         self.religion = theirReligion
         self.muList = [0 for i in range(len(d.materialsList))]
         self.inventory = [0 for i in range(len(d.materialsList))]
-        # TODO-DONE clear thoughts at the end of every week.
+        # thoughts are cleared at the end of every week.
         self.thoughts = []
         # profiles
         # TODO all profile managers should use a dictionary like knownPeople.

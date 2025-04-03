@@ -17,6 +17,7 @@ from conversation import Convo
 from gui import gui
 from model import Model
 
+
 # main
 model = Model()
 Jonestown = d.getLocality()[0]

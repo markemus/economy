@@ -1,5 +1,6 @@
 from random import shuffle
 
+import clock
 
 # TODO update meat and fruit. Replacement goods for bread.
 # indices
@@ -48,7 +49,7 @@ planted = ["grain", "beer", "meat", "fruit", "lumber"]
 crafted = ["flour", "bread", "chair", "table"]
 
 # planting seasons- only grain for now (which is winter wheat)
-seasons = ["September", "all", "all", "all", "all", "all", "all", "all", "all"]
+seasons = [["September", "October", "April", "May"], "all", "all", "all", "all", "all", "all", "all", "all"]
 
 # name lists
 maleNameList = open("boynames", "r").read().splitlines()
@@ -190,8 +191,23 @@ def is_crafted(materialIndex):
 
     return is_crafted
 
-def isInSeason(materialIndex, season):
-    if (seasons[materialIndex] == "all") or (seasons[materialIndex] == season):
+def isInSeason(materialIndex, month):
+    if (seasons[materialIndex] == "all") or (month in seasons[materialIndex]):
         return True
     else:
         return False
+
+def getPlantingDays(materialIndex):
+    if seasons[materialIndex] == "all":
+        planting_days = 365
+    else:
+        planting_days = 0
+        for month in seasons[materialIndex]:
+            # Special case
+            if month == "January":
+                planting_days += clock.SecularCalendar.daysPerMonth[0]
+            else:
+                month_idx = clock.SecularCalendar.months.index(month)
+                planting_days += clock.SecularCalendar.daysPerMonth[month_idx]
+
+    return planting_days

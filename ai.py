@@ -191,8 +191,8 @@ class Builder(object):
     def giveGrain(self, unit):
         unit.addStock(d.GRAIN_INDEX, 100000)
 
-    # TODO for now, there is no startup cost
-    # TODO city hall, pay for new buildings.
+    # TODO-DONE for now, there is no startup cost
+    # TODO-DONE city hall, pay for new buildings.
     def buildChain(self, business, toBuild):
         locality = business.getLocality()
 
@@ -327,7 +327,7 @@ class ProductionAI(object):
         total_amount = amount * grow_days
         # If there's a planting season for the material, we need a full year's worth.
         if d.seasons[i] != "all":
-            total_amount = amount * 256
+            total_amount = amount * 365
 
         if order.getAmount() < total_amount:
             order.setAmount(total_amount)
@@ -354,9 +354,10 @@ class JobPoster(object):
             tech            = job.unit.getTech(materialIndex)
 
             if d.is_planted(materialIndex):
-                # TODO divide by length of planting season, not grow_days- how?
-                grow_days = job.unit.incubator.getGrowDays(materialIndex)
-                workers = math.ceil(amount / (tech * grow_days))
+                # TODO-DONE divide by length of planting season, not grow_days- how?
+                # grow_days = job.unit.incubator.getGrowDays(materialIndex)
+                planting_days = d.getPlantingDays(materialIndex)
+                workers = math.ceil(amount / (tech * planting_days))
 
             elif d.is_crafted(materialIndex):
                 workers = math.ceil(amount / tech)
