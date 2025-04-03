@@ -185,7 +185,7 @@ class SecularCalendar(Calendar):
     def __init__(self):
         months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
         daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        year = 1000
+        year = 1600
         super().__init__(months, daysPerMonth, "December", year)
 
     def getPlantingDays(self, materialIndex):

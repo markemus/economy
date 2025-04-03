@@ -10,7 +10,7 @@ import math
 # TODO add units- gym, pub, bank, store
 # TODO add advertising with % chance to see for visitors.
 # TODO-DONE slots- maximum number of hires.
-# TODO startup costs.
+# TODO-DONE startup costs.
 # TODO allow player to set prices.
 
 
@@ -451,7 +451,7 @@ class Farm(Manufactury):
     zoningType = "f"
     character = "F"
 
-    # TODO limit jobs to self.slots amount- currently not used
+    # TODO-DONE limit jobs to self.slots amount- currently not used
     def __init__(self, unitName, unitLocality, unitLocationTuple, business):
         Manufactury.__init__(self, unitName, unitLocality, unitLocationTuple, business)
         self.allowed_jobs = [jobs.Farmer]
@@ -531,7 +531,7 @@ class Bakery(Manufactury):
 
 
 # TODO lumberyards should start with trees.
-# TODO units should limit slots for employees.
+# TODO-DONE units should limit slots for employees.
 class Lumberyard(Manufactury):
     unitType = "Lumberyard"
     zoningType = "w"
