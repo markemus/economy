@@ -1,6 +1,6 @@
 import database as d
 import clock
-from transitions import State
+# from transitions import State
 
 
 class Religion:
