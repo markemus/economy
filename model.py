@@ -20,7 +20,7 @@ class Model:
         self.builder        = ai.Builder(self)
         self.salaryPayer    = ai.SalaryPayer(self)
         ourGen              = generator.generator(self)
-        self.ourWorld       = ourGen.generateWorld(1000, 10, 10)
+        self.ourWorld       = ourGen.generateWorld(5000, 10, 10)
         Jonestown           = d.getLocality()[0]
 
         # char

@@ -4,9 +4,9 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['/home/john/dev/python/3.3.2/economy'],
+             pathex=['/home/markemus/dev/economy/economy'],
              binaries=[],
-             datas=[('/home/john/dev/python/3.3.2/economy/boynames', '.'), ('/home/john/dev/python/3.3.2/economy/girlnames', '.'), ('/home/john/dev/python/3.3.2/economy/businessnames', '.'), ('/home/john/dev/python/3.3.2/economy/churchMusic.txt', '.'), ('/home/john/dev/python/3.3.2/economy/lastnames', '.'), ('/home/john/dev/python/3.3.2/economy/images/greenWheat.gif', './images'), ('/home/john/dev/python/3.3.2/economy/images/nightWheat.gif', './images'), ('/home/john/dev/python/3.3.2/economy/images/parchment.gif', './images'), ('/home/john/dev/python/3.3.2/economy/images/jonestown.gif', './images')],
+             datas=[('/home/markemus/dev/economy/boynames', '.'), ('/home/markemus/dev/economy/girlnames', '.'), ('/home/markemus/dev/economy/businessnames', '.'), ('/home/markemus/dev/economy/lastnames', '.'), ('/home/markemus/dev/economy/images/greenWheat.gif', './images'), ('/home/markemus/dev/economy/images/nightWheat.gif', './images'), ('/home/markemus/dev/economy/images/parchment.gif', './images'), ('/home/markemus/dev/economy/images/jonestown.gif', './images')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

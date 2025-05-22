@@ -1,0 +1,10 @@
+('/home/markemus/dev/economy/boynames', '.'), 
+('/home/markemus/dev/economy/girlnames', '.'), 
+('/home/markemus/dev/economy/businessnames', '.'), 
+('/home/markemus/dev/economy/lastnames', '.'), 
+('/home/markemus/dev/economy/images/greenWheat.gif', './images'), 
+('/home/markemus/dev/economy/images/nightWheat.gif', './images'), 
+('/home/markemus/dev/economy/images/parchment.gif', './images'), 
+('/home/markemus/dev/economy/images/jonestown.gif', './images')
+
+pyinstaller --onefile --add-data "/home/markemus/dev/economy/boynames:." --add-data "/home/markemus/dev/economy/girlnames:." --add-data "/home/markemus/dev/economy/businessnames:." --add-data "/home/markemus/dev/economy/lastnames:." --add-data "/home/markemus/dev/economy/images/greenWheat.gif:./images" --add-data "/home/markemus/dev/economy/images/nightWheat.gif:./images" --add-data "/home/markemus/dev/economy/images/parchment.gif:./images" --add-data "/home/markemus/dev/economy/images/jonestown.gif:./images" main.py
